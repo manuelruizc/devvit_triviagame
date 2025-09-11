@@ -1,83 +1,75 @@
 import React, { useState } from 'react';
 import Questions from './Questions';
 import QuestionSelectorTopbar from './QuestionSelectorTopbar';
-
-export type QuestionLevels = 'easy' | 'medium' | 'hard';
-export interface Question {
-  level: QuestionLevels;
-  question: string;
-  unlockedClue: string;
-  answers: string[];
-  correctAnswer: string;
-}
-
-export interface DailyTrivia {
-  questions: Question[];
-  mainQuestion: string;
-  mainAnswer: string;
-  answerLength: number;
-}
+import { DailyTrivia, TriviaProvider, useTrivia } from './context';
+import clsx from 'clsx';
 
 const TRIVIA: DailyTrivia = {
-  mainQuestion:
-    'Grandpa remembers a tall structure connected to a world fair, but he just can’t recall its name...',
-  mainAnswer: 'Eiffel Tower',
-  answerLength: 12,
+  mainQuestion: 'Based on these clues, what movie are we trying to remember?',
+  mainAnswer: 'Once Upon a Time in Hollywood',
+  answerLength: 'Once Upon a Time in Hollywood'.length, // optional: helps with underscores
   questions: [
     {
       level: 'easy',
-      question: 'Which country is famous for croissants and the city of Paris?',
-      unlockedClue: 'The structure is located in that country.',
-      answers: ['Italy', 'France', 'Germany', 'Spain'],
-      correctAnswer: 'France',
+      question: 'Which actor starred in movies like Fight Club and Troy?',
+      unlockedClue: 'Brad Pitt',
+      answers: ['Brad Pitt', 'Tom Cruise', 'Matt Damon', 'Leonardo DiCaprio'],
+      correctAnswer: 'Brad Pitt',
     },
     {
       level: 'easy',
-      question: "Which European city is nicknamed the 'City of Light'?",
-      unlockedClue: 'The structure is in that city.',
-      answers: ['Rome', 'London', 'Paris', 'Berlin'],
-      correctAnswer: 'Paris',
+      question: 'Which cult classic 1994 movie was directed by Quentin Tarantino?',
+      unlockedClue: 'Pulp Fiction',
+      answers: ['Kill Bill', 'Pulp Fiction', 'Reservoir Dogs', 'Jackie Brown'],
+      correctAnswer: 'Pulp Fiction',
     },
     {
       level: 'medium',
-      question:
-        'This structure was originally criticized but became a symbol of modern engineering. In which century was it built?',
-      unlockedClue: 'It was constructed in the 19th century.',
-      answers: ['17th', '18th', '19th', '20th'],
-      correctAnswer: '19th',
+      question: 'Which film about finance starred Leonardo DiCaprio as Jordan Belfort?',
+      unlockedClue: 'The Wolf of Wall Street',
+      answers: ['The Big Short', 'The Wolf of Wall Street', 'Margin Call', 'American Psycho'],
+      correctAnswer: 'The Wolf of Wall Street',
     },
     {
       level: 'medium',
-      question: 'Which global event in 1889 was the reason for building this structure?',
-      unlockedClue: 'It was created for a world exposition.',
-      answers: ['Olympic Games', 'World Expo', 'French Revolution', 'World Cup'],
-      correctAnswer: 'World Expo',
+      question: "Which U.S. city is the hub of the film industry, often called 'Tinseltown'?",
+      unlockedClue: 'Los Angeles',
+      answers: ['New York', 'Los Angeles', 'Chicago', 'San Francisco'],
+      correctAnswer: 'Los Angeles',
     },
     {
       level: 'hard',
-      question: 'At night, this structure becomes especially famous for what feature?',
-      unlockedClue: 'It’s covered in thousands of sparkling lights.',
-      answers: ['A fireworks show', 'Illuminating lights', 'Projected art', 'A moving beacon'],
-      correctAnswer: 'Illuminating lights',
+      question: "Which actress starred in both 'Barbie' and 'The Wolf of Wall Street'?",
+      unlockedClue: 'Margot Robbie',
+      answers: ['Jennifer Lawrence', 'Margot Robbie', 'Emma Stone', 'Scarlett Johansson'],
+      correctAnswer: 'Margot Robbie',
     },
   ],
 };
 
 const Ingame = () => {
-  const { mainQuestion, questions } = TRIVIA;
-  const [questionIndex, setQuestionIndex] = useState<number>(0);
   return (
-    <div className="w-full flex-1 flex">
-      <div className="w-full flex flex-col justify-start items-center">
-        <span className="w-max[90%] text-center">{mainQuestion}</span>
-        <QuestionSelectorTopbar
-          questionIndex={questionIndex}
-          questions={questions}
-          selectQuestionIndex={(index) => setQuestionIndex(index)}
-        />
-        <Questions question={questions[questionIndex]} />
+    <TriviaProvider trivia={TRIVIA}>
+      <div className="w-full flex-1 flex">
+        <div className="w-full flex flex-col justify-start items-center">
+          <QuestionSelectorTopbar />
+          <Questions />
+        </div>
+        <Curtain />
       </div>
-    </div>
+    </TriviaProvider>
+  );
+};
+
+const Curtain = () => {
+  const { gameStatus } = useTrivia();
+  return (
+    <div
+      className={clsx(
+        'absolute top-0 left-0 w-full h-full bg-black pointer-events-none transition-all duration-300 ease-in-out',
+        gameStatus !== 'between' && 'opacity-0'
+      )}
+    ></div>
   );
 };
 
