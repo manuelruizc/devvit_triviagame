@@ -30,19 +30,21 @@ interface TriviaContextProps {
   points: number;
   gameStatus: GameStatus;
   currentQuestionIndex: number;
+  userAnswers: string[];
   startTimer: (status: GameStatus) => void;
   stopTimer: (status: GameStatus) => void;
   addPoints: (timeLeft: number, questionType: 'main-guess' | 'trivia') => void;
   nextQuestion: (currentStatus: GameStatus) => void;
   resetGame: (nextStatus: GameStatus) => void;
   handleQuestionAnswer: (question: Question, answer: string) => void;
+  handleMainGuessAnswer: (guess: string, answer: string) => boolean;
 }
 
-const TIME_PER_QUESTION = 10;
-const TIME_FOR_MAIN_GUESS = 2;
+const TIME_PER_QUESTION = 15;
+const TIME_FOR_MAIN_GUESS = 60;
 const POINTS_MAIN_GUESS = 500;
 const POINTS_CLUE_GUESS = 50;
-const BONUS_SECONDS_MAIN_GUESS = 20;
+const BONUS_SECONDS_MAIN_GUESS = 5;
 const BONUS_SECONDS_CLUE_GUESS = 10;
 
 export type GameStatus =
@@ -50,7 +52,8 @@ export type GameStatus =
   | 'trivia'
   | 'between' // answering trivia clues
   | 'main-guess' // guessing the final answer
-  | 'finished'; // game over
+  | 'finished-main-guess-correct' // game over
+  | 'finished-run-out-of-time'; // game over
 
 const TriviaContext = createContext<TriviaContextProps | undefined>(undefined);
 
@@ -88,6 +91,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [, setPreviousQuestion] = useState<Question | null>(null);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const secondsRef = useRef(TIME_PER_QUESTION);
@@ -100,7 +104,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
       setTime(formatTime(secondsRef.current));
       if (secondsRef.current === 0) {
         if (status === 'main-guess') {
-          stopTimer('finished');
+          stopTimer('finished-run-out-of-time');
         } else {
           nextQuestion('between');
         }
@@ -130,18 +134,13 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     let nextGameStatus: GameStatus = 'trivia';
     if (nextIndex < 0 || nextIndex >= trivia.questions.length) {
       if (currentStatus === 'main-guess') {
-        nextGameStatus = 'finished';
+        nextGameStatus = 'main-guess';
       } else {
         nextGameStatus = 'main-guess';
       }
       setPreviousQuestion(null);
     } else {
       setPreviousQuestion(getQuestionSafely(trivia.questions, nextIndex));
-    }
-    if (nextGameStatus === 'finished') {
-      setGameStatus('finished');
-      resetGame('finished');
-      return;
     }
     setCurrentQuestionIndex(nextIndex);
     const nextTimeBase = nextGameStatus === 'trivia' ? TIME_PER_QUESTION : TIME_FOR_MAIN_GUESS;
@@ -156,7 +155,19 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     nextQuestion(currentStatus);
   };
 
+  const handleMainGuessAnswer = (guess: string, answer: string): boolean => {
+    const isCorrect = guess.toLowerCase() === answer.toLowerCase();
+    if (isCorrect) {
+      stopTimer('finished-main-guess-correct');
+      addPoints(secondsRef.current, 'main-guess');
+      return true;
+    }
+
+    return false;
+  };
+
   const handleQuestionAnswer = (question: Question, answer: string) => {
+    setUserAnswers((prev) => [...prev, answer]);
     const questionType: GameStatus = gameStatus;
     stopTimer('between');
     const isCorrect = question.correctAnswer === answer;
@@ -190,6 +201,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         time,
         points,
         gameStatus,
+        userAnswers,
         currentQuestionIndex,
         startTimer,
         stopTimer,
@@ -197,6 +209,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         nextQuestion,
         resetGame,
         handleQuestionAnswer,
+        handleMainGuessAnswer,
       }}
     >
       {children}

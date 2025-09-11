@@ -30,11 +30,20 @@ const Questions = () => {
 const MainGuess = () => {
   const {
     trivia: { mainAnswer, mainQuestion },
+    handleMainGuessAnswer,
   } = useTrivia();
   const [showLength, setShowLength] = useState<boolean>(false);
   const [userGuess, setUserGuess] = useState<string[]>([]);
   const [userGuessWhenClueIsEnabled, setUserGuessWhenClueIsEnabled] = useState<string[]>([]);
   const [lastKeyPressed, setLastKeyPressed] = useState<any>('');
+  const [wrongGuess, setWrongGuess] = useState<boolean>(false);
+
+  const handleWrongMainGuessAnswer = useCallback(() => {
+    setWrongGuess(true);
+    setTimeout(() => {
+      setWrongGuess(false);
+    }, 300);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -73,9 +82,11 @@ const MainGuess = () => {
         setLastKeyPressed(e.key);
       } else if (e.key === 'Enter') {
         if (showLength) {
-          setUserGuessWhenClueIsEnabled((prev) => [...prev, '=>']);
+          setLastKeyPressed(e.key);
+          return;
         } else {
-          setUserGuess((prev) => [...prev, '=>']);
+          const isCorrect = handleMainGuessAnswer(userGuess.join(''), mainAnswer);
+          if (!isCorrect) handleWrongMainGuessAnswer();
         }
         setLastKeyPressed(e.key);
       }
@@ -119,6 +130,16 @@ const MainGuess = () => {
     return arr;
   }, [userGuess, showLength, userGuessWhenClueIsEnabled]);
 
+  useEffect(() => {
+    if (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) {
+      const isCorrect = handleMainGuessAnswer(
+        userGuessWhenClueIsEnabled.join(''),
+        mainAnswer.toLocaleLowerCase()
+      );
+      if (!isCorrect) handleWrongMainGuessAnswer();
+    }
+  }, [userGuessWhenClueIsEnabled, userGuess]);
+
   return (
     <>
       <div className="w-full flex flex-col justify-start items-center">
@@ -146,6 +167,7 @@ const MainGuess = () => {
                           key={`${letter}-${absoluteIndex}`}
                           letter={letter === '~' ? '~' : letter}
                           activeBorder={onLengthClueIndex === absoluteIndex}
+                          wrongGuess={wrongGuess}
                         />
                       );
                     })}
@@ -162,6 +184,7 @@ const MainGuess = () => {
                   key={`space-${wordIdx}`}
                   letter=" "
                   activeBorder={onLengthClueIndex === absoluteIndex}
+                  wrongGuess={wrongGuess}
                 />
               );
             });
@@ -172,7 +195,15 @@ const MainGuess = () => {
   );
 };
 
-const LetterBlock = ({ letter, activeBorder }: { letter: string; activeBorder: boolean }) => {
+const LetterBlock = ({
+  letter,
+  activeBorder,
+  wrongGuess,
+}: {
+  letter: string;
+  activeBorder: boolean;
+  wrongGuess: boolean;
+}) => {
   if (letter === '~')
     return (
       <div
@@ -193,8 +224,9 @@ const LetterBlock = ({ letter, activeBorder }: { letter: string; activeBorder: b
   return (
     <div
       className={clsx(
-        'w-6 h-6 flex justify-center items-center mx-1 my-1 bg-blue-500 text-white',
-        activeBorder && 'border'
+        'w-6 h-6 flex justify-center items-center mx-1 my-1 bg-blue-500 text-white transition-all duration-300 ease-in-out',
+        activeBorder && 'border',
+        wrongGuess && 'bg-red-500'
       )}
     >
       {letter}

@@ -61,14 +61,24 @@ const Ingame = () => {
 };
 
 const Curtain = () => {
-  const { gameStatus } = useTrivia();
+  const { gameStatus, points } = useTrivia();
   return (
     <div
       className={clsx(
-        'absolute top-0 left-0 w-full h-full bg-black pointer-events-none transition-all duration-300 ease-in-out',
-        gameStatus !== 'between' && 'opacity-0'
+        'absolute top-0 left-0 w-full h-full pointer-events-none transition-all duration-300 ease-in-out flex justify-center items-center',
+        gameStatus !== 'between' &&
+          gameStatus !== 'finished-main-guess-correct' &&
+          gameStatus !== 'finished-run-out-of-time' &&
+          'opacity-0',
+        gameStatus === 'finished-main-guess-correct'
+          ? 'bg-green-300'
+          : gameStatus === 'finished-run-out-of-time'
+            ? 'bg-red-500'
+            : 'bg-black'
       )}
-    ></div>
+    >
+      <span className="text-2xl">{points}</span>
+    </div>
   );
 };
 
