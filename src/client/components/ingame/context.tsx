@@ -82,12 +82,12 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   children,
   trivia: _trivia,
 }) => {
-  const [trivia, setTrivia] = useState<DailyTrivia>(_trivia);
+  const [trivia] = useState<DailyTrivia>(_trivia);
   const [time, setTime] = useState(formatTime(TIME_PER_QUESTION));
   const [points, setPoints] = useState(0);
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [prevQuestion, setPreviousQuestion] = useState<Question | null>(null);
+  const [, setPreviousQuestion] = useState<Question | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const secondsRef = useRef(TIME_PER_QUESTION);

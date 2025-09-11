@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTrivia } from './context';
 import clsx from 'clsx';
 
@@ -35,7 +35,6 @@ const MainGuess = () => {
   const [userGuess, setUserGuess] = useState<string[]>([]);
   const [userGuessWhenClueIsEnabled, setUserGuessWhenClueIsEnabled] = useState<string[]>([]);
   const [lastKeyPressed, setLastKeyPressed] = useState<any>('');
-  const [withClueIndex, setWithClueIndex] = useState<number>(0);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
