@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTrivia } from './context';
 import clsx from 'clsx';
 
@@ -27,6 +27,18 @@ const Questions = () => {
   );
 };
 
+function getRandomFromSet(set: Set<number>, k: number): number[] {
+  const arr = Array.from(set); // convert Set to Array
+  const result = new Set<number>();
+
+  while (result.size < k && result.size < arr.length) {
+    const randIndex = Math.floor(Math.random() * arr.length);
+    result.add(Number(arr[randIndex]));
+  }
+
+  return Array.from(result);
+}
+
 const MainGuess = () => {
   const {
     trivia: { mainAnswer, mainQuestion },
@@ -37,12 +49,62 @@ const MainGuess = () => {
   const [userGuessWhenClueIsEnabled, setUserGuessWhenClueIsEnabled] = useState<string[]>([]);
   const [lastKeyPressed, setLastKeyPressed] = useState<any>('');
   const [wrongGuess, setWrongGuess] = useState<boolean>(false);
+  const [usingOneLetterClue, setUsingOneLetterClue] = useState<boolean>(false);
+  const [usingThreeLetterClue, setUsingThreeLetterClue] = useState<
+    'enabled' | 'not-available' | 'unabled'
+  >(mainAnswer.length <= 4 ? 'not-available' : 'unabled');
+  const letterCluesAvailableSlots = useRef<Set<number>>(new Set());
+  const revealedLetterIndexes = useRef<Set<number>>(new Set());
 
   const handleWrongMainGuessAnswer = useCallback(() => {
     setWrongGuess(true);
     setTimeout(() => {
       setWrongGuess(false);
     }, 300);
+  }, []);
+
+  const revealOneLetter = useCallback(() => {
+    setUsingOneLetterClue(true);
+    const items = Array.from(letterCluesAvailableSlots.current); // convert Set to Array
+    const randomIndex = Math.floor(Math.random() * items.length);
+    const key = items[randomIndex] || 0;
+    // const key = 10;
+    revealedLetterIndexes.current.add(key);
+    letterCluesAvailableSlots.current.delete(key);
+    if (key === 0) {
+      setUserGuessWhenClueIsEnabled([mainAnswer.charAt(0)]);
+    }
+    setUserGuess((prev) => {
+      prev[key] = mainAnswer.charAt(key);
+      return [...prev];
+    });
+  }, [mainAnswer]);
+
+  const revealRandomLetters = useCallback(() => {
+    setUsingThreeLetterClue('enabled');
+    const randomIndexes = getRandomFromSet(letterCluesAvailableSlots.current, 3);
+
+    for (const index of randomIndexes) {
+      revealedLetterIndexes.current.add(index);
+      letterCluesAvailableSlots.current.delete(index);
+      if (index === 0) {
+        setUserGuessWhenClueIsEnabled([mainAnswer.charAt(0)]);
+      }
+    }
+    setUserGuess((prev) => {
+      for (const index of randomIndexes) {
+        prev[index] = mainAnswer.charAt(index);
+      }
+      return [...prev];
+    });
+  }, []);
+
+  useEffect(() => {
+    for (let i = 0; i < mainAnswer.length; i++) {
+      const c = mainAnswer.charAt(i);
+      if (c === ' ') continue;
+      letterCluesAvailableSlots.current.add(i);
+    }
   }, []);
 
   useEffect(() => {
@@ -52,13 +114,46 @@ const MainGuess = () => {
         if (showLength) {
           if (e.key !== ' ') {
             setUserGuessWhenClueIsEnabled((prev) => {
-              const arr = [...prev, e.key];
+              let arr = [...prev, e.key];
               const nextIndex = arr.length;
               if (nextIndex > userGuess.length) return prev;
-              if (nextIndex === userGuess.length) return [...prev, e.key];
-              if (userGuess[nextIndex - 1] === ' ') return [...prev, ' ', e.key];
-              if (userGuess[nextIndex] === ' ') return [...prev, e.key, ' '];
-              return [...prev, e.key];
+              if (nextIndex === userGuess.length) return [...arr];
+              if (userGuess[nextIndex - 1] === ' ') {
+                let temp = [...prev, ' ', e.key];
+                while (
+                  temp.length < userGuess.length &&
+                  (revealedLetterIndexes.current.has(temp.length) ||
+                    mainAnswer.charAt(temp.length) === ' ')
+                ) {
+                  const index = temp.length;
+                  temp.push(mainAnswer.charAt(index));
+                }
+                return [...temp];
+              }
+              if (userGuess[nextIndex] === ' ') {
+                let temp = [...prev, e.key, ' '];
+                while (
+                  temp.length < userGuess.length &&
+                  (revealedLetterIndexes.current.has(temp.length) ||
+                    mainAnswer.charAt(temp.length) === ' ')
+                ) {
+                  const index = temp.length;
+                  temp.push(mainAnswer.charAt(index));
+                }
+                return [...temp];
+              }
+
+              let temp = [...prev, e.key];
+              while (
+                temp.length < userGuess.length &&
+                (revealedLetterIndexes.current.has(temp.length) ||
+                  mainAnswer.charAt(temp.length) === ' ')
+              ) {
+                const index = temp.length;
+                temp.push(mainAnswer.charAt(index));
+              }
+
+              return [...temp];
             });
           }
         } else {
@@ -68,14 +163,29 @@ const MainGuess = () => {
       } else if (e.key === 'Backspace') {
         if (showLength) {
           setUserGuessWhenClueIsEnabled((prev) => {
-            const currentOnSpace = userGuess[userGuess.length - 1] === ' ';
-            if (currentOnSpace) return [...prev.slice(0, -2)];
+            const isFirst = prev.length === 1;
+            if (isFirst && revealedLetterIndexes.current.has(0)) return prev;
             const len = prev.length;
-            if (len >= 0 && userGuess[len - 1] === ' ') return [...prev.slice(0, -2)];
-            return [...prev.slice(0, -1)];
-            // if (userGuess[arr.length - 1] === ' ') return [...arr.slice(0, -1)];
-            // return [...arr];
+
+            // no space behind
+            let temp = [...prev.slice(0, -1)];
+            console.log({
+              len,
+              arr: userGuess[temp.length],
+              ss: userGuess,
+              mainAnswer,
+              second: true,
+              set: revealedLetterIndexes.current,
+            });
+            while (
+              temp.length > 0 &&
+              (revealedLetterIndexes.current.has(temp.length) || userGuess[temp.length] === ' ')
+            ) {
+              temp.pop();
+            }
+            return [...temp];
           });
+          // end of showLegnth lol
         } else {
           setUserGuess((prev) => [...prev.slice(0, -1)]);
         }
@@ -143,6 +253,16 @@ const MainGuess = () => {
   return (
     <>
       <div className="w-full flex flex-col justify-start items-center">
+        {showLength && (
+          <>
+            <button disabled={usingOneLetterClue} onClick={revealOneLetter}>
+              Reveal one letter
+            </button>
+            <button disabled={usingOneLetterClue} onClick={revealRandomLetters}>
+              Reveal Many letter
+            </button>
+          </>
+        )}
         <span>Main Guess: {mainQuestion}</span>
         {showLength ? (
           mainAnswer.length
@@ -152,7 +272,7 @@ const MainGuess = () => {
 
         <div className="w-full flex justify-center items-center bg-sky-400 flex-wrap">
           {(() => {
-            let runningIndex = 0; // keeps absolute position across blocks
+            let runningIndex = 0;
 
             return userGuessArray.map((word, wordIdx) => {
               if (word !== ' ') {
@@ -168,14 +288,13 @@ const MainGuess = () => {
                           letter={letter === '~' ? '~' : letter}
                           activeBorder={onLengthClueIndex === absoluteIndex}
                           wrongGuess={wrongGuess}
+                          isRevealed={revealedLetterIndexes.current.has(absoluteIndex)}
                         />
                       );
                     })}
                   </div>
                 );
               }
-
-              // Handle space as a block
               const absoluteIndex = runningIndex;
               runningIndex++;
 
@@ -185,6 +304,7 @@ const MainGuess = () => {
                   letter=" "
                   activeBorder={onLengthClueIndex === absoluteIndex}
                   wrongGuess={wrongGuess}
+                  isRevealed={false}
                 />
               );
             });
@@ -199,17 +319,20 @@ const LetterBlock = ({
   letter,
   activeBorder,
   wrongGuess,
+  isRevealed,
 }: {
   letter: string;
   activeBorder: boolean;
   wrongGuess: boolean;
+  isRevealed: boolean;
 }) => {
   if (letter === '~')
     return (
       <div
         className={clsx(
           'w-6 h-6 flex justify-center items-center mx-1 my-2 bg-blue-500 text-white',
-          activeBorder && 'border'
+          activeBorder && 'border',
+          isRevealed && 'bg-green-400'
         )}
       />
     );
@@ -217,7 +340,8 @@ const LetterBlock = ({
     return (
       <div
         className={clsx(
-          'w-6 h-6 flex justify-center items-center mx-1 my-2 bg-transparent text-white'
+          'w-6 h-6 flex justify-center items-center mx-1 my-2 bg-transparent text-white',
+          isRevealed && 'bg-green-400'
         )}
       />
     );
@@ -226,10 +350,11 @@ const LetterBlock = ({
       className={clsx(
         'w-6 h-6 flex justify-center items-center mx-1 my-1 bg-blue-500 text-white transition-all duration-300 ease-in-out',
         activeBorder && 'border',
-        wrongGuess && 'bg-red-500'
+        wrongGuess && 'bg-red-500',
+        isRevealed && 'bg-green-400'
       )}
     >
-      {letter}
+      {letter.toUpperCase()}
     </div>
   );
 };
