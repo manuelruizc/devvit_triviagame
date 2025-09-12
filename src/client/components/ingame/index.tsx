@@ -2,7 +2,6 @@ import Questions from './Questions';
 import QuestionSelectorTopbar from './QuestionSelectorTopbar';
 import { DailyTrivia, TriviaProvider, useTrivia } from './context';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -65,7 +64,6 @@ const Curtain = () => {
   const {
     gameStatus,
     points,
-    userAnswers,
     trivia: { questions },
     triviaHistory,
     correctAnswersCount,

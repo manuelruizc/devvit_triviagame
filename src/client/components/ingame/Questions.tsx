@@ -2,6 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTrivia } from './context';
 import clsx from 'clsx';
 
+function shuffleArray(arr: any[]) {
+  const array = [...arr]; // copy array to avoid mutating original
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+    [array[i], array[j]] = [array[j], array[i]]; // swap
+  }
+  return array;
+}
+
 const Questions = () => {
   const {
     currentQuestionIndex,
@@ -10,11 +19,16 @@ const Questions = () => {
     gameStatus,
   } = useTrivia();
   const question = questions[currentQuestionIndex];
-  if (!question || gameStatus === 'main-guess') return <MainGuess />;
+  const randomlySortedAnswers = useMemo(() => {
+    if (!question) return null;
+    const arr = shuffleArray(question.answers);
+    return arr;
+  }, [question]);
+  if (!question || !randomlySortedAnswers || gameStatus === 'main-guess') return <MainGuess />;
   return (
     <div className="w-full flex flex-col justify-start items-center">
       <span>{question.question}</span>
-      {question.answers.map((answer) => (
+      {randomlySortedAnswers.map((answer) => (
         <button
           onClick={() => handleQuestionAnswer(question, answer)}
           key={answer}
