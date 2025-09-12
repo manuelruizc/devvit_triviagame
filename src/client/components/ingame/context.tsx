@@ -9,6 +9,14 @@ import React, {
 } from 'react';
 
 export type QuestionLevels = 'easy' | 'medium' | 'hard';
+
+type TriviaHistory = {
+  answer: string | null;
+  isCorrect: boolean;
+  time: number;
+  points: number;
+  type: 'main-guess' | 'trivia';
+};
 export interface Question {
   level: QuestionLevels;
   question: string;
@@ -30,7 +38,9 @@ interface TriviaContextProps {
   points: number;
   gameStatus: GameStatus;
   currentQuestionIndex: number;
-  userAnswers: string[];
+  userAnswers: (string | null)[];
+  correctAnswersCount: number;
+  triviaHistory: TriviaHistory[];
   startTimer: (status: GameStatus) => void;
   stopTimer: (status: GameStatus) => void;
   addPoints: (timeLeft: number, questionType: 'main-guess' | 'trivia') => void;
@@ -91,10 +101,15 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [, setPreviousQuestion] = useState<Question | null>(null);
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
+  const [triviaHistory, setTriviaHistory] = useState<TriviaHistory[]>([]);
+  const [userAnswers, setUserAnswers] = useState<(string | null)[]>(
+    new Array(_trivia.questions.length).fill(null)
+  );
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const secondsRef = useRef(TIME_PER_QUESTION);
+  const currentQuestionIndexRef = useRef<number>(0);
 
   const startTimer = useCallback((status: GameStatus) => {
     if (timerRef.current) return;
@@ -106,7 +121,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         if (status === 'main-guess') {
           stopTimer('finished-run-out-of-time');
         } else {
-          nextQuestion('between');
+          handleWrongAnswer('trivia', null);
         }
       }
     }, 1000);
@@ -126,11 +141,13 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     let currentPoints = isMainGuess ? POINTS_MAIN_GUESS : POINTS_CLUE_GUESS;
     currentPoints +=
       secondsLeft * (isMainGuess ? BONUS_SECONDS_MAIN_GUESS : BONUS_SECONDS_CLUE_GUESS);
-    setPoints((prevPoints) => prevPoints + currentPoints);
+    const _points = points + currentPoints;
+    setPoints((prevPoints) => prevPoints + _points);
+    return _points;
   };
 
   const nextQuestion = (currentStatus: GameStatus) => {
-    let nextIndex = currentQuestionIndex + 1;
+    let nextIndex = currentQuestionIndexRef.current + 1;
     let nextGameStatus: GameStatus = 'trivia';
     if (nextIndex < 0 || nextIndex >= trivia.questions.length) {
       if (currentStatus === 'main-guess') {
@@ -143,6 +160,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
       setPreviousQuestion(getQuestionSafely(trivia.questions, nextIndex));
     }
     setCurrentQuestionIndex(nextIndex);
+    currentQuestionIndexRef.current = nextIndex;
     const nextTimeBase = nextGameStatus === 'trivia' ? TIME_PER_QUESTION : TIME_FOR_MAIN_GUESS;
     setTime(formatTime(nextTimeBase));
     secondsRef.current = nextTimeBase;
@@ -151,7 +169,22 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     }, 400);
   };
 
-  const handleWrongAnswer = (currentStatus: GameStatus) => {
+  const handleWrongAnswer = (
+    currentStatus: GameStatus,
+    answer: string | null,
+    time: number = -1
+  ) => {
+    setTriviaHistory((prev) => {
+      prev.push({
+        type: 'trivia',
+        answer,
+        points: 0,
+        time,
+        isCorrect: false,
+      });
+      return [...prev];
+    });
+    stopTimer('between');
     nextQuestion(currentStatus);
   };
 
@@ -159,23 +192,60 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     const isCorrect = guess.toLowerCase() === answer.toLowerCase();
     if (isCorrect) {
       stopTimer('finished-main-guess-correct');
-      addPoints(secondsRef.current, 'main-guess');
+      const _pointsTotal = addPoints(secondsRef.current, 'main-guess');
+      setTriviaHistory((prev) => {
+        prev.push({
+          answer,
+          points: _pointsTotal,
+          time: secondsRef.current,
+          isCorrect,
+          type: 'main-guess',
+        });
+        return [...prev];
+      });
+      setCorrectAnswersCount((prev) => prev + 1);
       return true;
     }
-
+    setTriviaHistory((prev) => {
+      prev.push({
+        answer,
+        points: 0,
+        time: -1,
+        isCorrect: false,
+        type: 'main-guess',
+      });
+      return [...prev];
+    });
     return false;
   };
 
   const handleQuestionAnswer = (question: Question, answer: string) => {
-    setUserAnswers((prev) => [...prev, answer]);
+    setUserAnswers((prev) => {
+      prev[currentQuestionIndex] = answer;
+      return [...prev];
+    });
     const questionType: GameStatus = gameStatus;
     stopTimer('between');
     const isCorrect = question.correctAnswer === answer;
     if (isCorrect) {
-      addPoints(secondsRef.current, questionType === 'main-guess' ? 'main-guess' : 'trivia');
+      setCorrectAnswersCount((prev) => prev + 1);
+      const questionPoints = addPoints(
+        secondsRef.current,
+        questionType === 'main-guess' ? 'main-guess' : 'trivia'
+      );
+      setTriviaHistory((prev) => {
+        prev.push({
+          type: 'trivia',
+          answer: answer,
+          points: questionPoints,
+          time: secondsRef.current,
+          isCorrect: true,
+        });
+        return [...prev];
+      });
       nextQuestion(questionType);
     } else {
-      handleWrongAnswer(questionType);
+      handleWrongAnswer(questionType, answer, secondsRef.current);
     }
   };
 
@@ -185,6 +255,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     setTime(formatTime(TIME_PER_QUESTION));
     secondsRef.current = TIME_PER_QUESTION;
     setCurrentQuestionIndex(0);
+    currentQuestionIndexRef.current = 0;
   };
 
   // Clean up on unmount
@@ -203,6 +274,8 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         gameStatus,
         userAnswers,
         currentQuestionIndex,
+        correctAnswersCount,
+        triviaHistory,
         startTimer,
         stopTimer,
         addPoints,
