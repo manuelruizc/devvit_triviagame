@@ -13,6 +13,9 @@
     "dir": "dist/server",
     "entry": "index.cjs"
   },
+  "reddit": {
+    "asUser": ["SUBMIT_POST", "SUBMIT_COMMENT", "SUBSCRIBE_TO_SUBREDDIT"]
+  },
   "media": {},
   "menu": {
     "items": [
