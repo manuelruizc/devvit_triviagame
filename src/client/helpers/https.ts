@@ -1,4 +1,11 @@
-export const POST_REQUEST = async (endpoint: string, body: Record<string, any>) => {
+export type APIResponse<T> = T & {
+  error: boolean;
+};
+
+export const POST_REQUEST = async <T>(
+  endpoint: string,
+  body: Record<string, any>
+): Promise<APIResponse<T>> => {
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
@@ -11,19 +18,26 @@ export const POST_REQUEST = async (endpoint: string, body: Record<string, any>) 
   } catch (err) {
     return {
       error: true,
-    };
+    } as APIResponse<T>;
   }
 };
 
-export const GET_REQUEST = async (endpoint: string, member: string) => {
+export const GET_REQUEST = async <T>(
+  endpoint: string,
+  member?: string
+): Promise<APIResponse<T>> => {
   try {
-    const res = await fetch(`${endpoint}/${member}`);
+    let finalEndPoint = endpoint;
+    if (member && member.length > 0) {
+      finalEndPoint += '/' + member;
+    }
+    const res = await fetch(finalEndPoint);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data: any = await res.json();
     return { ...data, error: false };
   } catch (err) {
     return {
       error: true,
-    };
+    } as APIResponse<T>;
   }
 };

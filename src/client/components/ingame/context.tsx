@@ -7,6 +7,9 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
+import { useAppState } from '../../hooks/useAppState';
+import useLeaderboard from '../../hooks/useLeaderboard';
+import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 
 export type QuestionLevels = 'easy' | 'medium' | 'hard';
 
@@ -95,6 +98,8 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   children,
   trivia: _trivia,
 }) => {
+  const { data, isReady } = useAppState();
+  const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
   const [time, setTime] = useState(formatTime(TIME_PER_QUESTION));
   const [points, setPoints] = useState(0);
@@ -106,10 +111,20 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>(
     new Array(_trivia.questions.length).fill(null)
   );
-
+  const [streak, setStreak] = useState<number>(0);
+  const totalTime = useRef<number>(0);
+  const longestStreak = useRef<number>(0);
+  const questionsAnswered = useRef<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const secondsRef = useRef(TIME_PER_QUESTION);
   const currentQuestionIndexRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isReady) return;
+    if (!data || !data.metrics) return;
+    setStreak(data.metrics.currentStreak);
+    longestStreak.current = data.metrics.longestStreak;
+  }, [data, isReady]);
 
   const startTimer = useCallback((status: GameStatus) => {
     if (timerRef.current) return;
@@ -142,7 +157,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     currentPoints +=
       secondsLeft * (isMainGuess ? BONUS_SECONDS_MAIN_GUESS : BONUS_SECONDS_CLUE_GUESS);
     const _points = points + currentPoints;
-    setPoints((prevPoints) => prevPoints + _points);
+    setPoints(_points);
     return _points;
   };
 
@@ -174,6 +189,12 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     answer: string | null,
     time: number = -1
   ) => {
+    questionsAnswered.current++;
+    if (streak > longestStreak.current) {
+      longestStreak.current = streak;
+    }
+    setStreak(0);
+    totalTime.current += TIME_PER_QUESTION - time;
     setTriviaHistory((prev) => {
       prev.push({
         type: 'trivia',
@@ -228,11 +249,14 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     stopTimer('between');
     const isCorrect = question.correctAnswer === answer;
     if (isCorrect) {
+      setStreak((prev) => prev + 1);
       setCorrectAnswersCount((prev) => prev + 1);
       const questionPoints = addPoints(
         secondsRef.current,
         questionType === 'main-guess' ? 'main-guess' : 'trivia'
       );
+      questionsAnswered.current++;
+      totalTime.current += TIME_PER_QUESTION - secondsRef.current;
       setTriviaHistory((prev) => {
         prev.push({
           type: 'trivia',
@@ -257,6 +281,53 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     setCurrentQuestionIndex(0);
     currentQuestionIndexRef.current = 0;
   };
+
+  const handleFinishedGame = useCallback(async () => {
+    try {
+      if (!isReady) return;
+      if (!data || !data.metrics) return;
+      const { metrics } = data;
+      const {
+        totalQuestionsAnswered,
+        correctAnswers,
+        currentStreak,
+        totalPoints,
+        totalTime: _totalTime,
+        fastestDCSession,
+        totalSessions,
+        highestScoreSession,
+        hintsUsed,
+      } = metrics;
+      const obj = { ...data };
+      obj.metrics = {
+        totalPoints: totalPoints + points,
+        correctAnswers: correctAnswers + correctAnswersCount,
+        longestStreak: Math.max(longestStreak.current, streak),
+        currentStreak: streak,
+        totalTime: _totalTime + totalTime.current,
+        fastestDCSession: Math.min(fastestDCSession, totalTime.current),
+        totalSessions: totalSessions + 1,
+        highestScoreSession: Math.max(highestScoreSession, points),
+        hintsUsed: hintsUsed + 1, // TODO
+        totalQuestionsAnswered: totalQuestionsAnswered + questionsAnswered.current,
+      };
+
+      const response = await postScoreToLeaderboard(
+        obj,
+        points,
+        LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP
+      );
+      console.log('response', response);
+    } catch (e) {
+      console.log('error');
+    }
+  }, [data, isReady, points, correctAnswersCount, streak, points]);
+
+  useEffect(() => {
+    if (gameStatus !== 'finished-main-guess-correct' && gameStatus !== 'finished-run-out-of-time')
+      return;
+    handleFinishedGame();
+  }, [gameStatus]);
 
   // Clean up on unmount
   useEffect(() => {

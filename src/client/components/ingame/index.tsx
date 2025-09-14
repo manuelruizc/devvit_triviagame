@@ -1,8 +1,12 @@
-import { DailyTrivia, TriviaProvider, useTrivia } from './context';
-import clsx from 'clsx';
+import { DailyTrivia, TriviaProvider } from './context';
+4;
 import { useAPI } from '../../hooks/useAPI';
 import useLeaderboard from '../../hooks/useLeaderboard';
 import { useState } from 'react';
+import Curtain from './Curtain';
+import QuestionSelectorTopbar from './QuestionSelectorTopbar';
+import Questions from './Questions';
+import { useAppState } from '../../hooks/useAppState';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -49,7 +53,7 @@ const TRIVIA: DailyTrivia = {
 const randomNumber = Math.floor(Math.random() * 11) + 1;
 const Ingame = () => {
   const [rn, setRn] = useState<number>(randomNumber);
-  const { user } = useAPI();
+  const { data } = useAppState();
   const {
     postScoreToFreePlay,
     getAllTimeDailyChallengesLeaderboard,
@@ -59,14 +63,15 @@ const Ingame = () => {
     <TriviaProvider trivia={TRIVIA}>
       <div className="w-full flex-1 flex">
         <div className="w-full flex flex-col justify-center items-center">
-          <span className="text-3xl font-bold">{user.username}</span>
-          <button onClick={() => getAllTimeDailyChallengesLeaderboard(user?.username || '')}>
+          <span className="text-3xl font-bold">{data?.member || 'no member'}</span>
+          <span className="text-xs text-center font-bold">{JSON.stringify(data)}</span>
+          <button onClick={() => getAllTimeDailyChallengesLeaderboard(data?.member || '')}>
             Check All-Time DailyChallenge
           </button>
-          <button onClick={() => getAllTimeFreePlayLeaderboard(user?.username || '')}>
+          <button onClick={() => getAllTimeFreePlayLeaderboard(data?.member || '')}>
             Check All-Time Freeplay
           </button>
-          <button
+          {/* <button
             onClick={() => {
               if (
                 !user ||
@@ -80,45 +85,13 @@ const Ingame = () => {
             }}
           >
             Save to leaderboard: {rn}
-          </button>
-          {/* <QuestionSelectorTopbar />
-          <Questions /> */}
+          </button> */}
+          <QuestionSelectorTopbar />
+          <Questions />
         </div>
         <Curtain />
       </div>
     </TriviaProvider>
-  );
-};
-
-const Curtain = () => {
-  const {
-    gameStatus,
-    points,
-    trivia: {},
-    triviaHistory,
-    correctAnswersCount,
-  } = useTrivia();
-
-  return (
-    <div
-      className={clsx(
-        'absolute top-0 left-0 w-full h-full pointer-events-none transition-all duration-300 ease-in-out flex justify-center items-center',
-        gameStatus !== 'between' &&
-          gameStatus !== 'finished-main-guess-correct' &&
-          gameStatus !== 'finished-run-out-of-time' &&
-          'opacity-0',
-        gameStatus === 'finished-main-guess-correct'
-          ? 'bg-green-300'
-          : gameStatus === 'finished-run-out-of-time'
-            ? 'bg-red-500'
-            : 'bg-black'
-      )}
-    >
-      <span className="text-2xl">{points}</span>
-      <span className="text-2xl">CorrectAnswers{correctAnswersCount}</span>
-      {/* <span className="text-2xl">{JSON.stringify(userAnswers)}</span> */}
-      <span className="text-2xl">{JSON.stringify(triviaHistory)}</span>
-    </div>
   );
 };
 

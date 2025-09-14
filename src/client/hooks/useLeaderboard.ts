@@ -1,49 +1,83 @@
 import { useCallback } from 'react';
 import { GET_REQUEST, POST_REQUEST } from '../helpers/https';
-import { LeaderboardAPI } from '../../shared/types/leaderboard';
+import { LeaderboardAPI, LeaderboardKeyType } from '../../shared/types/leaderboard';
+import { BasicAPI } from '../../shared/types/basic';
 
 interface LeaderboardHook {
   getAllTimeDailyChallengesLeaderboard: (member: string) => void;
   getAllTimeFreePlayLeaderboard: (member: string) => void;
   //   getDailyLeaderboard: (dailyChallengeId: string, member: string) => void;
-  postScoreToDailyChallengeLeaderboard: (member: string, score: number) => void;
-  postScoreToFreePlay: (member: string, score: number) => void;
+  postScoreToLeaderboard: (
+    member: BasicAPI.GetUserBasicData,
+    score: number,
+    key: LeaderboardKeyType
+  ) => void;
+  postScoreToDailyChallengeLeaderboard: (member: BasicAPI.GetUserBasicData, score: number) => void;
+  postScoreToFreePlay: (member: BasicAPI.GetUserBasicData, score: number) => void;
 }
 
 function useLeaderboard(): LeaderboardHook {
-  const postScoreToDailyChallengeLeaderboard = useCallback(
-    async (member: string, score: number) => {
+  const postScoreToLeaderboard = useCallback(
+    async (data: BasicAPI.GetUserBasicData, score: number, key: LeaderboardKeyType) => {
       try {
-        const data = await POST_REQUEST(
-          LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.POST_TO_DAILY_CHALLENGE,
-          { member, score }
+        const res = await POST_REQUEST(
+          LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.POST_TO_LEADERBOARD,
+          { ...data, score, key }
         );
-        console.log(data);
+        return res;
       } catch (e) {
-        return;
+        return {
+          error: true,
+        };
       }
     },
     []
   );
-  const postScoreToFreePlay = useCallback(async (member: string, score: number) => {
-    try {
-      const data = await POST_REQUEST(LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.POST_TO_FREE_PLAY, {
-        member,
-        score,
-      });
-    } catch (e) {
-      return;
-    }
-  }, []);
+  const postScoreToDailyChallengeLeaderboard = useCallback(
+    async (data: BasicAPI.GetUserBasicData, score: number) => {
+      try {
+        const res = await POST_REQUEST(
+          LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.POST_TO_DAILY_CHALLENGE,
+          { ...data, score, key: 'dc' }
+        );
+        return res;
+      } catch (e) {
+        return {
+          error: true,
+        };
+      }
+    },
+    []
+  );
+  const postScoreToFreePlay = useCallback(
+    async (data: BasicAPI.GetUserBasicData, score: number) => {
+      try {
+        const res = await POST_REQUEST(LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.POST_TO_FREE_PLAY, {
+          ...data,
+          score,
+          key: 'fp',
+        });
+        return res;
+      } catch (e) {
+        return {
+          error: true,
+        };
+      }
+    },
+    []
+  );
   const getAllTimeDailyChallengesLeaderboard = useCallback(async (member: string) => {
     try {
       const data = await GET_REQUEST(
         LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_ALL_TIME_DC_LEADERBOARD,
         member
       );
-      console.log('allTimeDCChallenge', data);
+      console.log(data);
+      return data;
     } catch (e) {
-      return;
+      return {
+        error: true,
+      };
     }
   }, []);
   const getAllTimeFreePlayLeaderboard = useCallback(async (member: string) => {
@@ -52,13 +86,17 @@ function useLeaderboard(): LeaderboardHook {
         LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_ALL_TIME_FP_LEADERBOARD,
         member
       );
-      console.log('allTimeFreePlayLeaderboard', data);
+      console.log(data);
+      return data;
     } catch (e) {
-      return;
+      return {
+        error: true,
+      };
     }
   }, []);
 
   return {
+    postScoreToLeaderboard,
     postScoreToDailyChallengeLeaderboard,
     postScoreToFreePlay,
     getAllTimeFreePlayLeaderboard,

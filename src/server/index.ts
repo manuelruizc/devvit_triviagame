@@ -3,6 +3,7 @@ import { InitResponse, AddToLeaderBoardResponse } from '../shared/types/api';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
 import { createPost } from './core/post';
 import leaderboardRoute from './routes/leaderboard';
+import basicRoute from './routes/basic';
 
 const app = express();
 
@@ -170,6 +171,7 @@ router.post('/internal/menu/post-create', async (_req, res): Promise<void> => {
 // Use router middleware
 app.use(router);
 app.use(leaderboardRoute);
+app.use(basicRoute);
 
 // Get port from environment variable with fallback
 const port = getServerPort();

@@ -1,3 +1,5 @@
+export type LeaderboardKeyType =
+  (typeof LeaderboardAPI.LEADERBOARD_NAMES)[keyof typeof LeaderboardAPI.LEADERBOARD_NAMES];
 export namespace LeaderboardAPI {
   //   GetAllTimeDailyChallengesLeaderboardResponse: GetAllTimeDailyChallengesLeaderboard;
   //   GetAllTimeFreePlayLeaderboard: GetAllTimeFreePlayLeaderboard;
@@ -27,6 +29,7 @@ export namespace LeaderboardAPI {
     export const GET_ALL_TIME_FP_LEADERBOARD =
       '/api/leaderboard/get_all_time_free_play_leaderboard';
     export const GET_DAILY_SCOREBOARD = '/api/leaderboard/get_daily_scoreboard';
+    export const POST_TO_LEADERBOARD = '/api/leaderboard/post_to_daily_challenge';
     export const POST_TO_DAILY_CHALLENGE = '/api/leaderboard/post_to_daily_challenge';
     export const POST_TO_FREE_PLAY = '/api/leaderboard/post_to_free_play';
   }
