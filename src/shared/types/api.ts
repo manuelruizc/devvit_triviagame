@@ -1,7 +1,7 @@
 export type InitResponse = {
-  type: 'init';
-  postId: string;
-  count: number;
+  type: 'init' | 'add_to_leaderboard';
+  // postId: string;
+  // count: number;
   username: string;
 };
 
@@ -9,6 +9,14 @@ export type IncrementResponse = {
   type: 'increment';
   postId: string;
   count: number;
+};
+
+export type AddToLeaderBoardResponse = {
+  type: 'add_to_leaderboard';
+  username?: string;
+  score: number;
+  rank: number;
+  leaderboard: any[];
 };
 
 export type DecrementResponse = {
