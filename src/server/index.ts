@@ -1,10 +1,5 @@
 import express from 'express';
-import {
-  InitResponse,
-  IncrementResponse,
-  DecrementResponse,
-  AddToLeaderBoardResponse,
-} from '../shared/types/api';
+import { InitResponse, AddToLeaderBoardResponse } from '../shared/types/api';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
 import { createPost } from './core/post';
 import leaderboardRoute from './routes/leaderboard';
@@ -35,10 +30,7 @@ router.get<{ postId: string }, InitResponse | { status: string; message: string 
     }
 
     try {
-      const [count, username] = await Promise.all([
-        redis.get('count'),
-        reddit.getCurrentUsername(),
-      ]);
+      const [, username] = await Promise.all([redis.get('count'), reddit.getCurrentUsername()]);
 
       res.json({
         type: 'init',

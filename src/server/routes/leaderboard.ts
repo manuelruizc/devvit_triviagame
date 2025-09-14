@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { redis, reddit, context, getServerPort } from '@devvit/web/server';
+import { redis, context } from '@devvit/web/server';
 import { LeaderboardAPI } from '../../shared/types/leaderboard';
 
 const leaderboardRoute = Router();
@@ -58,7 +58,6 @@ leaderboardRoute.post<
       type: LeaderboardAPI.LeaderboardAPIResponseType.POST_SCORE_TO_DC,
     });
   } catch (error) {
-    let errorMessage = 'Unknown error during leadboard registering';
     res.status(400).json({
       status: 'error',
       score: 0,
@@ -123,7 +122,6 @@ leaderboardRoute.post<
       type: LeaderboardAPI.LeaderboardAPIResponseType.POST_SCORE_TO_FP,
     });
   } catch (error) {
-    let errorMessage = 'Unknown error during leadboard registering';
     res.status(400).json({
       status: 'error',
       score: 0,
@@ -186,7 +184,6 @@ leaderboardRoute.get<
         type: LeaderboardAPI.LeaderboardAPIResponseType.GET_ALL_TIME_DC_LEADERBOARD,
       });
     } catch (error) {
-      let errorMessage = 'Unknown error during leadboard registering';
       res.status(400).json({
         status: 'error',
         score: 0,
@@ -250,7 +247,6 @@ leaderboardRoute.get<
         type: LeaderboardAPI.LeaderboardAPIResponseType.GET_ALL_TIME_FP_LEADERBOARD,
       });
     } catch (error) {
-      let errorMessage = 'Unknown error during leadboard registering';
       res.status(400).json({
         status: 'error',
         score: 0,

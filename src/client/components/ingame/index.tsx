@@ -1,7 +1,8 @@
-import Questions from './Questions';
-import QuestionSelectorTopbar from './QuestionSelectorTopbar';
 import { DailyTrivia, TriviaProvider, useTrivia } from './context';
 import clsx from 'clsx';
+import { useAPI } from '../../hooks/useAPI';
+import useLeaderboard from '../../hooks/useLeaderboard';
+import { useState } from 'react';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -45,14 +46,43 @@ const TRIVIA: DailyTrivia = {
     },
   ],
 };
-
+const randomNumber = Math.floor(Math.random() * 11) + 1;
 const Ingame = () => {
+  const [rn, setRn] = useState<number>(randomNumber);
+  const { user } = useAPI();
+  const {
+    postScoreToFreePlay,
+    getAllTimeDailyChallengesLeaderboard,
+    getAllTimeFreePlayLeaderboard,
+  } = useLeaderboard();
   return (
     <TriviaProvider trivia={TRIVIA}>
       <div className="w-full flex-1 flex">
-        <div className="w-full flex flex-col justify-start items-center">
-          <QuestionSelectorTopbar />
-          <Questions />
+        <div className="w-full flex flex-col justify-center items-center">
+          <span className="text-3xl font-bold">{user.username}</span>
+          <button onClick={() => getAllTimeDailyChallengesLeaderboard(user?.username || '')}>
+            Check All-Time DailyChallenge
+          </button>
+          <button onClick={() => getAllTimeFreePlayLeaderboard(user?.username || '')}>
+            Check All-Time Freeplay
+          </button>
+          <button
+            onClick={() => {
+              if (
+                !user ||
+                !user.username ||
+                user.username.length === 0 ||
+                user.username === 'anonymous'
+              )
+                return;
+              postScoreToFreePlay(user.username, rn);
+              setRn(Math.floor(Math.random() * 11) + 1);
+            }}
+          >
+            Save to leaderboard: {rn}
+          </button>
+          {/* <QuestionSelectorTopbar />
+          <Questions /> */}
         </div>
         <Curtain />
       </div>
@@ -64,7 +94,7 @@ const Curtain = () => {
   const {
     gameStatus,
     points,
-    trivia: { questions },
+    trivia: {},
     triviaHistory,
     correctAnswersCount,
   } = useTrivia();
