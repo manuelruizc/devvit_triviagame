@@ -7,9 +7,9 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-import { useAppState } from '../../hooks/useAppState';
-import useLeaderboard from '../../hooks/useLeaderboard';
-import { LeaderboardAPI } from '../../../shared/types/leaderboard';
+import { useAppState } from './useAppState';
+import useLeaderboard from './useLeaderboard';
+import { LeaderboardAPI } from '../../shared/types/leaderboard';
 
 export type QuestionLevels = 'easy' | 'medium' | 'hard';
 
@@ -51,6 +51,7 @@ interface TriviaContextProps {
   resetGame: (nextStatus: GameStatus) => void;
   handleQuestionAnswer: (question: Question, answer: string) => void;
   handleMainGuessAnswer: (guess: string, answer: string) => boolean;
+  onHintUsed: () => void;
 }
 
 const TIME_PER_QUESTION = 15;
@@ -118,6 +119,11 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const secondsRef = useRef(TIME_PER_QUESTION);
   const currentQuestionIndexRef = useRef<number>(0);
+  const hintsUsed = useRef<number>(0);
+
+  const onHintUsed = useCallback(() => {
+    hintsUsed.current++;
+  }, []);
 
   useEffect(() => {
     if (!isReady) return;
@@ -296,7 +302,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         fastestDCSession,
         totalSessions,
         highestScoreSession,
-        hintsUsed,
+        hintsUsed: _hintsUsed,
       } = metrics;
       const obj = { ...data };
       obj.metrics = {
@@ -308,7 +314,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         fastestDCSession: Math.min(fastestDCSession, totalTime.current),
         totalSessions: totalSessions + 1,
         highestScoreSession: Math.max(highestScoreSession, points),
-        hintsUsed: hintsUsed + 1, // TODO
+        hintsUsed: _hintsUsed + hintsUsed.current, // TODO
         totalQuestionsAnswered: totalQuestionsAnswered + questionsAnswered.current,
       };
 
@@ -317,7 +323,8 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         points,
         LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP
       );
-      console.log('response', response);
+      console.log('##gameFinished!!', { hintsUsed: hintsUsed.current });
+      console.log(response);
     } catch (e) {
       console.log('error');
     }
@@ -347,6 +354,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         currentQuestionIndex,
         correctAnswersCount,
         triviaHistory,
+        onHintUsed,
         startTimer,
         stopTimer,
         addPoints,

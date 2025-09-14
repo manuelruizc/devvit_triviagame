@@ -1,4 +1,4 @@
-import { DailyTrivia, TriviaProvider } from './context';
+import { DailyTrivia, TriviaProvider } from '../../hooks/useTrivia';
 4;
 import { useAPI } from '../../hooks/useAPI';
 import useLeaderboard from '../../hooks/useLeaderboard';

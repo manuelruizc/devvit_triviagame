@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useTrivia } from './context';
+import { useTrivia } from '../../hooks/useTrivia';
 
 const QuestionSelectorTopbar = ({}: {}) => {
   const {

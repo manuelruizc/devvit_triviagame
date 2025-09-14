@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useTrivia } from './context';
+import { useTrivia } from '../../hooks/useTrivia';
 import useLeaderboard from '../../hooks/useLeaderboard';
 import { useEffect } from 'react';
 import { useAPI } from '../../hooks/useAPI';
@@ -45,10 +45,10 @@ const Curtain = () => {
             : 'bg-black'
       )}
     >
-      <span className="text-2xl">{points}</span>
-      <span className="text-2xl">CorrectAnswers{correctAnswersCount}</span>
+      <span className="text-xs">{points}</span>
+      <span className="text-xs">CorrectAnswers{correctAnswersCount}</span>
       {/* <span className="text-2xl">{JSON.stringify(userAnswers)}</span> */}
-      <span className="text-2xl">{JSON.stringify(triviaHistory)}</span>
+      <span className="text-xs">{JSON.stringify(triviaHistory)}</span>
     </div>
   );
 };
