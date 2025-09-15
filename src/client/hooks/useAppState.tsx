@@ -43,6 +43,7 @@ interface AchievementsFunctions {
     totalQuestions: number
   ) => BasicAPI.AchievementType[];
   checkForFirstQuestionAnswered: () => BasicAPI.AchievementType[];
+  achievements: BasicAPI.AchievementType[];
 }
 
 interface AppStateNotReady {
@@ -78,7 +79,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [screen, setScreen] = useState<GameScreens>(GameScreens.MAIN);
   const [navigatingActive, setNavigatingActive] = useState<boolean>(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState<BasicAPI.AchievementType[]>([]);
+  const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>([]);
   const navigationStack = useRef<GameScreens[]>([]);
+  const navigationPayloadStack = useRef<(string | null)[]>([]);
 
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
@@ -104,9 +107,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         };
       });
       if (unlocked.length > 0) {
-        console.log(unlocked);
+        setUnlockedAchievements((prev) => [...prev, ...unlocked]);
+        setAchievements((prev) => [...prev, ...unlocked]);
       }
-      setUnlockedAchievements((prev) => [...prev, ...unlocked]);
       return unlocked;
     },
     [data]
@@ -136,9 +139,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         };
       });
       if (unlocked.length > 0) {
-        console.log(unlocked);
+        setUnlockedAchievements((prev) => [...prev, ...unlocked]);
+        setAchievements((prev) => [...prev, ...unlocked]);
       }
-      setUnlockedAchievements((prev) => [...prev, ...unlocked]);
       return unlocked;
     },
     [data]
@@ -163,9 +166,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         };
       });
       if (unlocked.length > 0) {
-        console.log(unlocked);
+        if (unlocked.length > 0) {
+          setUnlockedAchievements((prev) => [...prev, ...unlocked]);
+          setAchievements((prev) => [...prev, ...unlocked]);
+        }
       }
-      setUnlockedAchievements((prev) => [...prev, ...unlocked]);
       return unlocked;
     },
     [data]
@@ -189,15 +194,17 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       };
     });
     if (unlocked.length > 0) {
-      console.log(unlocked);
+      setUnlockedAchievements((prev) => [...prev, ...unlocked]);
+      setAchievements((prev) => [...prev, ...unlocked]);
     }
-    setUnlockedAchievements((prev) => [...prev, ...unlocked]);
     return unlocked;
   }, [data]);
 
   const navigate = useCallback((nextScreen: GameScreens, payload?: string) => {
     const finalPayload = payload === undefined || payload === null ? null : payload;
     setNavigatingActive(true);
+    setNavigationPayload(null);
+    navigationPayloadStack.current.push(finalPayload);
     navigationStack.current.push(nextScreen);
     setTimeout(() => {
       setNavigationPayload(finalPayload);
@@ -212,10 +219,16 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     if (navigationStack.current.length === 0) return;
     const navigationHistory = [...navigationStack.current];
     navigationHistory.pop();
+    const payStack = [...navigationPayloadStack.current];
+    payStack.pop();
+    navigationStack.current = [...navigationHistory];
+    navigationPayloadStack.current = [...payStack];
     if (navigationHistory.length === 0) {
       navigate(GameScreens.MAIN);
+      setNavigationPayload(null);
       return;
     }
+    setNavigationPayload(payStack[payStack.length - 1] || null);
     const screen = navigationHistory[navigationHistory.length - 1];
     if (screen) {
       navigate(screen);
@@ -229,6 +242,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         setIsError(true);
         return;
       }
+      console.log(data);
       setData({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member: data.member || '',
@@ -278,6 +292,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isReady: true,
         data,
         screen,
+        achievements,
         isError,
         navigationPayload,
         navigate,
@@ -292,6 +307,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isReady: false,
         data: null,
         screen,
+        achievements,
         navigationPayload,
         isError,
         navigate,
@@ -306,6 +322,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     isReady,
     data,
     screen,
+    data,
+    screen,
+    achievements,
+    isError,
+    navigationPayload,
     checkForStreakAchievements,
     checkForTimeAchievements,
     checkForPerfectRound,
@@ -346,7 +367,6 @@ const UnlockedAchievements = ({
   const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>(_ach);
   const achievementsRef = useRef<BasicAPI.AchievementType[]>(_ach);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  console.log('UNLOCKED ACHIEVEMENTS ACTIVATeD', achievements);
 
   useEffect(() => {
     if (intervalRef.current !== null) return;

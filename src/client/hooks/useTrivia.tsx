@@ -122,6 +122,7 @@ export const TriviaProvider: React.FC<{
   const {
     data,
     isReady,
+    achievements,
     checkForFirstQuestionAnswered,
     checkForPerfectRound,
     checkForStreakAchievements,
@@ -377,12 +378,11 @@ export const TriviaProvider: React.FC<{
     try {
       if (!isReady) return;
       if (!data || !data.metrics) return;
-      const unlocked = checkForPerfectRound(correctAnswersCount, questionsAnswered.current);
+      checkForPerfectRound(correctAnswersCount, questionsAnswered.current);
       const { metrics } = data;
       const {
         totalQuestionsAnswered,
         correctAnswers,
-        currentStreak,
         totalPoints,
         totalTime: _totalTime,
         fastestDCSession,
@@ -427,18 +427,22 @@ export const TriviaProvider: React.FC<{
         geographyCount: geographyCount + categoriesCount.current.geographyCount,
         geographyCorrect: geographyCorrect + categoriesCount.current.geographyCorrect,
       };
-
+      const achievementsObj: Partial<Record<BasicAPI.AchievementType, boolean>> = {};
+      for (const key of achievements) {
+        achievementsObj[key] = true;
+      }
+      obj.achievements = { ...achievementsObj };
       const response = await postScoreToLeaderboard(
         obj,
         points,
-        LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP
+        LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC
       );
       console.log('##gameFinished!!', obj);
       console.log(response);
     } catch (e) {
       console.log('error');
     }
-  }, [data, isReady, points, correctAnswersCount, streak, points, questionsAnswered]);
+  }, [data, isReady, points, correctAnswersCount, streak, points, questionsAnswered, achievements]);
 
   const addCoins = useCallback(
     (currentStreak: number) => {

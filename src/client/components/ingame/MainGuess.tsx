@@ -220,10 +220,7 @@ const MainGuess = () => {
   }, [userGuess, showLength, userGuessWhenClueIsEnabled]);
 
   useEffect(() => {
-    if (
-      (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) ||
-      userGuess.length === mainAnswer.length
-    ) {
+    if (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) {
       const isCorrect = handleMainGuessAnswer(
         userGuessWhenClueIsEnabled.join(''),
         mainAnswer.toLocaleLowerCase(),
@@ -231,7 +228,15 @@ const MainGuess = () => {
       );
       if (!isCorrect) handleWrongMainGuessAnswer();
     }
-  }, [userGuessWhenClueIsEnabled, userGuess]);
+    if (!showLength && userGuess.length === mainAnswer.length) {
+      const isCorrect = handleMainGuessAnswer(
+        userGuess.join(''),
+        mainAnswer.toLocaleLowerCase(),
+        category
+      );
+      if (!isCorrect) handleWrongMainGuessAnswer();
+    }
+  }, [userGuessWhenClueIsEnabled, userGuess, mainAnswer]);
 
   return (
     <>

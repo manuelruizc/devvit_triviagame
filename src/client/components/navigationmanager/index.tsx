@@ -5,6 +5,7 @@ import MainMenu from '../mainmenu';
 import Leaderboard from '../leaderboard';
 import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 import Achievements from '../achievements';
+import UserProfile from '../userprofile';
 
 const NavigationManager = () => {
   const { isReady, screen } = useAppState();
@@ -13,6 +14,7 @@ const NavigationManager = () => {
   else if (screen === GameScreens.MAIN) return <MainMenu />;
   else if (screen === GameScreens.LEADERBOARDS) return <Leaderboard />;
   else if (screen === GameScreens.ACHIEVEMENTS) return <Achievements />;
+  else if (screen === GameScreens.USER_PROFILE) return <UserProfile />;
   return <MainMenu />;
 };
 

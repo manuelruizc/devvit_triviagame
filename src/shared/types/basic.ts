@@ -1,10 +1,13 @@
 export namespace BasicAPI {
   export namespace USER_HASH_NAMES {
     export const USER_INFO = 'user_info';
+    export const USER_ACHIEVEMENTS = 'user_achievements';
   }
 
   export namespace BASIC_API_ENDPOINTS {
     export const INIT = '/api/init/basic_data';
+    export const RESET_DATA = '/api/init/reset_data';
+    export const USERS_DATA = '/api/users/data';
   }
   export enum BasicAPIResponseType {
     INIT = 'init_basic_data',
@@ -47,6 +50,10 @@ export namespace BasicAPI {
     totalSessions: number;
     highestScoreSession: number;
     hintsUsed: number;
+  }
+
+  export interface ResetData {
+    status: 'ok' | 'error';
   }
 
   export interface GetUserBasicData {
