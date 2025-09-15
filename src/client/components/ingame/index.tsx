@@ -14,6 +14,7 @@ const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
   mainAnswer: 'Once Upon a Time in Hollywood',
   answerLength: 'Once Upon a Time in Hollywood'.length, // optional: helps with underscores
+  category: 'entertainment',
   questions: [
     {
       level: 'easy',
@@ -21,6 +22,8 @@ const TRIVIA: DailyTrivia = {
       unlockedClue: 'Brad Pitt',
       answers: ['Brad Pitt', 'Tom Cruise', 'Matt Damon', 'Leonardo DiCaprio'],
       correctAnswer: 'Brad Pitt',
+      category: 'entertainment',
+      type: 'trivia',
     },
     {
       level: 'easy',
@@ -28,6 +31,8 @@ const TRIVIA: DailyTrivia = {
       unlockedClue: 'Pulp Fiction',
       answers: ['Kill Bill', 'Pulp Fiction', 'Reservoir Dogs', 'Jackie Brown'],
       correctAnswer: 'Pulp Fiction',
+      category: 'entertainment',
+      type: 'trivia',
     },
     {
       level: 'medium',
@@ -35,6 +40,8 @@ const TRIVIA: DailyTrivia = {
       unlockedClue: 'The Wolf of Wall Street',
       answers: ['The Big Short', 'The Wolf of Wall Street', 'Margin Call', 'American Psycho'],
       correctAnswer: 'The Wolf of Wall Street',
+      category: 'entertainment',
+      type: 'trivia',
     },
     {
       level: 'medium',
@@ -42,6 +49,8 @@ const TRIVIA: DailyTrivia = {
       unlockedClue: 'Los Angeles',
       answers: ['New York', 'Los Angeles', 'Chicago', 'San Francisco'],
       correctAnswer: 'Los Angeles',
+      category: 'general',
+      type: 'trivia',
     },
     {
       level: 'hard',
@@ -49,6 +58,8 @@ const TRIVIA: DailyTrivia = {
       unlockedClue: 'Margot Robbie',
       answers: ['Jennifer Lawrence', 'Margot Robbie', 'Emma Stone', 'Scarlett Johansson'],
       correctAnswer: 'Margot Robbie',
+      category: 'entertainment',
+      type: 'trivia',
     },
   ],
 };

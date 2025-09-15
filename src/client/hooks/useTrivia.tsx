@@ -10,6 +10,7 @@ import React, {
 import { useAppState } from './useAppState';
 import useLeaderboard from './useLeaderboard';
 import { LeaderboardAPI } from '../../shared/types/leaderboard';
+import { BasicAPI } from '../../shared/types/basic';
 
 export type QuestionLevels = 'easy' | 'medium' | 'hard';
 
@@ -20,12 +21,15 @@ type TriviaHistory = {
   points: number;
   type: 'main-guess' | 'trivia';
 };
+
 export interface Question {
   level: QuestionLevels;
   question: string;
   unlockedClue: string;
   answers: string[];
   correctAnswer: string;
+  category: BasicAPI.QuestionCategory;
+  type: 'guess' | 'trivia';
 }
 
 export interface DailyTrivia {
@@ -33,6 +37,7 @@ export interface DailyTrivia {
   mainQuestion: string;
   mainAnswer: string;
   answerLength: number;
+  category: BasicAPI.QuestionCategory;
 }
 
 interface TriviaContextProps {
@@ -49,8 +54,16 @@ interface TriviaContextProps {
   addPoints: (timeLeft: number, questionType: 'main-guess' | 'trivia') => void;
   nextQuestion: (currentStatus: GameStatus) => void;
   resetGame: (nextStatus: GameStatus) => void;
-  handleQuestionAnswer: (question: Question, answer: string) => void;
-  handleMainGuessAnswer: (guess: string, answer: string) => boolean;
+  handleQuestionAnswer: (
+    question: Question,
+    answer: string,
+    category: BasicAPI.QuestionCategory
+  ) => void;
+  handleMainGuessAnswer: (
+    guess: string,
+    answer: string,
+    category: BasicAPI.QuestionCategory
+  ) => boolean;
   onHintUsed: () => void;
 }
 
@@ -99,7 +112,14 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   children,
   trivia: _trivia,
 }) => {
-  const { data, isReady } = useAppState();
+  const {
+    data,
+    isReady,
+    checkForFirstQuestionAnswered,
+    checkForPerfectRound,
+    checkForStreakAchievements,
+    checkForTimeAchievements,
+  } = useAppState();
   const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
   const [time, setTime] = useState(formatTime(TIME_PER_QUESTION));
@@ -120,6 +140,34 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const secondsRef = useRef(TIME_PER_QUESTION);
   const currentQuestionIndexRef = useRef<number>(0);
   const hintsUsed = useRef<number>(0);
+  const categoriesCount = useRef<BasicAPI.CategoryMetrics>({
+    entertainmentCorrect: 0,
+    entertainmentCount: 0,
+    redditCount: 0,
+    redditCorrect: 0,
+    sportsCount: 0,
+    sportsCorrect: 0,
+    generalCount: 0,
+    generalCorrect: 0,
+    historyCount: 0,
+    historyCorrect: 0,
+    geographyCount: 0,
+    geographyCorrect: 0,
+  });
+
+  const addToCategoryCount = useCallback(
+    (isCorrect: boolean, category: BasicAPI.QuestionCategory) => {
+      const countKey = `${category}Count` as `${BasicAPI.QuestionCategory}Count`;
+      const correctKey = `${category}Correct` as `${BasicAPI.QuestionCategory}Correct`;
+
+      categoriesCount.current[countKey] += 1;
+
+      if (isCorrect) {
+        categoriesCount.current[correctKey] += 1;
+      }
+    },
+    []
+  );
 
   const onHintUsed = useCallback(() => {
     hintsUsed.current++;
@@ -215,11 +263,18 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     nextQuestion(currentStatus);
   };
 
-  const handleMainGuessAnswer = (guess: string, answer: string): boolean => {
+  const handleMainGuessAnswer = (
+    guess: string,
+    answer: string,
+    category: BasicAPI.QuestionCategory
+  ): boolean => {
     const isCorrect = guess.toLowerCase() === answer.toLowerCase();
+    addToCategoryCount(isCorrect, category);
     if (isCorrect) {
+      checkForFirstQuestionAnswered();
       stopTimer('finished-main-guess-correct');
       const _pointsTotal = addPoints(secondsRef.current, 'main-guess');
+      checkForTimeAchievements(secondsRef.current, TIME_FOR_MAIN_GUESS);
       setTriviaHistory((prev) => {
         prev.push({
           answer,
@@ -246,7 +301,11 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     return false;
   };
 
-  const handleQuestionAnswer = (question: Question, answer: string) => {
+  const handleQuestionAnswer = (
+    question: Question,
+    answer: string,
+    category: BasicAPI.QuestionCategory
+  ) => {
     setUserAnswers((prev) => {
       prev[currentQuestionIndex] = answer;
       return [...prev];
@@ -254,13 +313,17 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     const questionType: GameStatus = gameStatus;
     stopTimer('between');
     const isCorrect = question.correctAnswer === answer;
+    addToCategoryCount(isCorrect, category);
     if (isCorrect) {
+      checkForFirstQuestionAnswered();
       setStreak((prev) => prev + 1);
+      checkForStreakAchievements(streak);
       setCorrectAnswersCount((prev) => prev + 1);
       const questionPoints = addPoints(
         secondsRef.current,
         questionType === 'main-guess' ? 'main-guess' : 'trivia'
       );
+      checkForTimeAchievements(secondsRef.current, TIME_PER_QUESTION);
       questionsAnswered.current++;
       totalTime.current += TIME_PER_QUESTION - secondsRef.current;
       setTriviaHistory((prev) => {
@@ -292,6 +355,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     try {
       if (!isReady) return;
       if (!data || !data.metrics) return;
+      const unlocked = checkForPerfectRound(correctAnswersCount, questionsAnswered.current);
       const { metrics } = data;
       const {
         totalQuestionsAnswered,
@@ -303,6 +367,18 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         totalSessions,
         highestScoreSession,
         hintsUsed: _hintsUsed,
+        entertainmentCorrect,
+        entertainmentCount,
+        redditCount,
+        redditCorrect,
+        sportsCount,
+        sportsCorrect,
+        generalCount,
+        generalCorrect,
+        historyCount,
+        historyCorrect,
+        geographyCount,
+        geographyCorrect,
       } = metrics;
       const obj = { ...data };
       obj.metrics = {
@@ -316,6 +392,18 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         highestScoreSession: Math.max(highestScoreSession, points),
         hintsUsed: _hintsUsed + hintsUsed.current, // TODO
         totalQuestionsAnswered: totalQuestionsAnswered + questionsAnswered.current,
+        entertainmentCorrect: entertainmentCorrect + categoriesCount.current.entertainmentCorrect,
+        entertainmentCount: entertainmentCount + categoriesCount.current.entertainmentCount,
+        redditCount: redditCount + categoriesCount.current.redditCount,
+        redditCorrect: redditCorrect + categoriesCount.current.redditCorrect,
+        sportsCount: sportsCount + categoriesCount.current.sportsCount,
+        sportsCorrect: sportsCorrect + categoriesCount.current.sportsCorrect,
+        generalCount: generalCount + categoriesCount.current.generalCount,
+        generalCorrect: generalCorrect + categoriesCount.current.generalCorrect,
+        historyCount: historyCount + categoriesCount.current.historyCount,
+        historyCorrect: historyCorrect + categoriesCount.current.historyCorrect,
+        geographyCount: geographyCount + categoriesCount.current.geographyCount,
+        geographyCorrect: geographyCorrect + categoriesCount.current.geographyCorrect,
       };
 
       const response = await postScoreToLeaderboard(
@@ -323,12 +411,12 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         points,
         LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP
       );
-      console.log('##gameFinished!!', { hintsUsed: hintsUsed.current });
+      console.log('##gameFinished!!', obj);
       console.log(response);
     } catch (e) {
       console.log('error');
     }
-  }, [data, isReady, points, correctAnswersCount, streak, points]);
+  }, [data, isReady, points, correctAnswersCount, streak, points, questionsAnswered]);
 
   useEffect(() => {
     if (gameStatus !== 'finished-main-guess-correct' && gameStatus !== 'finished-run-out-of-time')

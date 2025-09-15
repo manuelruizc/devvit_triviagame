@@ -33,7 +33,21 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
             totalSessions: -1,
             highestScoreSession: -1,
             hintsUsed: -1,
+            // categories
+            entertainmentCorrect: 0,
+            entertainmentCount: 0,
+            redditCount: 0,
+            redditCorrect: 0,
+            sportsCount: 0,
+            sportsCorrect: 0,
+            generalCount: 0,
+            generalCorrect: 0,
+            historyCount: 0,
+            historyCorrect: 0,
+            geographyCount: 0,
+            geographyCorrect: 0,
           },
+          achievements: {},
           status: 'error',
         });
         return;
@@ -62,6 +76,19 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           totalSessions: '0',
           highestScoreSession: '0',
           hintsUsed: '0',
+
+          entertainmentCorrect: '0',
+          entertainmentCount: '0',
+          redditCount: '0',
+          redditCorrect: '0',
+          sportsCount: '0',
+          sportsCorrect: '0',
+          generalCount: '0',
+          generalCorrect: '0',
+          historyCount: '0',
+          historyCorrect: '0',
+          geographyCount: '0',
+          geographyCorrect: '0',
         });
       } else {
         const leaderboardsData = await saveToLeaderBoard(member);
@@ -72,7 +99,21 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
       }
 
       const record = await redis.hGetAll(hashKey);
-
+      const oo = {
+        entertainmentCorrect: Number(record?.entertainmentCorrect || 0),
+        entertainmentCount: Number(record?.entertainmentCount || 0),
+        redditCount: Number(record?.redditCount || 0),
+        redditCorrect: Number(record?.redditCorrect || 0),
+        sportsCount: Number(record?.sportsCount || 0),
+        sportsCorrect: Number(record?.sportsCorrect || 0),
+        generalCount: Number(record?.generalCount || 0),
+        generalCorrect: Number(record?.generalCorrect || 0),
+        historyCount: Number(record?.historyCount || 0),
+        historyCorrect: Number(record?.historyCorrect || 0),
+        geographyCount: Number(record?.geographyCount || 0),
+        geographyCorrect: Number(record?.geographyCorrect || 0),
+      };
+      console.log('record', oo);
       res.json({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member,
@@ -90,7 +131,21 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           totalSessions: Number(record?.totalSessions || 0),
           highestScoreSession: Number(record?.highestScoreSession || 0),
           hintsUsed: Number(record?.hintsUsed || 0),
+
+          entertainmentCorrect: Number(record?.entertainmentCorrect || 0),
+          entertainmentCount: Number(record?.entertainmentCount || 0),
+          redditCount: Number(record?.redditCount || 0),
+          redditCorrect: Number(record?.redditCorrect || 0),
+          sportsCount: Number(record?.sportsCount || 0),
+          sportsCorrect: Number(record?.sportsCorrect || 0),
+          generalCount: Number(record?.generalCount || 0),
+          generalCorrect: Number(record?.generalCorrect || 0),
+          historyCount: Number(record?.historyCount || 0),
+          historyCorrect: Number(record?.historyCorrect || 0),
+          geographyCount: Number(record?.geographyCount || 0),
+          geographyCorrect: Number(record?.geographyCorrect || 0),
         },
+        achievements: {},
         status: 'ok',
       });
     } catch (error) {
@@ -111,7 +166,20 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           totalSessions: 0,
           highestScoreSession: 0,
           hintsUsed: 0,
+          entertainmentCorrect: 0,
+          entertainmentCount: 0,
+          redditCount: 0,
+          redditCorrect: 0,
+          sportsCount: 0,
+          sportsCorrect: 0,
+          generalCount: 0,
+          generalCorrect: 0,
+          historyCount: 0,
+          historyCorrect: 0,
+          geographyCount: 0,
+          geographyCorrect: 0,
         },
+        achievements: {},
         status: 'error',
       });
     }

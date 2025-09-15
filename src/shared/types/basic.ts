@@ -9,7 +9,34 @@ export namespace BasicAPI {
   export enum BasicAPIResponseType {
     INIT = 'init_basic_data',
   }
-  export interface UserMetrics {
+  export type QuestionCategory =
+    | 'entertainment'
+    | 'sports'
+    | 'reddit'
+    | 'general'
+    | 'history'
+    | 'geography';
+
+  export type CategoryMetrics = {
+    [C in QuestionCategory as `${C}Count`]: number;
+  } & {
+    [C in QuestionCategory as `${C}Correct`]: number;
+  };
+
+  export type AchievementType =
+    | 'firstquestion'
+    | 'hotstreak'
+    | 'firestreak'
+    | 'bigbrains'
+    | 'lightingfast'
+    | 'justintime'
+    | 'perfectionist'
+    | 'ontheboard'
+    | 'climber'
+    | 'topten'
+    | 'numberone';
+
+  export interface UserMetrics extends CategoryMetrics {
     totalQuestionsAnswered: number;
     correctAnswers: number;
     longestStreak: number;
@@ -29,6 +56,7 @@ export namespace BasicAPI {
     allTimeFPRank: number;
     dCRank: number;
     metrics: UserMetrics;
+    achievements: Partial<Record<AchievementType, boolean>>;
     status: 'ok' | 'error';
   }
 }

@@ -16,7 +16,7 @@ function getRandomFromSet(set: Set<number>, k: number): number[] {
 
 const MainGuess = () => {
   const {
-    trivia: { mainAnswer, mainQuestion },
+    trivia: { mainAnswer, mainQuestion, category },
     handleMainGuessAnswer,
     onHintUsed,
   } = useTrivia();
@@ -173,7 +173,7 @@ const MainGuess = () => {
           setLastKeyPressed(e.key);
           return;
         } else {
-          const isCorrect = handleMainGuessAnswer(userGuess.join(''), mainAnswer);
+          const isCorrect = handleMainGuessAnswer(userGuess.join(''), mainAnswer, category);
           if (!isCorrect) handleWrongMainGuessAnswer();
         }
         setLastKeyPressed(e.key);
@@ -220,10 +220,14 @@ const MainGuess = () => {
   }, [userGuess, showLength, userGuessWhenClueIsEnabled]);
 
   useEffect(() => {
-    if (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) {
+    if (
+      (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) ||
+      userGuess.length === mainAnswer.length
+    ) {
       const isCorrect = handleMainGuessAnswer(
         userGuessWhenClueIsEnabled.join(''),
-        mainAnswer.toLocaleLowerCase()
+        mainAnswer.toLocaleLowerCase(),
+        category
       );
       if (!isCorrect) handleWrongMainGuessAnswer();
     }
@@ -232,6 +236,7 @@ const MainGuess = () => {
   return (
     <>
       <div className="w-full flex flex-col justify-start items-center">
+        <span>Category: {category}</span>
         {showLength && (
           <>
             <button disabled={usingOneLetterClue} onClick={revealOneLetter}>
