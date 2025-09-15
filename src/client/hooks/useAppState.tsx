@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { BasicAPI } from '../../shared/types/basic';
 import { useAPI } from './useAPI';
+import clsx from 'clsx';
 
 const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -29,6 +30,8 @@ export enum GameScreens {
   MAIN = 'main',
   INGAME = 'ingame',
   LEADERBOARDS = 'leaderboards',
+  ACHIEVEMENTS = 'achievements',
+  USER_PROFILE = 'userprofile',
 }
 
 interface AchievementsFunctions {
@@ -45,14 +48,18 @@ interface AppStateNotReady {
   isReady: false;
   data: null;
   screen: GameScreens;
-  navigate: (screen: GameScreens) => void;
+  navigate: (screen: GameScreens, payload?: string) => void;
+  navigationPayload: string | null;
+  isError: boolean;
 }
 
 interface AppStateReady {
   isReady: true;
   data: BasicAPI.GetUserBasicData;
   screen: GameScreens;
-  navigate: (screen: GameScreens) => void;
+  navigate: (screen: GameScreens, payload?: string) => void;
+  navigationPayload: string | null;
+  isError: boolean;
 }
 
 type AppState = (AppStateNotReady | AppStateReady) & AchievementsFunctions;
@@ -63,8 +70,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const { getInitialData } = useAPI();
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
+  const [navigationPayload, setNavigationPayload] = useState<string | null>(null);
   const [data, setData] = useState<BasicAPI.GetUserBasicData | null>(null);
   const [screen, setScreen] = useState<GameScreens>(GameScreens.MAIN);
+
+  const [navigatingActive, setNavigatingActive] = useState<boolean>(false);
 
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
@@ -168,8 +178,23 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     return unlocked;
   }, [data]);
 
-  const navigate = useCallback((nextScreen: GameScreens) => {
-    setScreen(nextScreen);
+  const navigate = useCallback((nextScreen: GameScreens, payload?: string) => {
+    setNavigatingActive(true);
+    setTimeout(() => {
+      if (
+        (nextScreen === GameScreens.USER_PROFILE || nextScreen === GameScreens.LEADERBOARDS) &&
+        payload &&
+        payload.length > 0
+      ) {
+        setNavigationPayload(payload);
+      } else {
+        setNavigationPayload(null);
+      }
+      setScreen(nextScreen);
+    }, 500);
+    setTimeout(() => {
+      setNavigatingActive(false);
+    }, 900);
   }, []);
 
   const fetchInitialData = useCallback(async () => {
@@ -228,6 +253,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isReady: true,
         data,
         screen,
+        isError,
+        navigationPayload,
         navigate,
         checkForStreakAchievements,
         checkForTimeAchievements,
@@ -239,6 +266,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isReady: false,
         data: null,
         screen,
+        navigationPayload,
+        isError,
         navigate,
         checkForStreakAchievements,
         checkForTimeAchievements,
@@ -261,7 +290,17 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     fetchInitialData();
   }, []);
 
-  return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
+  return (
+    <AppStateContext.Provider value={value}>
+      {children}
+      <div
+        className={clsx(
+          'absolute top-0 left-0 w-[0px] h-full bg-red-500 transition-all duration-300 ease-in-out pointer-events-auto',
+          navigatingActive && 'w-full pointer-events-none'
+        )}
+      ></div>
+    </AppStateContext.Provider>
+  );
 };
 
 // ---- Hook ----
