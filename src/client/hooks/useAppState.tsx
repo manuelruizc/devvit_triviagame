@@ -1,11 +1,36 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { BasicAPI } from '../../shared/types/basic';
 import { useAPI } from './useAPI';
 
-interface AppState {
-  isReady: boolean;
-  data: BasicAPI.GetUserBasicData | null;
+export enum GameScreens {
+  MAIN = 'main',
+  INGAME = 'ingame',
+  LEADERBOARDS = 'leaderboards',
 }
+
+interface AppStateNotReady {
+  isReady: false;
+  data: null;
+  screen: GameScreens;
+  navigate: (screen: GameScreens) => void;
+}
+
+interface AppStateReady {
+  isReady: true;
+  data: BasicAPI.GetUserBasicData;
+  screen: GameScreens;
+  navigate: (screen: GameScreens) => void;
+}
+
+type AppState = AppStateNotReady | AppStateReady;
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
 
@@ -14,6 +39,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [data, setData] = useState<BasicAPI.GetUserBasicData | null>(null);
+  const [screen, setScreen] = useState<GameScreens>(GameScreens.MAIN);
+
+  const navigate = useCallback((nextScreen: GameScreens) => {
+    setScreen(nextScreen);
+  }, []);
 
   const fetchInitialData = useCallback(async () => {
     try {
@@ -52,12 +82,20 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const value: AppState = useMemo(() => {
+    if (isReady && data) {
+      return { isReady: true, data, screen, navigate } as const;
+    } else {
+      return { isReady: false, data: null, screen, navigate } as const;
+    }
+  }, [isReady, data, screen]);
+
   // Fetch on mount
   useEffect(() => {
     fetchInitialData();
   }, []);
 
-  return <AppStateContext.Provider value={{ isReady, data }}>{children}</AppStateContext.Provider>;
+  return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 };
 
 // ---- Hook ----

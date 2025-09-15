@@ -52,13 +52,14 @@ const TRIVIA: DailyTrivia = {
 };
 const randomNumber = Math.floor(Math.random() * 11) + 1;
 const Ingame = () => {
-  const [rn, setRn] = useState<number>(randomNumber);
+  const { isReady } = useAppState();
   const { data } = useAppState();
   const {
     postScoreToFreePlay,
     getAllTimeDailyChallengesLeaderboard,
     getAllTimeFreePlayLeaderboard,
   } = useLeaderboard();
+  if (!isReady) return null;
   return (
     <TriviaProvider trivia={TRIVIA}>
       <div className="w-full flex-1 flex">

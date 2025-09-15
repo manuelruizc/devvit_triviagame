@@ -1,17 +1,18 @@
-import { navigateTo } from '@devvit/web/client';
-import { useCallback, useMemo, useRef, useState } from 'react';
 import Ingame from './components/ingame';
 import { AppStateProvider } from './hooks/useAppState';
+import Root from './components/root';
+import StartupScreen from './components/startupscreen';
+import NavigationManager from './components/navigationmanager';
 // import { useCounter } from './hooks/useCounter';
 
 export const App = () => {
   return (
     <AppStateProvider>
-      <div className="flex relative flex-col justify-center items-center min-h-screen gap-4">
-        <div className="w-full flex-1">
-          <Ingame />
-        </div>
-        {/* <footer className="bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600">
+      <Root>
+        <NavigationManager />
+        <StartupScreen />
+      </Root>
+      {/* <footer className="bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600">
         <button
         className="cursor-pointer"
         onClick={() => navigateTo('https://developers.reddit.com/docs')}
@@ -33,7 +34,6 @@ export const App = () => {
         Discord
         </button>
         </footer> */}
-      </div>
     </AppStateProvider>
   );
 };
