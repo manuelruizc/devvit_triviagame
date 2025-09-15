@@ -32,7 +32,9 @@ export const GET_REQUEST = async <T>(
       finalEndPoint += '/' + member;
     }
     const res = await fetch(finalEndPoint);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
     const data: any = await res.json();
     return { ...data, error: false };
   } catch (err) {

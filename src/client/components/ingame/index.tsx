@@ -1,4 +1,4 @@
-import { DailyTrivia, TriviaProvider } from '../../hooks/useTrivia';
+import { DailyTrivia, TriviaProvider, useTrivia } from '../../hooks/useTrivia';
 4;
 import { useAPI } from '../../hooks/useAPI';
 import useLeaderboard from '../../hooks/useLeaderboard';
@@ -7,6 +7,8 @@ import Curtain from './Curtain';
 import QuestionSelectorTopbar from './QuestionSelectorTopbar';
 import Questions from './Questions';
 import { useAppState } from '../../hooks/useAppState';
+import Finished from './finished';
+import Idle from './idle';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -55,44 +57,31 @@ const Ingame = () => {
   const { isReady } = useAppState();
   const { data } = useAppState();
   const {
-    postScoreToFreePlay,
-    getAllTimeDailyChallengesLeaderboard,
-    getAllTimeFreePlayLeaderboard,
+    // postScoreToFreePlay,
+    // getAllTimeDailyChallengesLeaderboard,
+    // getAllTimeFreePlayLeaderboard,
   } = useLeaderboard();
   if (!isReady) return null;
   return (
     <TriviaProvider trivia={TRIVIA}>
-      <div className="w-full flex-1 flex">
-        <div className="w-full flex flex-col justify-center items-center">
-          <span className="text-3xl font-bold">{data?.member || 'no member'}</span>
-          <span className="text-xs text-center font-bold">{JSON.stringify(data)}</span>
-          <button onClick={() => getAllTimeDailyChallengesLeaderboard(data?.member || '')}>
-            Check All-Time DailyChallenge
-          </button>
-          <button onClick={() => getAllTimeFreePlayLeaderboard(data?.member || '')}>
-            Check All-Time Freeplay
-          </button>
-          {/* <button
-            onClick={() => {
-              if (
-                !user ||
-                !user.username ||
-                user.username.length === 0 ||
-                user.username === 'anonymous'
-              )
-                return;
-              postScoreToFreePlay(user.username, rn);
-              setRn(Math.floor(Math.random() * 11) + 1);
-            }}
-          >
-            Save to leaderboard: {rn}
-          </button> */}
-          <QuestionSelectorTopbar />
-          <Questions />
-        </div>
-        <Curtain />
-      </div>
+      <IngameInner />
     </TriviaProvider>
+  );
+};
+
+const IngameInner = () => {
+  const { gameStatus } = useTrivia();
+
+  if (gameStatus === 'finished-main-guess-correct' || gameStatus === 'finished-run-out-of-time') {
+    return <Finished />;
+  }
+  if (gameStatus === 'idle') return <Idle />;
+  return (
+    <>
+      <QuestionSelectorTopbar />
+      <Questions />
+      <Curtain />
+    </>
   );
 };
 

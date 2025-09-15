@@ -323,6 +323,68 @@ leaderboardRoute.post<
 //   }
 // });
 
+// GET LEADERBOARD BY KEY
+leaderboardRoute.get<
+  { member: string; postId: string; leaderboard_key: string },
+  LeaderboardAPI.GetAllTimeDailyChallengesLeaderboard | { status: string; message: string }
+>(
+  LEADERBOARD_API_ENDPOINTS.GET_LEADERBOARD_WITH_KEY + '/:member/:leaderboard_key',
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+    try {
+      if (!postId) {
+        res.status(400).json({
+          status: 'error',
+          score: 0,
+          type: LeaderboardAPI.LeaderboardAPIResponseType.GET_ALL_TIME_DC_LEADERBOARD,
+          member: '',
+          rank: -1,
+          leaderboard: [],
+        });
+        return;
+      }
+      const { member, leaderboard_key: leaderboardKey } = _req.params;
+      let storedScore = await redis.zScore(leaderboardKey, member);
+
+      if (storedScore === null || storedScore === undefined) {
+        // Add the member with inverted score
+        await redis.zAdd(leaderboardKey, { member, score: 0 });
+      }
+
+      // Always re-fetch to ensure it's persisted
+      storedScore = await redis.zScore(leaderboardKey, member);
+      const rank = await redis.zRank(leaderboardKey, member);
+      const leaderboardData = await redis.zRange(leaderboardKey, 0, 99);
+      const leaderboard: LeaderboardAPI.LeaderboardItem[] = leaderboardData.map((item) => ({
+        member: item.member,
+        score: -item.score,
+        rank: leaderboardData.indexOf(item) + 1,
+      }));
+
+      let finalScore = 0;
+      if (storedScore) finalScore = storedScore;
+      const userRank = rank !== null && rank !== undefined ? rank + 1 : -1;
+      res.json({
+        status: 'ok',
+        member,
+        rank: userRank,
+        leaderboard,
+        score: finalScore * -1,
+        type: LeaderboardAPI.LeaderboardAPIResponseType.GET_ALL_TIME_DC_LEADERBOARD,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'error',
+        score: 0,
+        type: LeaderboardAPI.LeaderboardAPIResponseType.GET_ALL_TIME_DC_LEADERBOARD,
+        member: '',
+        rank: -1,
+        leaderboard: [],
+      });
+    }
+  }
+);
+
 // GET DAILY CHALLENGE LEADERBOARD
 leaderboardRoute.get<
   { member: string; postId: string },

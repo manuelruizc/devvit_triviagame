@@ -26,6 +26,7 @@ export namespace LeaderboardAPI {
   export namespace LEADERBOARD_API_ENDPOINTS {
     export const GET_ALL_TIME_DC_LEADERBOARD =
       '/api/leaderboard/get_all_time_daily_challenge_leaderboard';
+    export const GET_LEADERBOARD_WITH_KEY = '/api/leaderboard/get_leaderboard';
     export const GET_ALL_TIME_FP_LEADERBOARD =
       '/api/leaderboard/get_all_time_free_play_leaderboard';
     export const GET_DAILY_SCOREBOARD = '/api/leaderboard/get_daily_scoreboard';

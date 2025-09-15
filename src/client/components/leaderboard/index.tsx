@@ -1,26 +1,33 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { POST_REQUEST } from '../../helpers/https';
+import { useCallback, useEffect, useState } from 'react';
+import { GET_REQUEST } from '../../helpers/https';
 import LeaderboardResult from './leaderboardresult';
+import { LeaderboardAPI } from '../../../shared/types/leaderboard';
+import { useAppState } from '../../hooks/useAppState';
 
 const Leaderboard = ({ leaderboardKey }: { leaderboardKey: string }) => {
+  const { data: userData } = useAppState();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
-  const fetchData = useCallback(async (key: string) => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return;
-    try {
-      const fetchedData: any[] = await POST_REQUEST<any[]>('', {});
-      setData([...fetchedData]);
-      setIsLoading(false);
-      setIsError(false);
-    } catch (e) {
-      setIsError(false);
-      return;
-    }
-  }, []);
+  const fetchData = useCallback(
+    async (key: string) => {
+      try {
+        if (!userData) return;
+        if (!userData.member) return;
+        const fetchedData: any[] = await GET_REQUEST<any[]>(
+          LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_LEADERBOARD_WITH_KEY +
+            `/${userData?.member || ''}/${key}`
+        );
+        setData(fetchedData);
+        setIsLoading(false);
+        setIsError(false);
+      } catch (e) {
+        setIsError(true);
+        return;
+      }
+    },
+    [userData]
+  );
 
   useEffect(() => {
     fetchData(leaderboardKey);
@@ -29,9 +36,9 @@ const Leaderboard = ({ leaderboardKey }: { leaderboardKey: string }) => {
     return <div className="w-full h-full bg-sky-800"></div>;
   }
   if (isError) {
-    return <div className="w-full h-full bg-green-300"></div>;
+    return <div className="w-full h-full bg-red-300"></div>;
   }
-  return <LeaderboardResult />;
+  return <LeaderboardResult data={data} />;
 };
 
 export default Leaderboard;
