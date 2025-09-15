@@ -65,6 +65,10 @@ interface TriviaContextProps {
     category: BasicAPI.QuestionCategory
   ) => boolean;
   onHintUsed: () => void;
+  saveToBank: () => void;
+  coins: number;
+  coinsBanked: number;
+  streak: number;
 }
 
 const TIME_PER_QUESTION = 15;
@@ -73,6 +77,8 @@ const POINTS_MAIN_GUESS = 500;
 const POINTS_CLUE_GUESS = 50;
 const BONUS_SECONDS_MAIN_GUESS = 5;
 const BONUS_SECONDS_CLUE_GUESS = 10;
+const FP_COINS_PER_QUESTION = 2;
+const FP_TOTAL_TIME = 60;
 
 export type GameStatus =
   | 'idle' // before game has started
@@ -108,10 +114,11 @@ const getQuestionSafely = (questions: Question[], index: number): Question | nul
   return questions[index]!;
 };
 
-export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia }> = ({
-  children,
-  trivia: _trivia,
-}) => {
+export const TriviaProvider: React.FC<{
+  children: ReactNode;
+  trivia: DailyTrivia;
+  type?: 'fp' | 'dc';
+}> = ({ children, trivia: _trivia, type = 'dc' }) => {
   const {
     data,
     isReady,
@@ -122,7 +129,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   } = useAppState();
   const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
-  const [time, setTime] = useState(formatTime(TIME_PER_QUESTION));
+  const [time, setTime] = useState(formatTime(type === 'dc' ? TIME_PER_QUESTION : FP_TOTAL_TIME));
   const [points, setPoints] = useState(0);
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -137,7 +144,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   const longestStreak = useRef<number>(0);
   const questionsAnswered = useRef<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const secondsRef = useRef(TIME_PER_QUESTION);
+  const secondsRef = useRef(type === 'dc' ? TIME_PER_QUESTION : FP_TOTAL_TIME);
   const currentQuestionIndexRef = useRef<number>(0);
   const hintsUsed = useRef<number>(0);
   const categoriesCount = useRef<BasicAPI.CategoryMetrics>({
@@ -154,6 +161,10 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     geographyCount: 0,
     geographyCorrect: 0,
   });
+
+  // fp state
+  const [coins, setCoins] = useState<number>(0);
+  const [coinsBanked, setCoinsBanked] = useState<number>(0);
 
   const addToCategoryCount = useCallback(
     (isCorrect: boolean, category: BasicAPI.QuestionCategory) => {
@@ -176,7 +187,6 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
   useEffect(() => {
     if (!isReady) return;
     if (!data || !data.metrics) return;
-    setStreak(data.metrics.currentStreak);
     longestStreak.current = data.metrics.longestStreak;
   }, [data, isReady]);
 
@@ -187,6 +197,10 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
       secondsRef.current -= 1;
       setTime(formatTime(secondsRef.current));
       if (secondsRef.current === 0) {
+        if (type === 'fp') {
+          stopTimer('finished-main-guess-correct');
+          return;
+        }
         if (status === 'main-guess') {
           stopTimer('finished-run-out-of-time');
         } else {
@@ -230,12 +244,14 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     }
     setCurrentQuestionIndex(nextIndex);
     currentQuestionIndexRef.current = nextIndex;
-    const nextTimeBase = nextGameStatus === 'trivia' ? TIME_PER_QUESTION : TIME_FOR_MAIN_GUESS;
-    setTime(formatTime(nextTimeBase));
-    secondsRef.current = nextTimeBase;
-    setTimeout(() => {
-      startTimer(nextGameStatus);
-    }, 400);
+    if (type === 'dc') {
+      const nextTimeBase = nextGameStatus === 'trivia' ? TIME_PER_QUESTION : TIME_FOR_MAIN_GUESS;
+      setTime(formatTime(nextTimeBase));
+      secondsRef.current = nextTimeBase;
+      setTimeout(() => {
+        startTimer(nextGameStatus);
+      }, 400);
+    }
   };
 
   const handleWrongAnswer = (
@@ -247,6 +263,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     if (streak > longestStreak.current) {
       longestStreak.current = streak;
     }
+    loseCoins();
     setStreak(0);
     totalTime.current += TIME_PER_QUESTION - time;
     setTriviaHistory((prev) => {
@@ -259,7 +276,9 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
       });
       return [...prev];
     });
-    stopTimer('between');
+    if (type === 'dc') {
+      stopTimer('between');
+    }
     nextQuestion(currentStatus);
   };
 
@@ -311,13 +330,16 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
       return [...prev];
     });
     const questionType: GameStatus = gameStatus;
-    stopTimer('between');
+    if (type === 'dc') {
+      stopTimer('between');
+    }
     const isCorrect = question.correctAnswer === answer;
     addToCategoryCount(isCorrect, category);
     if (isCorrect) {
       checkForFirstQuestionAnswered();
+      checkForStreakAchievements(streak + 1);
+      addCoins(streak + 1);
       setStreak((prev) => prev + 1);
-      checkForStreakAchievements(streak);
       setCorrectAnswersCount((prev) => prev + 1);
       const questionPoints = addPoints(
         secondsRef.current,
@@ -418,6 +440,24 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
     }
   }, [data, isReady, points, correctAnswersCount, streak, points, questionsAnswered]);
 
+  const addCoins = useCallback(
+    (currentStreak: number) => {
+      const roundCoins = FP_COINS_PER_QUESTION * currentStreak;
+      setCoins((prev) => prev + roundCoins);
+    },
+    [coins]
+  );
+
+  const loseCoins = useCallback(() => {
+    setCoins(0);
+  }, []);
+
+  const saveToBank = useCallback(() => {
+    setCoinsBanked((prev) => prev + coins);
+    setCoins(0);
+    setStreak(0);
+  }, [coins]);
+
   useEffect(() => {
     if (gameStatus !== 'finished-main-guess-correct' && gameStatus !== 'finished-run-out-of-time')
       return;
@@ -442,6 +482,9 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         currentQuestionIndex,
         correctAnswersCount,
         triviaHistory,
+        coins,
+        coinsBanked,
+        streak,
         onHintUsed,
         startTimer,
         stopTimer,
@@ -450,6 +493,7 @@ export const TriviaProvider: React.FC<{ children: ReactNode; trivia: DailyTrivia
         resetGame,
         handleQuestionAnswer,
         handleMainGuessAnswer,
+        saveToBank,
       }}
     >
       {children}

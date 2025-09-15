@@ -8,14 +8,18 @@ const QuestionSelectorTopbar = ({}: {}) => {
     time,
     points,
     gameStatus,
+    coins,
+    coinsBanked,
+    streak,
+    saveToBank,
     startTimer,
   } = useTrivia();
   return (
     <div className={'w-full flex flex-col justify-center items-center py-12'}>
-      <button className="cursor-pointer my-4" onClick={() => startTimer('trivia')}>
-        {gameStatus === 'idle' ? 'Start' : points} {gameStatus}
+      <button className="cursor-pointer my-4" onClick={saveToBank}>
+        Bank it
       </button>
-      <div className="w-[60%] my-12">
+      {/* <div className="w-[60%] my-12">
         {questions.map((item, index) => (
           <span
             className={clsx(
@@ -27,8 +31,11 @@ const QuestionSelectorTopbar = ({}: {}) => {
             {item.level}
           </span>
         ))}
-      </div>
+      </div> */}
       <span>{time}</span>
+      <span>Streak: {streak}</span>
+      <span>Coins: {coins}</span>
+      <span>Saved: {coinsBanked}</span>
     </div>
   );
 };

@@ -4,8 +4,8 @@ import LeaderboardResult from './leaderboardresult';
 import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 import { useAppState } from '../../hooks/useAppState';
 
-const Leaderboard = ({ leaderboardKey }: { leaderboardKey: string }) => {
-  const { data: userData } = useAppState();
+const Leaderboard = () => {
+  const { data: userData, navigationPayload } = useAppState();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
@@ -30,8 +30,10 @@ const Leaderboard = ({ leaderboardKey }: { leaderboardKey: string }) => {
   );
 
   useEffect(() => {
-    fetchData(leaderboardKey);
-  }, []);
+    if (navigationPayload === null) return;
+    fetchData(navigationPayload);
+  }, [navigationPayload]);
+
   if (isLoading) {
     return <div className="w-full h-full bg-sky-800"></div>;
   }

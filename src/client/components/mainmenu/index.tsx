@@ -28,10 +28,11 @@ const MainMenu = () => {
       </span>
       <span>{JSON.stringify(metrics)}</span>
       <span>{JSON.stringify(achievements)}</span>
-      <button onClick={() => navigate(GameScreens.INGAME)}>Play Daily Challenge</button>
-      <button>Free play</button>
+      <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>
+      <button onClick={() => navigate(GameScreens.INGAME, 'fp')}>Free Play</button>
       <button onClick={() => navigate(GameScreens.LEADERBOARDS)}>All time DC leaderboard</button>
       <button onClick={() => navigate(GameScreens.LEADERBOARDS)}>All time FP leaderboard</button>
+      <button onClick={() => navigate(GameScreens.ACHIEVEMENTS)}>Achievements</button>
     </div>
   );
 };
