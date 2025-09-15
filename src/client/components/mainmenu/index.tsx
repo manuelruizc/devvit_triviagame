@@ -5,7 +5,7 @@ import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 
 const MainMenu = () => {
   const { data, isReady, navigate } = useAppState();
-  const { getUserData } = useAPI();
+  const { getUserData, postQuestions } = useAPI();
   if (!isReady) return null;
   const { metrics, achievements } = data;
   const {
@@ -31,6 +31,7 @@ const MainMenu = () => {
       </span>
       <span>{JSON.stringify(metrics)}</span>
       <span>{JSON.stringify(achievements)}</span>
+      <button onClick={postQuestions}>Post Questions</button>
       <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>
       <button onClick={() => navigate(GameScreens.INGAME, 'fp')}>Free Play</button>
       <button

@@ -11,6 +11,7 @@ import {
 import { BasicAPI } from '../../shared/types/basic';
 import { useAPI } from './useAPI';
 import clsx from 'clsx';
+import { Question } from './useTrivia';
 
 export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -71,7 +72,7 @@ type AppState = (AppStateNotReady | AppStateReady) & AchievementsFunctions;
 const AppStateContext = createContext<AppState | undefined>(undefined);
 
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  const { getInitialData } = useAPI();
+  const { getInitialData, getQuestions } = useAPI();
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [navigationPayload, setNavigationPayload] = useState<string | null>(null);
@@ -80,6 +81,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [navigatingActive, setNavigatingActive] = useState<boolean>(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState<BasicAPI.AchievementType[]>([]);
   const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const navigationStack = useRef<GameScreens[]>([]);
   const navigationPayloadStack = useRef<(string | null)[]>([]);
 
@@ -238,7 +240,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const fetchInitialData = useCallback(async () => {
     try {
       const data = await getInitialData();
-      if (data.error) {
+      const questionsResponse = await getQuestions();
+      if (data.error || questionsResponse.error) {
         setIsError(true);
         return;
       }
@@ -276,6 +279,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         },
         achievements: { ...data.achievements },
       });
+      console.log(questionsResponse.questions);
+      setQuestions([...questionsResponse.questions]);
       setIsError(false);
       setIsReady(true);
     } catch {

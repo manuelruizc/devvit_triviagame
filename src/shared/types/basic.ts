@@ -4,10 +4,17 @@ export namespace BasicAPI {
     export const USER_ACHIEVEMENTS = 'user_achievements';
   }
 
+  export namespace QUESTION_HASHES {
+    export const ALL_QUESTIONS = 'all_questions_hash';
+  }
+
   export namespace BASIC_API_ENDPOINTS {
     export const INIT = '/api/init/basic_data';
     export const RESET_DATA = '/api/init/reset_data';
     export const USERS_DATA = '/api/users/data';
+    export const SAVE_QUESTIONS = '/api/questions/save_questions';
+    export const GET_QUESTIONS = '/api/questions/get_questions';
+    export const SAVE_POST_CHALLENGE = '/api/questions/save_post_challenge';
   }
   export enum BasicAPIResponseType {
     INIT = 'init_basic_data',

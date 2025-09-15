@@ -3,10 +3,11 @@ import { redis, context, reddit } from '@devvit/web/server';
 import { BasicAPI } from '../../shared/types/basic';
 import { LeaderboardAPI } from '../../shared/types/leaderboard';
 import { saveToLeaderBoard } from '../helpers/leaderboard';
+import { saveQuestions, shuffleArray } from '../helpers/questions';
 
 const basicRoute = Router();
 
-const { BASIC_API_ENDPOINTS, USER_HASH_NAMES } = BasicAPI;
+const { BASIC_API_ENDPOINTS, USER_HASH_NAMES, QUESTION_HASHES } = BasicAPI;
 
 // GET FREE PLAY LEADERBOARD
 basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
@@ -373,6 +374,64 @@ basicRoute.get<{ username: string; postId: string }, any>(
           achievements: {},
           status: 'error',
         },
+      });
+    }
+  }
+);
+
+basicRoute.post<{ questions: []; postId: string }, any>(
+  BASIC_API_ENDPOINTS.SAVE_QUESTIONS,
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+    const member = await reddit.getCurrentUsername();
+    try {
+      if (!postId || !member || member === undefined || member !== 'webdevMX') {
+        res.status(400).json({
+          questions: [],
+          status: 'error',
+        });
+        return;
+      }
+      const { questions } = _req.body;
+      const newQuestions = await saveQuestions(questions);
+
+      res.json({
+        questions: newQuestions,
+        status: 'ok',
+      });
+    } catch (error) {
+      res.status(400).json({
+        questions: [],
+        status: 'error',
+      });
+    }
+  }
+);
+
+basicRoute.get<{ postId: string }, any>(
+  BASIC_API_ENDPOINTS.GET_QUESTIONS,
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+    const member = await reddit.getCurrentUsername();
+    try {
+      if (!postId) {
+        res.status(400).json({
+          questions: [],
+          status: 'error',
+        });
+        return;
+      }
+      const newQuestions = await saveQuestions([]);
+      const shuffledQuestions = shuffleArray(newQuestions);
+      res.json({
+        questions: shuffledQuestions,
+        status: 'ok',
+        postId,
+      });
+    } catch (error) {
+      res.status(400).json({
+        questions: [],
+        status: 'error',
       });
     }
   }
