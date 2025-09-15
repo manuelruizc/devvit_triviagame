@@ -29,7 +29,7 @@ const MainMenu = () => {
       <span>
         <b>Metrics</b>
       </span>
-      <span>{JSON.stringify(metrics)}</span>
+      <span>{JSON.stringify(metrics.coins)}</span>
       <span>{JSON.stringify(achievements)}</span>
       <button onClick={postQuestions}>Post Questions</button>
       <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>

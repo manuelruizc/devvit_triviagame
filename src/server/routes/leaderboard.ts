@@ -48,6 +48,7 @@ leaderboardRoute.post<
           historyCorrect: 0,
           geographyCount: 0,
           geographyCorrect: 0,
+          coins: -69,
         },
         achievements: {},
         leaderboard: [],
@@ -55,7 +56,6 @@ leaderboardRoute.post<
       });
       return;
     }
-    console.log('hhhhereee');
     const member = redditUser.username;
     const { score, metrics, achievements, key } = _req.body;
     const allTimeDcLeaderboard = key;
@@ -89,11 +89,14 @@ leaderboardRoute.post<
 
     const saved = await saveUserMetrics(_req.body, member);
     const achievementsSaved = await saveUserAchievements(_req.body, member);
-
     if (!saved || !achievementsSaved) {
+      let name = 'not_saved';
+      if (!saved && !achievementsSaved) name = 'both';
+      if (saved && !achievementsSaved) name = 'ach';
+      if (!saved && achievementsSaved) name = 'met';
       res.status(400).json({
         type: BasicAPI.BasicAPIResponseType.INIT,
-        member: '',
+        member: name,
         allTimeDCRank: -1,
         allTimeFPRank: -1,
         dCRank: -1,
@@ -101,6 +104,7 @@ leaderboardRoute.post<
           totalQuestionsAnswered: -1,
           correctAnswers: -1,
           longestStreak: -1,
+          coins: 299,
           currentStreak: -1,
           totalPoints: -1,
           totalTime: -1,
@@ -121,7 +125,7 @@ leaderboardRoute.post<
           geographyCount: 0,
           geographyCorrect: 0,
         },
-        achievements: {},
+        achievements: _req.body.achievements,
         leaderboard: [],
         status: 'error',
       });
@@ -130,18 +134,17 @@ leaderboardRoute.post<
 
     res.json({
       type: BasicAPI.BasicAPIResponseType.INIT,
-      member: '',
+      member: String(_req.body.metrics.coins) + ' daddy',
       allTimeDCRank: leaderboardsData.dcRank,
       allTimeFPRank: leaderboardsData.fpRank,
-      dCRank: -69,
+      dCRank: -1111,
       metrics,
       leaderboard,
       achievements: { ...achievements },
       status: 'ok',
     });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({
+    res.status(502).json({
       type: BasicAPI.BasicAPIResponseType.INIT,
       member: '',
       allTimeDCRank: -1,
@@ -155,6 +158,7 @@ leaderboardRoute.post<
         currentStreak: -1,
         totalPoints: -1,
         totalTime: -1,
+        coins: 99,
         fastestDCSession: -1,
         totalSessions: -1,
         highestScoreSession: -1,

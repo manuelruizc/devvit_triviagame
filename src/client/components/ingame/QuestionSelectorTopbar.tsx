@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { useTrivia } from '../../hooks/useTrivia';
+import { DC_CLUE_COST, FP_CLUE_COST, useTrivia } from '../../hooks/useTrivia';
+import { act, useMemo } from 'react';
 
 const QuestionSelectorTopbar = ({}: {}) => {
   const {
@@ -8,12 +9,19 @@ const QuestionSelectorTopbar = ({}: {}) => {
     time,
     points,
     gameStatus,
+    clueIsActive,
     coins,
     coinsBanked,
     streak,
+    type,
     saveToBank,
     startTimer,
+    activateClue,
   } = useTrivia();
+  const clueCost = useMemo(() => (type === 'dc' ? DC_CLUE_COST : FP_CLUE_COST), [type]);
+  const canBuyClue = useMemo(() => {
+    return coins >= clueCost;
+  }, [type, coins]);
   return (
     <div className={'w-full flex flex-col justify-center items-center py-12'}>
       <button className="cursor-pointer my-4" onClick={saveToBank}>
@@ -33,6 +41,14 @@ const QuestionSelectorTopbar = ({}: {}) => {
         ))}
       </div> */}
       <span>{time}</span>
+      <button
+        disabled={!canBuyClue}
+        className={clsx('cursor-pointer my-4', !canBuyClue && 'opacity-20')}
+        onClick={() => activateClue(clueCost)}
+      >
+        {canBuyClue ? 'Get Clue for ' + clueCost : "Can't get clue"}
+      </button>
+      <span>{clueIsActive ? 'Clue is active' : 'Clue not active'}</span>
       <span>Streak: {streak}</span>
       <span>Coins: {coins}</span>
       <span>Saved: {coinsBanked}</span>

@@ -84,7 +84,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const navigationStack = useRef<GameScreens[]>([]);
   const navigationPayloadStack = useRef<(string | null)[]>([]);
-
+  console.log('achievemnts', achievements);
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
       if (!data) return [];
@@ -245,7 +245,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         setIsError(true);
         return;
       }
-      console.log(data);
+      console.log('dataaaa', data);
       setData({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member: data.member || '',
@@ -254,6 +254,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         dCRank: Number(data.dCRank || -1),
         status: 'ok',
         metrics: {
+          coins: Number(data.metrics.coins !== undefined ? data.metrics.coins : 0),
           totalQuestionsAnswered: Number(data.metrics.totalQuestionsAnswered || 0),
           correctAnswers: Number(data.metrics.correctAnswers || 0),
           longestStreak: Number(data.metrics.longestStreak || 0),
@@ -279,7 +280,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         },
         achievements: { ...data.achievements },
       });
-      console.log(questionsResponse.questions);
+      setAchievements(
+        data ? [...(Object.keys(data.achievements) as BasicAPI.AchievementType[])] : []
+      );
       setQuestions([...questionsResponse.questions]);
       setIsError(false);
       setIsReady(true);

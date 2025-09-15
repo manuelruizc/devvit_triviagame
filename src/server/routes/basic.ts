@@ -34,6 +34,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
             totalSessions: -1,
             highestScoreSession: -1,
             hintsUsed: -1,
+            coins: 0,
             // categories
             entertainmentCorrect: 0,
             entertainmentCount: 0,
@@ -78,7 +79,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           totalSessions: '0',
           highestScoreSession: '0',
           hintsUsed: '0',
-
+          coins: '0',
           entertainmentCorrect: '0',
           entertainmentCount: '0',
           redditCount: '0',
@@ -105,7 +106,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
       res.json({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member,
-        dCRank: 99, // TODO
+        dCRank: -111, // TODO
         allTimeDCRank: dcRank,
         allTimeFPRank: fpRank,
         metrics: {
@@ -119,7 +120,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           totalSessions: Number(record?.totalSessions || 0),
           highestScoreSession: Number(record?.highestScoreSession || 0),
           hintsUsed: Number(record?.hintsUsed || 0),
-
+          coins: Number(record?.coins || 0),
           entertainmentCorrect: Number(record?.entertainmentCorrect || 0),
           entertainmentCount: Number(record?.entertainmentCount || 0),
           redditCount: Number(record?.redditCount || 0),
@@ -166,6 +167,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           historyCorrect: 0,
           geographyCount: 0,
           geographyCorrect: 0,
+          coins: 0,
         },
         achievements: {},
         status: 'error',

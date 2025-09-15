@@ -44,7 +44,8 @@ export namespace BasicAPI {
     | 'ontheboard'
     | 'climber'
     | 'topten'
-    | 'numberone';
+    | 'numberone'
+    | 'none';
 
   export interface UserMetrics extends CategoryMetrics {
     totalQuestionsAnswered: number;
@@ -57,6 +58,7 @@ export namespace BasicAPI {
     totalSessions: number;
     highestScoreSession: number;
     hintsUsed: number;
+    coins: number;
   }
 
   export interface ResetData {
