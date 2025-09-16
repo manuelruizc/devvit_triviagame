@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { useAppState } from '../../hooks/useAppState';
 import { REDDIT_RED } from '../../helpers/colors';
+import { playSound } from '../../helpers/sounds';
 
 const StartupScreen = () => {
   const { isReady } = useAppState();
@@ -12,6 +13,7 @@ const StartupScreen = () => {
     if (isReady) {
       setTimeout(() => {
         setCatAnimation(true);
+        playSound('/sounds/blinksound.mp3');
         setTimeout(() => {
           setStopRender(true);
         }, 400);

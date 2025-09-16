@@ -1,46 +1,60 @@
-import { useCallback, useEffect, useState } from 'react';
-import { GET_REQUEST } from '../../helpers/https';
-import LeaderboardResult from './leaderboardresult';
+import { useState } from 'react';
 import { LeaderboardAPI } from '../../../shared/types/leaderboard';
-import { useAppState } from '../../hooks/useAppState';
+import LeaderboardSelected from './leaderboardselected';
+import { context } from '@devvit/web/client';
+import clsx from 'clsx';
+import { Button } from '../../ui/Button';
+import { ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
+import GoBackButton from '../../ui/GoBackButton';
+
+const BUTTONS = ['Daily Challenge', 'All-Time DC', 'All-Time FP'];
+const COLORS: string[] = [ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6];
 
 const Leaderboard = () => {
-  const { data: userData, navigationPayload } = useAppState();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [data, setData] = useState<any[]>([]);
-  const fetchData = useCallback(
-    async (key: string) => {
-      try {
-        if (!userData) return;
-        if (!userData.member) return;
-        const fetchedData: any[] = await GET_REQUEST<any[]>(
-          LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_LEADERBOARD_WITH_KEY +
-            `/${userData?.member || ''}/${key}`
-        );
-        setData(fetchedData);
-        setIsLoading(false);
-        setIsError(false);
-      } catch (e) {
-        setIsError(true);
-        return;
-      }
-    },
-    [userData]
+  const [index, setIndex] = useState<number>(0);
+
+  return (
+    <div className={clsx('w-full h-full flex flex-col justify-start items-center')}>
+      <div
+        className={clsx('w-full h-full flex flex-col justify-start items-center max-w-[1250px]')}
+      >
+        <GoBackButton />
+        <span>LEADERBOARDS</span>
+        <div className={clsx('w-full flex justify-around items-center')}>
+          {BUTTONS.map((title, i) => (
+            <Button
+              title={title.toUpperCase()}
+              className={clsx(
+                'w-[30%] text-xs !py-1 !h-12',
+                'sm:w-[30%]',
+                'md:w-[30%] md:text-sm',
+                'lg:w-[30%] md:text-base',
+                'xl:w-[30%]',
+                '2xl:w-[30%]'
+              )}
+              backgroundColor={COLORS[i] as string}
+              onClick={() => setIndex(i)}
+              disabled={i === index}
+            />
+          ))}
+        </div>
+        <span>{BUTTONS[index]}</span>
+        {index === 0 ? (
+          <LeaderboardSelected
+            leaderboardKey={`${LeaderboardAPI.LEADERBOARD_NAMES.POST_DC},${context.postId}`}
+          />
+        ) : index === 1 ? (
+          <LeaderboardSelected
+            leaderboardKey={LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC as string}
+          />
+        ) : (
+          <LeaderboardSelected
+            leaderboardKey={LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP as string}
+          />
+        )}
+      </div>
+    </div>
   );
-
-  useEffect(() => {
-    if (navigationPayload === null) return;
-    fetchData(navigationPayload);
-  }, [navigationPayload]);
-
-  if (isLoading) {
-    return <div className="w-full h-full bg-sky-800"></div>;
-  }
-  if (isError) {
-    return <div className="w-full h-full bg-red-300"></div>;
-  }
-  return <LeaderboardResult data={data} />;
 };
 
 export default Leaderboard;

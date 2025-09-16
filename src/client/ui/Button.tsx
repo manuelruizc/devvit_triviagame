@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
+import { useAppState } from '../hooks/useAppState';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -16,6 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   ...props
 }) => {
+  const { playButtonSound } = useAppState();
   return (
     <button
       className={clsx(
@@ -24,6 +26,10 @@ export const Button: React.FC<ButtonProps> = ({
         props.disabled && 'opacity-85 active:opacity-85 active:scale-100'
       )}
       {...props}
+      onClick={(e) => {
+        playButtonSound();
+        if (props.onClick) props.onClick(e);
+      }}
       style={{ ...props.style, color, backgroundColor }}
     >
       <span>{title}</span>

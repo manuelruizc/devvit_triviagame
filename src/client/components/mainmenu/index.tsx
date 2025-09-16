@@ -74,7 +74,7 @@ const MainMenu = () => {
               backgroundSize: 'contain',
             }}
           ></div>
-          {<span>Welcome {data.member}!</span>}
+          {<span style={{ color: ACCENT_COLOR3 }}>Welcome {data.member}!</span>}
         </div>
         <div className={clsx('w-full flex flex-1 flex-col justify-end items-center')}>
           <Button
@@ -91,13 +91,13 @@ const MainMenu = () => {
             backgroundColor={ACCENT_COLOR2}
           />
           <Button
-            onClick={() => navigate(GameScreens.INGAME, 'fp')}
+            onClick={() => navigate(GameScreens.ACHIEVEMENTS)}
             title="ACHIEVEMENTS"
             className={buttonClass}
             backgroundColor={ACCENT_COLOR3}
           />
           <Button
-            onClick={() => console}
+            onClick={() => navigate(GameScreens.LEADERBOARDS)}
             title="LEADERBOARDS"
             className={buttonClass}
             backgroundColor={ACCENT_COLOR6}

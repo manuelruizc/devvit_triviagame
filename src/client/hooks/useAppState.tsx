@@ -13,6 +13,7 @@ import { useAPI } from './useAPI';
 import clsx from 'clsx';
 import { DailyTrivia, Question } from './useTrivia';
 import { context } from '@devvit/web/client';
+import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../helpers/colors';
 
 export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -20,10 +21,10 @@ export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'justintime',
   'hotstreak',
   'firestreak',
-  'bigbrains',
+  // 'bigbrains',
   'lightingfast',
   'ontheboard',
-  'climber',
+  // 'climber',
   'topten',
   'numberone',
 ];
@@ -50,6 +51,7 @@ interface AchievementsFunctions {
   dailyTrivia: DailyTrivia | null;
   postTriviaAnswered: boolean;
   dailyTriviaFinished: () => void;
+  playButtonSound: () => void;
 }
 
 interface AppStateNotReady {
@@ -91,6 +93,18 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [postTriviaAnswered, setPostTriviaAnswered] = useState<boolean>(false);
   const navigationStack = useRef<GameScreens[]>([]);
   const navigationPayloadStack = useRef<(string | null)[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playButtonSound = useCallback(() => {
+    if (!audioRef.current) return;
+
+    // Stop the audio and reset it
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+
+    // Play it again
+    audioRef.current.play().catch((err) => console.log('Playback failed:', err));
+  }, []);
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
       if (!data) return [];
@@ -217,10 +231,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     setTimeout(() => {
       setNavigationPayload(finalPayload);
       setScreen(nextScreen);
-    }, 500);
+    }, 700);
     setTimeout(() => {
       setNavigatingActive(false);
-    }, 700);
+    }, 1100);
   }, []);
 
   const goBack = useCallback(() => {
@@ -330,6 +344,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForPerfectRound,
         checkForFirstQuestionAnswered,
         goBack,
+        playButtonSound,
       } as const;
     } else {
       return {
@@ -348,6 +363,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForPerfectRound,
         checkForFirstQuestionAnswered,
         goBack,
+        playButtonSound,
       } as const;
     }
   }, [
@@ -362,6 +378,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     dailyTrivia,
     postTriviaAnswered,
     checkForStreakAchievements,
+    playButtonSound,
     checkForTimeAchievements,
     checkForPerfectRound,
     checkForFirstQuestionAnswered,
@@ -370,24 +387,81 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Fetch on mount
   useEffect(() => {
     fetchInitialData();
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/sounds/buttonclick.mp3');
+    }
   }, []);
 
   return (
     <AppStateContext.Provider value={value}>
       {children}
-      <div
-        className={clsx(
-          'absolute top-0 left-0 w-[0px] h-full bg-red-500 transition-all duration-300 ease-in-out pointer-events-auto',
-          navigatingActive && 'w-full pointer-events-none'
-        )}
-      ></div>
+
       {unlockedAchievements.length === 0 ? null : (
         <UnlockedAchievements
           achievements={unlockedAchievements}
           reset={() => setUnlockedAchievements([])}
         />
       )}
+      <NavigationTransitionLayer transitionActive={navigatingActive} />
     </AppStateContext.Provider>
+  );
+};
+
+const NavigationTransitionLayer = ({ transitionActive }: { transitionActive: boolean }) => {
+  return (
+    <div
+      className={clsx(
+        'absolute top-0 left-0 w-full h-full transition-all duration-500 ease-in-out flex flex-col',
+        transitionActive ? 'pointer-events-auto' : 'pointer-events-none'
+      )}
+    >
+      <div
+        className={clsx(
+          'flex-1 transition-all duration-500 ease-in-out w-full',
+          transitionActive ? 'translate-x-0' : 'translate-x-[-100%]'
+        )}
+        style={{ backgroundColor: ACCENT_COLOR }}
+      />
+      <div
+        className={clsx(
+          'flex-1 transition-all duration-500 ease-in-out w-full',
+          transitionActive ? 'translate-x-0' : 'translate-x-[100%]'
+        )}
+        style={{ backgroundColor: ACCENT_COLOR2 }}
+      />
+      <div
+        className={clsx(
+          'flex-1 transition-all duration-500 ease-in-out w-full',
+          transitionActive ? 'translate-x-0' : 'translate-x-[-100%]'
+        )}
+        style={{ backgroundColor: ACCENT_COLOR3 }}
+      />
+      <div
+        className={clsx(
+          'flex-1 transition-all duration-500 ease-in-out w-full',
+          transitionActive ? 'translate-x-0' : 'translate-x-[100%]'
+        )}
+        style={{ backgroundColor: ACCENT_COLOR6 }}
+      />
+      <div className={clsx('absolute top-0 left-0 w-full h-full flex justify-center items-center')}>
+        <div className="w-full h-full max-w-[1250px] flex justify-center items-center">
+          <div
+            className={clsx(
+              'w-7/12 aspect-square transition-all duration-500 ease-in-out lg:w-5/12',
+              transitionActive
+                ? 'scale-100 rotate-[0deg] opacity-100'
+                : 'scale-50 opacity-0 rotate-[720deg]'
+            )}
+            style={{
+              backgroundImage: 'url(/cat/cat-snoo.png',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundSize: 'contain',
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
