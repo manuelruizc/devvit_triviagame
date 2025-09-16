@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { redis, context, reddit } from '@devvit/web/server';
 import { BasicAPI } from '../../shared/types/basic';
 import { LeaderboardAPI } from '../../shared/types/leaderboard';
-import { saveToLeaderBoard } from '../helpers/leaderboard';
+import { getLeaderboadRanks, saveToLeaderBoard } from '../helpers/leaderboard';
 import { saveQuestions, shuffleArray } from '../helpers/questions';
 
 const basicRoute = Router();
@@ -62,7 +62,9 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
       let fpRank = -1;
       let fpScore = -1;
       let dcScore = -1;
-
+      let postDCRank = -1;
+      let postDCScore = -1;
+      let leaderboardRankings = null;
       if (hashLength === 0) {
         await redis.hSet(hashKey, {
           score: '-1',
@@ -94,19 +96,22 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
           geographyCorrect: '0',
         });
       } else {
-        const leaderboardsData = await saveToLeaderBoard(member);
+        const leaderboardsData = await getLeaderboadRanks(member, postId);
+        leaderboardRankings = leaderboardsData;
         dcRank = leaderboardsData.dcRank;
         dcScore = leaderboardsData.dcScore;
         fpScore = leaderboardsData.fpScore;
         fpRank = leaderboardsData.fpRank;
+        postDCRank = leaderboardsData.postDCRank;
+        postDCScore = leaderboardsData.postDCScore;
       }
 
       const record = await redis.hGetAll(hashKey);
       const achiev = await redis.hGetAll(achievementsHashKey);
       res.json({
         type: BasicAPI.BasicAPIResponseType.INIT,
-        member,
-        dCRank: -111, // TODO
+        member: member,
+        dCRank: postDCRank,
         allTimeDCRank: dcRank,
         allTimeFPRank: fpRank,
         metrics: {
@@ -140,7 +145,7 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
     } catch (error) {
       res.status(400).json({
         type: BasicAPI.BasicAPIResponseType.INIT,
-        member: 'string;',
+        member: '',
         allTimeDCRank: -1,
         allTimeFPRank: -1,
         dCRank: -1,
@@ -218,7 +223,7 @@ basicRoute.get<{ username: string; postId: string }, any>(
           userRedditData: null,
           gameData: {
             type: BasicAPI.BasicAPIResponseType.INIT,
-            member: '',
+            member: 'user_data_first_error',
             allTimeDCRank: -1,
             allTimeFPRank: -1,
             dCRank: -1,
@@ -261,6 +266,8 @@ basicRoute.get<{ username: string; postId: string }, any>(
       let fpRank = -1;
       let fpScore = -1;
       let dcScore = -1;
+      let postDCScore = -1;
+      let postDCRank = -1;
 
       if (hashLength === 0) {
         await redis.hSet(hashKey, {
@@ -293,11 +300,13 @@ basicRoute.get<{ username: string; postId: string }, any>(
           geographyCorrect: '0',
         });
       } else {
-        const leaderboardsData = await saveToLeaderBoard(member);
+        const leaderboardsData = await getLeaderboadRanks(member, postId);
         dcRank = leaderboardsData.dcRank;
         dcScore = leaderboardsData.dcScore;
         fpScore = leaderboardsData.fpScore;
         fpRank = leaderboardsData.fpRank;
+        postDCRank = leaderboardsData.postDCRank;
+        postDCScore = leaderboardsData.postDCScore;
       }
 
       const record = await redis.hGetAll(hashKey);
@@ -307,7 +316,7 @@ basicRoute.get<{ username: string; postId: string }, any>(
         gameData: {
           type: BasicAPI.BasicAPIResponseType.INIT,
           member,
-          dCRank: 99, // TODO
+          dCRank: postDCRank,
           allTimeDCRank: dcRank,
           allTimeFPRank: fpRank,
           metrics: {
@@ -344,7 +353,7 @@ basicRoute.get<{ username: string; postId: string }, any>(
         userRedditData: null,
         gameData: {
           type: BasicAPI.BasicAPIResponseType.INIT,
-          member: '',
+          member: 'user_data_catch_error',
           allTimeDCRank: -1,
           allTimeFPRank: -1,
           dCRank: -1,

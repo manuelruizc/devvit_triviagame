@@ -17,7 +17,6 @@ leaderboardRoute.post<
   const { postId } = context;
   try {
     const redditUser = await reddit.getCurrentUser();
-    console.log(redditUser);
     if (!postId || !redditUser) {
       res.status(400).json({
         type: BasicAPI.BasicAPIResponseType.INIT,
@@ -59,26 +58,16 @@ leaderboardRoute.post<
     const member = redditUser.username;
     const { score, metrics, achievements, key } = _req.body;
     const allTimeDcLeaderboard = key;
-    const leaderboardsData = await saveToLeaderBoard(member, key, score);
-    //  leaderboardsData.dcScore;
-    //  leaderboardsData.fpScore;
-    // let storedScore = await redis.zScore(allTimeDcLeaderboard, member);
-
-    // if (storedScore === null) {
-    //   // Add the member with inverted score
-    //   await redis.zAdd(allTimeDcLeaderboard, { member, score: score * -1 });
-    // } else {
-    //   // Increment existing score
-    //   await redis.zIncrBy(allTimeDcLeaderboard, member, score * -1);
-    // }
-
-    // // Always re-fetch to ensure it's persisted
-    // storedScore = await redis.zScore(allTimeDcLeaderboard, member);
-    // const rank = await redis.zRank(allTimeDcLeaderboard, member);
-
-    // let finalScore = 0;
-    // if (storedScore) finalScore = storedScore;
-    // const userRank = rank !== null && rank !== undefined ? rank + 1 : -1;
+    if (key === 'post_dc_leaderboard') {
+      const postDCLeaderboardKey: LeaderboardKeyType = `${LEADERBOARD_NAMES.POST_DC},${postId}`;
+      const postDCLeaderboardData = await saveToLeaderBoard(
+        member,
+        postId,
+        postDCLeaderboardKey,
+        score
+      );
+    }
+    const leaderboardsData = await saveToLeaderBoard(member, postId, key, score);
 
     const leaderboardData = await redis.zRange(allTimeDcLeaderboard, 0, 99);
     const leaderboard: LeaderboardAPI.LeaderboardItem[] = leaderboardData.map((item) => ({
@@ -97,9 +86,9 @@ leaderboardRoute.post<
       res.status(400).json({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member: name,
-        allTimeDCRank: -1,
-        allTimeFPRank: -1,
-        dCRank: -1,
+        allTimeDCRank: leaderboardsData.dcRank,
+        allTimeFPRank: leaderboardsData.fpRank,
+        dCRank: leaderboardsData.postDCRank,
         metrics: {
           totalQuestionsAnswered: -1,
           correctAnswers: -1,

@@ -1,5 +1,7 @@
 export type LeaderboardKeyType =
-  (typeof LeaderboardAPI.LEADERBOARD_NAMES)[keyof typeof LeaderboardAPI.LEADERBOARD_NAMES];
+  | (typeof LeaderboardAPI.LEADERBOARD_NAMES)[keyof typeof LeaderboardAPI.LEADERBOARD_NAMES]
+  | `${(typeof LeaderboardAPI.LEADERBOARD_NAMES)[keyof typeof LeaderboardAPI.LEADERBOARD_NAMES]},${string}`;
+
 export namespace LeaderboardAPI {
   //   GetAllTimeDailyChallengesLeaderboardResponse: GetAllTimeDailyChallengesLeaderboard;
   //   GetAllTimeFreePlayLeaderboard: GetAllTimeFreePlayLeaderboard;
@@ -11,6 +13,7 @@ export namespace LeaderboardAPI {
   export namespace LEADERBOARD_NAMES {
     export const ALL_TIME_DC = 'at_dc_leaderboard';
     export const ALL_TIME_FP = 'at_fp_leaderboard';
+    export const POST_DC = 'post_dc_leaderboard';
   }
 
   export enum LeaderboardAPIResponseType {
