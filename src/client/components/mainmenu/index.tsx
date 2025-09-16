@@ -64,7 +64,7 @@ const MainMenu = () => {
           '2xl:'
         )}
       >
-        <div className={clsx('w-full flex justify-center items-center flex-1')}>
+        <div className={clsx('w-full flex flex-col justify-center items-center flex-1')}>
           <div
             className="w-[95%] h-[95%]"
             style={{
