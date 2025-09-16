@@ -1,0 +1,9 @@
+export const PRIMARY_COLOR = '#8EC2CC';
+export const SECONDARY_COLOR = '#F5BDD8';
+export const REDDIT_RED = '#FF4500';
+export const ACCENT_COLOR = '#C2A3F5';
+export const ACCENT_COLOR2 = '#F58E9C';
+export const ACCENT_COLOR3 = '#F5CBAF';
+export const ACCENT_COLOR6 = '#F5A78E';
+export const SUCCESS_COLOR = '#6AC9A6';
+export const ERROR_COLOR = '#F56A6A';

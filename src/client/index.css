@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@import 'tailwindcss';
-
 /* ---------------- Base Fonts ---------------- */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui;
@@ -240,5 +238,302 @@
 @media (min-width: 1280px) {
   @theme {
     --max-w-content: 1440px; /* large desktop / ultra-wide */
+  }
+}
+
+@layer utilities {
+  .theme-bg-helper {
+    background-color: var(--bg-helper);
+  }
+}
+
+@layer utilities {
+  /* Padding */
+  .theme-p-1 {
+    padding: var(--space-1);
+  }
+  .theme-p-2 {
+    padding: var(--space-2);
+  }
+  .theme-p-3 {
+    padding: var(--space-3);
+  }
+  .theme-p-4 {
+    padding: var(--space-4);
+  }
+  .theme-p-5 {
+    padding: var(--space-5);
+  }
+  .theme-p-6 {
+    padding: var(--space-6);
+  }
+  .theme-p-8 {
+    padding: var(--space-8);
+  }
+  .theme-p-10 {
+    padding: var(--space-10);
+  }
+  .theme-p-12 {
+    padding: var(--space-12);
+  }
+  .theme-p-16 {
+    padding: var(--space-16);
+  }
+
+  /* Margin */
+  .theme-m-1 {
+    margin: var(--space-1);
+  }
+  .theme-m-2 {
+    margin: var(--space-2);
+  }
+  .theme-m-3 {
+    margin: var(--space-3);
+  }
+  .theme-m-4 {
+    margin: var(--space-4);
+  }
+  .theme-m-5 {
+    margin: var(--space-5);
+  }
+  .theme-m-6 {
+    margin: var(--space-6);
+  }
+  .theme-m-8 {
+    margin: var(--space-8);
+  }
+  .theme-m-10 {
+    margin: var(--space-10);
+  }
+  .theme-m-12 {
+    margin: var(--space-12);
+  }
+  .theme-m-16 {
+    margin: var(--space-16);
+  }
+
+  /* Directional spacing */
+  .theme-pt-1 {
+    padding-top: var(--space-1);
+  }
+  .theme-pr-1 {
+    padding-right: var(--space-1);
+  }
+  .theme-pb-1 {
+    padding-bottom: var(--space-1);
+  }
+  .theme-pl-1 {
+    padding-left: var(--space-1);
+  }
+  .theme-px-1 {
+    padding-left: var(--space-1);
+    padding-right: var(--space-1);
+  }
+  .theme-py-1 {
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-1);
+  }
+  /* repeat for 2,3,4,5,6,8,10,12,16 */
+}
+
+@layer utilities {
+  /* Font size */
+  .theme-text-3 {
+    font-size: var(--text-3);
+  }
+  .theme-text-4 {
+    font-size: var(--text-4);
+  }
+  .theme-text-6 {
+    font-size: var(--text-6);
+  }
+  .theme-text-8 {
+    font-size: var(--text-8);
+  }
+
+  /* Line height */
+  .theme-leading-3 {
+    line-height: var(--leading-3);
+  }
+  .theme-leading-4 {
+    line-height: var(--leading-4);
+  }
+  .theme-leading-6 {
+    line-height: var(--leading-6);
+  }
+  .theme-leading-8 {
+    line-height: var(--leading-8);
+  }
+
+  /* Letter spacing */
+  .theme-tracking-3 {
+    letter-spacing: var(--tracking-3);
+  }
+  .theme-tracking-4 {
+    letter-spacing: var(--tracking-4);
+  }
+  .theme-tracking-6 {
+    letter-spacing: var(--tracking-6);
+  }
+  .theme-tracking-8 {
+    letter-spacing: var(--tracking-8);
+  }
+}
+
+@layer utilities {
+  .theme-max-w-content {
+    max-width: var(--max-w-content);
+  }
+}
+
+@layer utilities {
+  /* Primary colors */
+  .theme-bg-primary-100 {
+    background-color: var(--color-primary-100);
+  }
+  .theme-bg-primary-200 {
+    background-color: var(--color-primary-200);
+  }
+  .theme-bg-primary-300 {
+    background-color: var(--color-primary-300);
+  }
+  .theme-bg-primary-400 {
+    background-color: var(--color-primary-400);
+  }
+  .theme-bg-primary-500 {
+    background-color: var(--color-primary-500);
+  }
+  .theme-bg-primary-600 {
+    background-color: var(--color-primary-600);
+  }
+  .theme-bg-primary-700 {
+    background-color: var(--color-primary-700);
+  }
+  .theme-bg-primary-800 {
+    background-color: var(--color-primary-800);
+  }
+  .theme-bg-primary-900 {
+    background-color: var(--color-primary-900);
+  }
+
+  .theme-text-primary-100 {
+    color: var(--color-primary-100);
+  }
+  .theme-text-primary-200 {
+    color: var(--color-primary-200);
+  }
+  .theme-text-primary-300 {
+    color: var(--color-primary-300);
+  }
+  .theme-text-primary-400 {
+    color: var(--color-primary-400);
+  }
+  .theme-text-primary-500 {
+    color: var(--color-primary-500);
+  }
+  .theme-text-primary-600 {
+    color: var(--color-primary-600);
+  }
+  .theme-text-primary-700 {
+    color: var(--color-primary-700);
+  }
+  .theme-text-primary-800 {
+    color: var(--color-primary-800);
+  }
+  .theme-text-primary-900 {
+    color: var(--color-primary-900);
+  }
+
+  /* Secondary colors */
+  .theme-bg-secondary-100 {
+    background-color: var(--color-secondary-100);
+  }
+  .theme-bg-secondary-200 {
+    background-color: var(--color-secondary-200);
+  }
+  .theme-bg-secondary-300 {
+    background-color: var(--color-secondary-300);
+  }
+  .theme-bg-secondary-400 {
+    background-color: var(--color-secondary-400);
+  }
+  .theme-bg-secondary-500 {
+    background-color: var(--color-secondary-500);
+  }
+  .theme-bg-secondary-600 {
+    background-color: var(--color-secondary-600);
+  }
+  .theme-bg-secondary-700 {
+    background-color: var(--color-secondary-700);
+  }
+  .theme-bg-secondary-800 {
+    background-color: var(--color-secondary-800);
+  }
+  .theme-bg-secondary-900 {
+    background-color: var(--color-secondary-900);
+  }
+
+  .theme-text-secondary-100 {
+    color: var(--color-secondary-100);
+  }
+  .theme-text-secondary-200 {
+    color: var(--color-secondary-200);
+  }
+  .theme-text-secondary-300 {
+    color: var(--color-secondary-300);
+  }
+  .theme-text-secondary-400 {
+    color: var(--color-secondary-400);
+  }
+  .theme-text-secondary-500 {
+    color: var(--color-secondary-500);
+  }
+  .theme-text-secondary-600 {
+    color: var(--color-secondary-600);
+  }
+  .theme-text-secondary-700 {
+    color: var(--color-secondary-700);
+  }
+  .theme-text-secondary-800 {
+    color: var(--color-secondary-800);
+  }
+  .theme-text-secondary-900 {
+    color: var(--color-secondary-900);
+  }
+
+  /* Accent colors */
+  .theme-bg-accent-100 {
+    background-color: var(--color-accent-100);
+  }
+  .theme-bg-accent-500 {
+    background-color: var(--color-accent-500);
+  }
+  .theme-bg-accent-900 {
+    background-color: var(--color-accent-900);
+  }
+
+  .theme-text-accent-100 {
+    color: var(--color-accent-100);
+  }
+  .theme-text-accent-500 {
+    color: var(--color-accent-500);
+  }
+  .theme-text-accent-900 {
+    color: var(--color-accent-900);
+  }
+
+  /* Status colors */
+  .theme-bg-success {
+    background-color: var(--color-success-500);
+  }
+  .theme-bg-error {
+    background-color: var(--color-error-500);
+  }
+
+  .theme-text-success {
+    color: var(--color-success-500);
+  }
+  .theme-text-error {
+    color: var(--color-error-500);
   }
 }

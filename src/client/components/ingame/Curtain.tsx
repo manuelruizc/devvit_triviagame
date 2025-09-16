@@ -41,7 +41,7 @@ const Curtain = () => {
         gameStatus === 'finished-main-guess-correct'
           ? 'bg-green-300'
           : gameStatus === 'finished-run-out-of-time'
-            ? 'bg-red-500'
+            ? 'bg-red-100'
             : 'bg-black'
       )}
     >

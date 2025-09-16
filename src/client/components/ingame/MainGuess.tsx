@@ -339,7 +339,7 @@ const LetterBlock = ({
       className={clsx(
         'w-6 h-6 flex justify-center items-center mx-1 my-1 bg-blue-500 text-white transition-all duration-300 ease-in-out',
         activeBorder && 'border',
-        wrongGuess && 'bg-red-500',
+        wrongGuess && 'bg-red-100',
         isRevealed && 'bg-green-400'
       )}
     >
