@@ -44,7 +44,7 @@ const Questions = () => {
         idx = i;
       }
     }
-    const i = getRandomExcluding(0, randomlySortedAnswers.length - 1);
+    const i = getRandomExcluding(randomlySortedAnswers.length - 1, idx);
     return new Set([i, idx]);
   }, [randomlySortedAnswers, clueIsActive]);
   if (!question || !randomlySortedAnswers || gameStatus === 'main-guess') return <MainGuess />;

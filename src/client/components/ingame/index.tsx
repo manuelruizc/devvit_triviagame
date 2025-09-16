@@ -65,15 +65,22 @@ const TRIVIA: DailyTrivia = {
 };
 const randomNumber = Math.floor(Math.random() * 11) + 1;
 const Ingame = () => {
-  const { isReady, navigationPayload } = useAppState();
+  const { isReady, navigationPayload, dailyTrivia } = useAppState();
   const {
     // postScoreToFreePlay,
     // getAllTimeDailyChallengesLeaderboard,
     // getAllTimeFreePlayLeaderboard,
   } = useLeaderboard();
   if (!isReady || navigationPayload === null) return null;
+  if (!dailyTrivia) {
+    return (
+      <TriviaProvider trivia={TRIVIA} type={navigationPayload as 'fp' | 'dc'}>
+        <IngameInner />
+      </TriviaProvider>
+    );
+  }
   return (
-    <TriviaProvider trivia={TRIVIA} type={navigationPayload as 'fp' | 'dc'}>
+    <TriviaProvider trivia={dailyTrivia} type={navigationPayload as 'fp' | 'dc'}>
       <IngameInner />
     </TriviaProvider>
   );

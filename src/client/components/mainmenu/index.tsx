@@ -2,9 +2,10 @@ import React from 'react';
 import { GameScreens, useAppState } from '../../hooks/useAppState';
 import { useAPI } from '../../hooks/useAPI';
 import { LeaderboardAPI } from '../../../shared/types/leaderboard';
+import { context } from '@devvit/web/client';
 
 const MainMenu = () => {
-  const { data, isReady, navigate } = useAppState();
+  const { data, isReady, navigate, dailyTrivia, postTriviaAnswered } = useAppState();
   const { getUserData, postQuestions } = useAPI();
   if (!isReady) return null;
   const { metrics, achievements } = data;
@@ -20,20 +21,35 @@ const MainMenu = () => {
     // highestScoreSession,
     // hintsUsed,
   } = metrics;
+  console.log(context);
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center bg-teal-600">
-      <span>All time daily challenge ranking: {data.allTimeDCRank}</span>
+    <div className="w-full h-full flex flex-col justify-center items-center bg-mint-500">
+      <span className="">All time daily challenge ranking: {data.allTimeDCRank}</span>
       <span>All time free play ranking: {data.allTimeFPRank}</span>
       {data.dCRank < 0 ? null : <span>Today's challenge rank: {data.dCRank}</span>}
       <br />
+      <text className="mt-1 font-bold">Post Data:</text>
+      <text>Daily Trivia: {JSON.stringify(dailyTrivia, null, 2) ?? 'undefined'}</text>
       <span>
         <b>Metrics</b>
       </span>
       <span>{JSON.stringify(metrics.coins)}</span>
       <span>{JSON.stringify(achievements)}</span>
       <button onClick={postQuestions}>Post Questions</button>
-      <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>
+      {!postTriviaAnswered ? (
+        <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>
+      ) : null}
       <button onClick={() => navigate(GameScreens.INGAME, 'fp')}>Free Play</button>
+      <button
+        onClick={() =>
+          navigate(
+            GameScreens.LEADERBOARDS,
+            LeaderboardAPI.LEADERBOARD_NAMES.POST_DC + ',' + context.postId
+          )
+        }
+      >
+        Daily Challenge Leaderboard
+      </button>
       <button
         onClick={() =>
           navigate(GameScreens.LEADERBOARDS, LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC)
@@ -50,6 +66,7 @@ const MainMenu = () => {
       </button>
       <button onClick={() => navigate(GameScreens.ACHIEVEMENTS)}>Achievements</button>
       <button onClick={getUserData}>GetUserData</button>
+      <button onClick={() => navigate(GameScreens.CREATE_POST)}>Create Post</button>
       <button>ResetData</button>
     </div>
   );

@@ -58,7 +58,8 @@ leaderboardRoute.post<
     const member = redditUser.username;
     const { score, metrics, achievements, key } = _req.body;
     const allTimeDcLeaderboard = key;
-    if (key === 'post_dc_leaderboard') {
+
+    if (key === 'at_dc_leaderboard') {
       const postDCLeaderboardKey: LeaderboardKeyType = `${LEADERBOARD_NAMES.POST_DC},${postId}`;
       const postDCLeaderboardData = await saveToLeaderBoard(
         member,

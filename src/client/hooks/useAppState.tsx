@@ -11,7 +11,8 @@ import {
 import { BasicAPI } from '../../shared/types/basic';
 import { useAPI } from './useAPI';
 import clsx from 'clsx';
-import { Question } from './useTrivia';
+import { DailyTrivia, Question } from './useTrivia';
+import { context } from '@devvit/web/client';
 
 export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -34,6 +35,7 @@ export enum GameScreens {
   LEADERBOARDS = 'leaderboards',
   ACHIEVEMENTS = 'achievements',
   USER_PROFILE = 'userprofile',
+  CREATE_POST = 'createpost',
 }
 
 interface AchievementsFunctions {
@@ -45,6 +47,9 @@ interface AchievementsFunctions {
   ) => BasicAPI.AchievementType[];
   checkForFirstQuestionAnswered: () => BasicAPI.AchievementType[];
   achievements: BasicAPI.AchievementType[];
+  dailyTrivia: DailyTrivia | null;
+  postTriviaAnswered: boolean;
+  dailyTriviaFinished: () => void;
 }
 
 interface AppStateNotReady {
@@ -72,7 +77,8 @@ type AppState = (AppStateNotReady | AppStateReady) & AchievementsFunctions;
 const AppStateContext = createContext<AppState | undefined>(undefined);
 
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  const { getInitialData, getQuestions } = useAPI();
+  const { getInitialData, getQuestions, getDailyChallengeStatus } = useAPI();
+  const [dailyTrivia, setDailyTrivia] = useState<DailyTrivia | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [navigationPayload, setNavigationPayload] = useState<string | null>(null);
@@ -82,9 +88,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [unlockedAchievements, setUnlockedAchievements] = useState<BasicAPI.AchievementType[]>([]);
   const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [postTriviaAnswered, setPostTriviaAnswered] = useState<boolean>(false);
   const navigationStack = useRef<GameScreens[]>([]);
   const navigationPayloadStack = useRef<(string | null)[]>([]);
-  console.log('achievemnts', achievements);
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
       if (!data) return [];
@@ -241,11 +247,19 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     try {
       const data = await getInitialData();
       const questionsResponse = await getQuestions();
-      if (data.error || questionsResponse.error) {
+      const dailyChallengeStatus = await getDailyChallengeStatus();
+      if (
+        data.error ||
+        dailyChallengeStatus.error ||
+        questionsResponse.error ||
+        !context ||
+        !context.postData?.dailyChallenge
+      ) {
         setIsError(true);
         return;
       }
-      console.log('dataaaa', data);
+      setPostTriviaAnswered(dailyChallengeStatus.answered || false);
+      setDailyTrivia(context.postData!.dailyChallenge as unknown as DailyTrivia);
       setData({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member: data.member || '',
@@ -294,8 +308,12 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const dailyTriviaFinished = useCallback(() => {
+    setPostTriviaAnswered(true);
+  }, []);
+
   const value: AppState = useMemo(() => {
-    if (isReady && data) {
+    if (isReady && data && dailyTrivia !== null) {
       return {
         isReady: true,
         data,
@@ -303,7 +321,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         achievements,
         isError,
         navigationPayload,
+        dailyTrivia,
+        postTriviaAnswered,
         navigate,
+        dailyTriviaFinished,
         checkForStreakAchievements,
         checkForTimeAchievements,
         checkForPerfectRound,
@@ -318,8 +339,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         achievements,
         navigationPayload,
         isError,
+        dailyTrivia: null,
+        postTriviaAnswered,
         navigate,
         checkForStreakAchievements,
+        dailyTriviaFinished,
         checkForTimeAchievements,
         checkForPerfectRound,
         checkForFirstQuestionAnswered,
@@ -335,6 +359,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     achievements,
     isError,
     navigationPayload,
+    dailyTrivia,
+    postTriviaAnswered,
     checkForStreakAchievements,
     checkForTimeAchievements,
     checkForPerfectRound,

@@ -448,4 +448,74 @@ basicRoute.get<{ postId: string }, any>(
   }
 );
 
+// CREATE POST
+basicRoute.post<{ questions: []; postId: string; dailyChallenge: any }, any>(
+  BASIC_API_ENDPOINTS.CREATE_POST,
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+    const member = await reddit.getCurrentUsername();
+    try {
+      if (!postId || !member || member === undefined || member !== 'webdevMX') {
+        res.status(400).json({
+          status: 'error',
+        });
+        return;
+      }
+      const { dailyChallenge } = _req.body;
+      const post = await reddit.submitCustomPost({
+        subredditName: context.subredditName!,
+        title: 'Testing custom data',
+        splash: {
+          appDisplayName: 'Trivia testing',
+        },
+        postData: {
+          dailyChallenge,
+          testing: 'helloo',
+        },
+      });
+      res.json({
+        status: 'ok',
+        dailyChallenge: 'savado',
+        punk: { ..._req.body },
+        post,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'error',
+        post: null,
+      });
+    }
+  }
+);
+
+basicRoute.get<{ postId: string }, any>(
+  BASIC_API_ENDPOINTS.GET_DAILY_CHALLENGE,
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+    const member = await reddit.getCurrentUsername();
+    try {
+      if (!postId) {
+        res.status(400).json({
+          questions: [],
+          status: 'error',
+        });
+        return;
+      }
+      const key = `${postId},${member}`;
+      const exists = await redis.exists(key);
+      res.json({
+        answered: exists > 0,
+        status: 'ok',
+        postId,
+        exists,
+      });
+    } catch (error) {
+      res.status(400).json({
+        questions: [],
+        status: 'error',
+      });
+    }
+  }
+);
+
 export default basicRoute;

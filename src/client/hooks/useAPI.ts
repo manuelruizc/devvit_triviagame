@@ -9,6 +9,7 @@ interface ApiHookInterface {
   resetData: () => void;
   postQuestions: () => void;
   getQuestions: () => Promise<APIResponse<any>>;
+  getDailyChallengeStatus: () => Promise<APIResponse<any>>;
   // resetData: () => Promise<APIResponse<void>>;
 }
 
@@ -113,6 +114,19 @@ export const useAPI = (): ApiHookInterface => {
       // } as APIResponse<BasicAPI.GetUserBasicData>;
     }
   }, []);
+  const getDailyChallengeStatus = useCallback(async () => {
+    try {
+      const data = await GET_REQUEST<BasicAPI.GetUserBasicData>(
+        BasicAPI.BASIC_API_ENDPOINTS.GET_DAILY_CHALLENGE
+      );
+      console.log(data);
+      return data;
+    } catch (e) {
+      // return {
+      //   error: true,
+      // } as APIResponse<BasicAPI.GetUserBasicData>;
+    }
+  }, []);
   const resetData = useCallback(async () => {
     try {
       const data = await GET_REQUEST<BasicAPI.GetUserBasicData>(
@@ -132,5 +146,6 @@ export const useAPI = (): ApiHookInterface => {
     getUserData,
     postQuestions,
     getQuestions,
+    getDailyChallengeStatus,
   };
 };

@@ -40,13 +40,15 @@ const _saveToLeaderboard = async (
   try {
     if (leaderboardKey !== null && leaderboardKey !== undefined) {
       let storedScore = await redis.zScore(leaderboardKey, member);
-
       if (storedScore === null && score && leaderboardKey) {
         // Add the member with inverted score
         await redis.zAdd(leaderboardKey, { member, score: score * -1 });
       } else if (score && leaderboardKey) {
         // Increment existing score
         await redis.zIncrBy(leaderboardKey, member, score * -1);
+      }
+      if (leaderboardKey.startsWith('post_dc_leaderboard')) {
+        await redis.set(`${postId},${member}`, 'answered');
       }
     }
     const leaderboardsInfo = await getLeaderboadRanks(member, postId);

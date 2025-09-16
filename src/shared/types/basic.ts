@@ -13,6 +13,8 @@ export namespace BasicAPI {
     export const RESET_DATA = '/api/init/reset_data';
     export const USERS_DATA = '/api/users/data';
     export const SAVE_QUESTIONS = '/api/questions/save_questions';
+    export const CREATE_POST = '/api/daily_challenge/create_post';
+    export const GET_DAILY_CHALLENGE = '/api/daily_challenge/user_answered_already';
     export const GET_QUESTIONS = '/api/questions/get_questions';
     export const SAVE_POST_CHALLENGE = '/api/questions/save_post_challenge';
   }

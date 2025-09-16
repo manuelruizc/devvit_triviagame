@@ -1,1 +1,244 @@
 @import 'tailwindcss';
+
+@import 'tailwindcss';
+
+/* ---------------- Base Fonts ---------------- */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui;
+  --font-mono: 'Fira Code', monospace;
+}
+
+/* ---------------- Colors ---------------- */
+@theme {
+  /* Primary: #96C6F6 */
+  --color-primary-100: oklch(0.92 0.05 200);
+  --color-primary-200: oklch(0.85 0.08 200);
+  --color-primary-300: oklch(0.78 0.1 200);
+  --color-primary-400: oklch(0.7 0.12 200);
+  --color-primary-500: #96c6f6;
+  --color-primary-600: oklch(0.55 0.14 200);
+  --color-primary-700: oklch(0.45 0.16 200);
+  --color-primary-800: oklch(0.35 0.18 200);
+  --color-primary-900: oklch(0.25 0.2 200);
+
+  /* Secondary: #F5BDD8 */
+  --color-secondary-100: oklch(0.98 0.05 330);
+  --color-secondary-200: oklch(0.94 0.08 330);
+  --color-secondary-300: oklch(0.9 0.1 330);
+  --color-secondary-400: oklch(0.85 0.12 330);
+  --color-secondary-500: #f5bdd8;
+  --color-secondary-600: oklch(0.65 0.14 330);
+  --color-secondary-700: oklch(0.55 0.16 330);
+  --color-secondary-800: oklch(0.45 0.18 330);
+  --color-secondary-900: oklch(0.35 0.2 330);
+
+  /* Accent colors (example) */
+  --color-accent-100: oklch(0.95 0.06 100);
+  --color-accent-500: oklch(0.6 0.12 100);
+  --color-accent-900: oklch(0.3 0.18 100);
+
+  /* Status colors */
+  --color-success-500: var(--color-primary-500);
+  --color-error-500: var(--color-secondary-500);
+}
+
+/* ---------------- Responsive Spacing ---------------- */
+@theme {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+}
+
+/* Breakpoints */
+@media (min-width: 640px) {
+  @theme {
+    --space-1: 6px;
+    --space-2: 12px;
+    --space-3: 18px;
+    --space-4: 24px;
+    --space-5: 30px;
+    --space-6: 36px;
+    --space-8: 48px;
+    --space-10: 60px;
+    --space-12: 72px;
+    --space-16: 96px;
+  }
+}
+@media (min-width: 768px) {
+  @theme {
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 32px;
+    --space-5: 40px;
+    --space-6: 48px;
+    --space-8: 64px;
+    --space-10: 80px;
+    --space-12: 96px;
+    --space-16: 128px;
+  }
+}
+@media (min-width: 1024px) {
+  @theme {
+    --space-1: 10px;
+    --space-2: 20px;
+    --space-3: 30px;
+    --space-4: 40px;
+    --space-5: 50px;
+    --space-6: 60px;
+    --space-8: 80px;
+    --space-10: 100px;
+    --space-12: 120px;
+    --space-16: 160px;
+  }
+}
+@media (min-width: 1280px) {
+  @theme {
+    --space-1: 12px;
+    --space-2: 24px;
+    --space-3: 36px;
+    --space-4: 48px;
+    --space-5: 60px;
+    --space-6: 72px;
+    --space-8: 96px;
+    --space-10: 120px;
+    --space-12: 144px;
+    --space-16: 192px;
+  }
+}
+
+/* ---------------- Typography: responsive font-size, leading, tracking ---------------- */
+@theme {
+  --text-3: 12px;
+  --leading-3: 16px;
+  --tracking-3: 0.5px;
+  --text-4: 14px;
+  --leading-4: 20px;
+  --tracking-4: 0.25px;
+  --text-6: 16px;
+  --leading-6: 24px;
+  --tracking-6: 0px;
+  --text-8: 18px;
+  --leading-8: 28px;
+  --tracking-8: 0px;
+}
+
+/* md breakpoint */
+@media (min-width: 768px) {
+  @theme {
+    --text-3: 14px;
+    --leading-3: 20px;
+    --tracking-3: 0.5px;
+    --text-4: 16px;
+    --leading-4: 24px;
+    --tracking-4: 0.25px;
+    --text-6: 18px;
+    --leading-6: 28px;
+    --tracking-6: 0px;
+    --text-8: 20px;
+    --leading-8: 30px;
+    --tracking-8: 0px;
+  }
+}
+
+/* lg breakpoint */
+@media (min-width: 1024px) {
+  @theme {
+    --text-3: 16px;
+    --leading-3: 22px;
+    --tracking-3: 0.5px;
+    --text-4: 18px;
+    --leading-4: 26px;
+    --tracking-4: 0.25px;
+    --text-6: 20px;
+    --leading-6: 30px;
+    --tracking-6: 0px;
+    --text-8: 24px;
+    --leading-8: 32px;
+    --tracking-8: 0px;
+  }
+}
+
+/* xl breakpoint */
+@media (min-width: 1280px) {
+  @theme {
+    --text-3: 18px;
+    --leading-3: 26px;
+    --tracking-3: 0.5px;
+    --text-4: 20px;
+    --leading-4: 28px;
+    --tracking-4: 0.25px;
+    --text-6: 22px;
+    --leading-6: 32px;
+    --tracking-6: 0px;
+    --text-8: 26px;
+    --leading-8: 36px;
+    --tracking-8: 0px;
+  }
+}
+
+/* Default color for smallest screens (xs) */
+@theme {
+  --bg-helper: theme(color.green.500);
+}
+
+/* sm breakpoint (≥640px) */
+@media (min-width: 640px) {
+  @theme {
+    --bg-helper: theme(color.blue.500);
+  }
+}
+
+/* md breakpoint (≥768px) */
+@media (min-width: 768px) {
+  @theme {
+    --bg-helper: theme(color.purple.500);
+  }
+}
+
+/* lg breakpoint (≥1024px) */
+@media (min-width: 1024px) {
+  @theme {
+    --bg-helper: theme(color.red.500);
+  }
+}
+
+/* Default for xs (<640px) */
+@theme {
+  --max-w-content: 100%; /* mobile fills width */
+}
+
+/* sm (≥640px) */
+@media (min-width: 640px) {
+  @theme {
+    --max-w-content: 720px; /* tablets */
+  }
+}
+
+/* md (≥768px) */
+@media (min-width: 768px) {
+  @theme {
+    --max-w-content: 960px; /* small desktop */
+  }
+}
+
+/* lg (≥1024px) */
+@media (min-width: 1024px) {
+  @theme {
+    --max-w-content: 1200px; /* standard desktop */
+  }
+}
+
+/* xl (≥1280px) */
+@media (min-width: 1280px) {
+  @theme {
+    --max-w-content: 1440px; /* large desktop / ultra-wide */
+  }
+}

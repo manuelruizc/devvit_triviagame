@@ -134,6 +134,7 @@ export const TriviaProvider: React.FC<{
     checkForPerfectRound,
     checkForStreakAchievements,
     checkForTimeAchievements,
+    dailyTriviaFinished,
   } = useAppState();
   const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
@@ -464,6 +465,7 @@ export const TriviaProvider: React.FC<{
       );
       console.log('##gameFinished!!', obj);
       console.log(response);
+      dailyTriviaFinished();
     } catch (e) {
       console.log('error');
     }
