@@ -24,7 +24,7 @@ const Idle = () => {
       >
         <GoBackButton />
         <span>Daily Challenge!</span>
-        <div className="w-full flex-1 flex items-end justify-center ">
+        <div className="w-full flex-1 flex items-end justify-center mb-4">
           <SpeechBubble
             text={catIsReady ? text2 : text1}
             className={clsx('w-11/12', 'sm:w-9/12', 'md:w-7/12', 'lg:w-6/12')}
@@ -51,7 +51,7 @@ const Idle = () => {
               backgroundPosition: 'center',
               backgroundSize: 'cover',
             }}
-            className={clsx('w-full aspect-video', '', 'sm:w-7/12', '', 'xl:w-5/12', '2xl:w-6/12')}
+            className={clsx('w-10/12 aspect-video', '', 'sm:w-7/12', '', 'xl:w-5/12', '2xl:w-6/12')}
           />
         </div>
       </div>
