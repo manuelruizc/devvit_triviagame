@@ -438,7 +438,7 @@ const NavigationTransitionLayer = ({ transitionActive }: { transitionActive: boo
   return (
     <div
       className={clsx(
-        'absolute top-0 left-0 w-full h-full transition-all duration-500 ease-in-out flex flex-col',
+        'absolute top-0 left-0 w-full h-full transition-all duration-500 ease-in-out flex flex-col z-50',
         transitionActive ? 'pointer-events-auto' : 'pointer-events-none'
       )}
     >

@@ -12,15 +12,25 @@ const text2 = "Ok, it's time. Let's do this. Good Luck";
 const Idle = () => {
   const { startTimer } = useTrivia();
   const [catIsReady, setCatIsReady] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<number>(96);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center box-border">
-      {/* <span>Let's get ready to rumble!!!</span>
-      <span className="text-xl">{seconds}</span> */}
       <div
         className={clsx(
           'w-full h-full flex flex-col justify-center items-center box-border max-w-[1250px]'
         )}
+        onMouseDown={() => {
+          if (catIsReady) {
+            if (speed === 96) return;
+            setSpeed(96);
+            return;
+          }
+          setSpeed(34);
+        }}
+        onMouseUp={() => {
+          setSpeed(96);
+        }}
       >
         <GoBackButton />
         <span>Daily Challenge!</span>
@@ -39,6 +49,7 @@ const Idle = () => {
                 setCatIsReady(true);
               }, 1500);
             }}
+            speed={speed}
           />
         </div>
 

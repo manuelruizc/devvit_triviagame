@@ -1,7 +1,9 @@
-import { useCallback, useMemo } from 'react';
-import { useTrivia } from '../../hooks/useTrivia';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Question, useTrivia } from '../../hooks/useTrivia';
 import MainGuess from './MainGuess';
 import clsx from 'clsx';
+import { Button, BUTTON_CLASS } from '../../ui/Button';
+import { ERROR_COLOR, SECONDARY_COLOR, SUCCESS_COLOR } from '../../helpers/colors';
 
 function shuffleArray(arr: any[]) {
   const array = [...arr]; // copy array to avoid mutating original
@@ -21,6 +23,10 @@ function getRandomExcluding(n: number, x: number) {
   return r;
 }
 
+const checkIfAnswerIsCorrect = (userAnswer: string, realAnswer: string) => {
+  return userAnswer === realAnswer;
+};
+
 const Questions = () => {
   const {
     currentQuestionIndex,
@@ -30,12 +36,13 @@ const Questions = () => {
     clueIsActive,
   } = useTrivia();
   const question = questions[currentQuestionIndex];
+  const [playerAnswerIndex, setPlayerAnswerIndex] = useState<number>(-1);
   const randomlySortedAnswers = useMemo(() => {
     if (!question) return null;
     const arr = shuffleArray(question.answers);
     return arr;
   }, [question]);
-  const randomIndexSet = useMemo(() => {
+  const randomIndexSet = useMemo<Set<number>>(() => {
     if (randomlySortedAnswers === null) return new Set();
     if (!clueIsActive) return new Set();
     let idx = -1;
@@ -47,25 +54,95 @@ const Questions = () => {
     const i = getRandomExcluding(randomlySortedAnswers.length - 1, idx);
     return new Set([i, idx]);
   }, [randomlySortedAnswers, clueIsActive]);
+
+  useEffect(() => {
+    setPlayerAnswerIndex(-1);
+  }, [currentQuestionIndex]);
+
   if (!question || !randomlySortedAnswers || gameStatus === 'main-guess') return <MainGuess />;
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
       <span>{question.question}</span>
       {randomlySortedAnswers.map((answer, index) => (
-        <button
-          disabled={clueIsActive && !randomIndexSet.has(index)}
-          onClick={() => handleQuestionAnswer(question, answer, question.category)}
-          key={answer}
-          className={clsx(
-            'my-4 bg-purple-500 active:bg-purple-700 rounded-xl',
-            clueIsActive && !randomIndexSet.has(index) && 'opacity-10'
-          )}
-        >
-          {answer}
-        </button>
+        <TriviaButton
+          key={answer + index}
+          answer={answer}
+          clueIsActive={clueIsActive}
+          playerAnswerIndex={playerAnswerIndex}
+          onClick={() => {
+            handleQuestionAnswer(question, answer, question.category);
+            setPlayerAnswerIndex(index);
+          }}
+          randomIndexSet={randomIndexSet}
+          index={index}
+          question={question}
+        />
       ))}
     </div>
+  );
+};
+
+const TriviaButton = ({
+  answer,
+  clueIsActive,
+  onClick,
+  index,
+  playerAnswerIndex,
+  randomIndexSet,
+  question,
+}: {
+  answer: string;
+  question: Question | undefined;
+  onClick: () => void;
+  clueIsActive: boolean;
+  playerAnswerIndex: number;
+  randomIndexSet: Set<number>;
+  index: number;
+}) => {
+  const { gameStatus } = useTrivia();
+  const ranOutOfTime = useMemo(() => gameStatus === 'between', [gameStatus]);
+  const isCorrect = useMemo(
+    () => checkIfAnswerIsCorrect(answer, question?.correctAnswer || ''),
+    [answer, question]
+  );
+  const backgroundColor = useMemo(() => {
+    if (!question) return '';
+    if (playerAnswerIndex === index) {
+      if (isCorrect) return SUCCESS_COLOR;
+      return ERROR_COLOR;
+    }
+    if (isCorrect) return SUCCESS_COLOR;
+    return '';
+  }, [question, answer, playerAnswerIndex, isCorrect]);
+
+  const renderButtonInnerLayer = useMemo(() => {
+    if (playerAnswerIndex < 0 && !ranOutOfTime) return false;
+    if (isCorrect) return true;
+    return playerAnswerIndex === index;
+  }, [isCorrect, playerAnswerIndex, index, ranOutOfTime]);
+
+  if (!question) return null;
+
+  return (
+    <Button
+      key={answer}
+      onClick={onClick}
+      disabled={clueIsActive && !randomIndexSet.has(index)}
+      title={answer}
+      className={BUTTON_CLASS}
+      backgroundColor={SECONDARY_COLOR}
+    >
+      <div
+        className={clsx(
+          'absolute top-0 left-0 w-full h-full transition-all duration-200 ease-linear ',
+          renderButtonInnerLayer ? 'opacity-100' : 'opacity-0'
+        )}
+        style={{
+          backgroundColor,
+        }}
+      />
+    </Button>
   );
 };
 

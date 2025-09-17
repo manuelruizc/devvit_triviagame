@@ -71,7 +71,7 @@ const MainMenu = () => {
             title={postTriviaAnswered ? 'DAILY CHALLENGE COMPLETED' : 'COMPLETE DAILY CHALLENGE'}
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR}
-            disabled={postTriviaAnswered}
+            // disabled={postTriviaAnswered}
           />
           <Button
             onClick={() => navigate(GameScreens.INGAME, 'fp')}

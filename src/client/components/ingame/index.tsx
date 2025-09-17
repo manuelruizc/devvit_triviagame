@@ -9,6 +9,7 @@ import Questions from './Questions';
 import { useAppState } from '../../hooks/useAppState';
 import Finished from './finished';
 import Idle from './idle';
+import HelpersButtons from './helpersbuttons';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -97,7 +98,8 @@ const IngameInner = () => {
     <>
       <QuestionSelectorTopbar />
       <Questions />
-      <Curtain />
+      <HelpersButtons />
+      {/* <Curtain /> */}
     </>
   );
 };

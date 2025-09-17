@@ -10,7 +10,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const BUTTON_CLASS = clsx(
-  'w-[88%] mb-2 text-sm',
+  'w-[88%] mb-2 text-sm relative',
   'sm:w-[70%]',
   'md:w-[70%] md:mb-6',
   'lg:w-[60%] lg:mb-8 lg:text-lg',
@@ -30,7 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={clsx(
-        'px-6 py-2.5 rounded-lg font-semibold transition-all ease-in-out duration-200 flex justify-center items-center border-4 border-black/60 active:scale-95 active:opacity-85',
+        'px-6 py-2.5 rounded-lg font-semibold transition-all ease-in-out duration-200 flex justify-center items-center border-4 border-black/60 active:scale-95 active:opacity-85 relative z-0',
         className,
         props.disabled && 'opacity-85 active:opacity-85 active:scale-100'
       )}
@@ -41,7 +41,8 @@ export const Button: React.FC<ButtonProps> = ({
       }}
       style={{ ...props.style, color, backgroundColor }}
     >
-      <span>{title}</span>
+      {children}
+      <span className="z-10">{title}</span>
     </button>
   );
 };

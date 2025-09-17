@@ -107,11 +107,7 @@ export const useTrivia = () => {
 
 // Format seconds into mm:ss
 const formatTime = (secs: number) => {
-  const minutes = Math.floor(secs / 60)
-    .toString()
-    .padStart(2, '0');
-  const seconds = (secs % 60).toString().padStart(2, '0');
-  return `${minutes}:${seconds}`;
+  return `${secs}s`;
 };
 
 const getQuestionSafely = (questions: Question[], index: number): Question | null => {
@@ -263,16 +259,20 @@ export const TriviaProvider: React.FC<{
     } else {
       setPreviousQuestion(getQuestionSafely(trivia.questions, nextIndex));
     }
-    setCurrentQuestionIndex(nextIndex);
-    currentQuestionIndexRef.current = nextIndex;
+
     if (type === 'dc') {
       const nextTimeBase = nextGameStatus === 'trivia' ? TIME_PER_QUESTION : TIME_FOR_MAIN_GUESS;
       setTime(formatTime(nextTimeBase));
       secondsRef.current = nextTimeBase;
       setTimeout(() => {
+        setCurrentQuestionIndex(nextIndex);
+        currentQuestionIndexRef.current = nextIndex;
         startTimer(nextGameStatus);
-      }, 400);
+      }, 5000);
+      return;
     }
+    setCurrentQuestionIndex(nextIndex);
+    currentQuestionIndexRef.current = nextIndex;
   };
 
   const handleWrongAnswer = (
