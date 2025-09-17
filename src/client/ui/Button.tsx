@@ -9,6 +9,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   backgroundColor?: string;
 }
 
+export const BUTTON_CLASS = clsx(
+  'w-[88%] mb-2 text-sm',
+  'sm:w-[70%]',
+  'md:w-[70%] md:mb-6',
+  'lg:w-[60%] lg:mb-8 lg:text-lg',
+  'xl:w-[50%]',
+  '2xl:w-[45%]'
+);
+
 export const Button: React.FC<ButtonProps> = ({
   children,
   color,
@@ -21,7 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={clsx(
-        'px-6 py-4 rounded-lg font-semibold transition-all ease-in-out duration-200 flex justify-center items-center border-4 border-black/60 active:scale-95 active:opacity-85',
+        'px-6 py-2.5 rounded-lg font-semibold transition-all ease-in-out duration-200 flex justify-center items-center border-4 border-black/60 active:scale-95 active:opacity-85',
         className,
         props.disabled && 'opacity-85 active:opacity-85 active:scale-100'
       )}

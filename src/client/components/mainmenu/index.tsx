@@ -3,7 +3,7 @@ import { GameScreens, useAppState } from '../../hooks/useAppState';
 import { useAPI } from '../../hooks/useAPI';
 import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 import { context } from '@devvit/web/client';
-import { Button } from '../../ui/Button';
+import { Button, BUTTON_CLASS } from '../../ui/Button';
 import clsx from 'clsx';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
 
@@ -24,17 +24,6 @@ const MainMenu = () => {
     // highestScoreSession,
     // hintsUsed,
   } = metrics;
-
-  const buttonClass = useMemo(() => {
-    return clsx(
-      'w-[88%] mb-2 text-sm',
-      'sm:w-[70%]',
-      'md:w-[70%] md:mb-6',
-      'lg:w-[60%] lg:mb-8 lg:text-lg',
-      'xl:w-[50%]',
-      '2xl:w-[45%]'
-    );
-  }, []);
 
   return (
     <div
@@ -80,26 +69,26 @@ const MainMenu = () => {
           <Button
             onClick={() => navigate(GameScreens.INGAME, 'dc')}
             title={postTriviaAnswered ? 'DAILY CHALLENGE COMPLETED' : 'COMPLETE DAILY CHALLENGE'}
-            className={buttonClass}
+            className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR}
             disabled={postTriviaAnswered}
           />
           <Button
             onClick={() => navigate(GameScreens.INGAME, 'fp')}
             title="FREE PLAY"
-            className={buttonClass}
+            className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR2}
           />
           <Button
             onClick={() => navigate(GameScreens.ACHIEVEMENTS)}
             title="ACHIEVEMENTS"
-            className={buttonClass}
+            className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR3}
           />
           <Button
             onClick={() => navigate(GameScreens.LEADERBOARDS)}
             title="LEADERBOARDS"
-            className={buttonClass}
+            className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR6}
           />
         </div>
