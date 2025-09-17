@@ -268,9 +268,11 @@ export const TriviaProvider: React.FC<{
         setCurrentQuestionIndex(nextIndex);
         currentQuestionIndexRef.current = nextIndex;
         startTimer(nextGameStatus);
+        setUsingClue(false);
       }, 5000);
       return;
     }
+    setUsingClue(false);
     setCurrentQuestionIndex(nextIndex);
     currentQuestionIndexRef.current = nextIndex;
   };
@@ -350,7 +352,6 @@ export const TriviaProvider: React.FC<{
     answer: string,
     category: BasicAPI.QuestionCategory
   ) => {
-    setUsingClue(false);
     setUserAnswers((prev) => {
       prev[currentQuestionIndex] = answer;
       return [...prev];

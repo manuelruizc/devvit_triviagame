@@ -122,21 +122,41 @@ const TriviaButton = ({
     return playerAnswerIndex === index;
   }, [isCorrect, playerAnswerIndex, index, ranOutOfTime]);
 
+  const userAnswered = useMemo(() => playerAnswerIndex !== -1, [playerAnswerIndex]);
+
+  const shouldHide = useMemo(
+    () => clueIsActive && !randomIndexSet.has(index),
+    [randomIndexSet, clueIsActive, index]
+  );
+
   if (!question) return null;
 
   return (
     <Button
       key={answer}
-      onClick={onClick}
-      disabled={clueIsActive && !randomIndexSet.has(index)}
+      onClick={
+        userAnswered
+          ? undefined
+          : () => {
+              if (userAnswered) return;
+              onClick();
+            }
+      }
+      disabled={shouldHide}
       title={answer}
-      className={BUTTON_CLASS}
+      className={clsx(
+        BUTTON_CLASS,
+        shouldHide &&
+          'translate-x-[200%] opacity-0 transition-all duration-200 ease-linear pointer-events-none'
+      )}
       backgroundColor={SECONDARY_COLOR}
     >
       <div
         className={clsx(
-          'absolute top-0 left-0 w-full h-full transition-all duration-200 ease-linear ',
-          renderButtonInnerLayer ? 'opacity-100' : 'opacity-0'
+          'absolute top-0 left-0 w-full h-full',
+          renderButtonInnerLayer
+            ? 'opacity-100 transition-all duration-200 ease-linear'
+            : 'opacity-0'
         )}
         style={{
           backgroundColor,
