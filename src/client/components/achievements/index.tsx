@@ -1,18 +1,29 @@
 import clsx from 'clsx';
 import { ACHIEVEMENTS, useAppState } from '../../hooks/useAppState';
-import {
-  ACCENT_COLOR,
-  ACCENT_COLOR2,
-  ACCENT_COLOR3,
-  ACCENT_COLOR6,
-  SECONDARY_COLOR,
-} from '../../helpers/colors';
+import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
 import GoBackButton from '../../ui/GoBackButton';
-
-const COLORS = [ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6];
+import { useMemo } from 'react';
+import { BasicAPI } from '../../../shared/types/basic';
 
 const Achievements = () => {
-  const { goBack, data, isReady } = useAppState();
+  const { data, isReady } = useAppState();
+  const orderedAchievements = useMemo<BasicAPI.AchievementType[]>(() => {
+    if (!isReady) return [];
+    const ans: BasicAPI.AchievementType[] = [];
+    for (const achiev of ACHIEVEMENTS) {
+      if (data.achievements[achiev]) {
+        ans.push(achiev);
+      }
+    }
+    for (const achiev of ACHIEVEMENTS) {
+      if (!data.achievements[achiev]) {
+        ans.push(achiev);
+      }
+    }
+
+    return ans;
+  }, [isReady, data]);
+
   if (!isReady) return null;
   return (
     <div className="w-full h-full flex justify-center items-center">
@@ -24,19 +35,23 @@ const Achievements = () => {
           <span className="text-lg font-bold">ACHIEVEMENTS</span>
         </div>
         <div className="w-full flex flex-wrap justify-center items-center max-w-[1250px]">
-          {ACHIEVEMENTS.map((achievement) => (
+          {orderedAchievements.map((achievement) => (
             <div
               key={achievement}
-              className="w-full sm:w-1/2 md:w-1/2 lg:w-1/3 2xl:w-1/3 p-2 flex flex-col items-center mb-1 box-border px-0.5"
+              className="w-full sm:w-1/2 md:w-1/2 lg:w-1/3 2xl:w-1/3 p-2 flex flex-col items-center mb-0.5 lg:mb-1 box-border px-0.5"
             >
               <div className="w-8/12 aspect-square">
                 <div
                   className={clsx(
-                    'w-full h-full bg-center bg-contain bg-no-repeat',
+                    'w-full h-full aspect-square bg-center bg-contain bg-no-repeat',
                     data.achievements[achievement] ? '' : 'filter grayscale'
                   )}
                   style={{
                     backgroundImage: `url(/badges/${achievement}.png)`,
+                    width: '100%',
+                    height: '100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'contain',
                   }}
                 ></div>
               </div>

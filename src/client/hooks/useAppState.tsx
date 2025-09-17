@@ -94,16 +94,24 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const navigationStack = useRef<GameScreens[]>([]);
   const navigationPayloadStack = useRef<(string | null)[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtx = useRef<AudioContext | null>(null);
+  const bufferRef = useRef<AudioBuffer | null>(null);
+
+  useEffect(() => {
+    audioCtx.current = new AudioContext();
+    fetch('/sounds/buttonclick.mp3')
+      .then((res) => res.arrayBuffer())
+      .then((data) => audioCtx.current!.decodeAudioData(data))
+      .then((decoded) => (bufferRef.current = decoded));
+  }, []);
 
   const playButtonSound = useCallback(() => {
-    if (!audioRef.current) return;
-
-    // Stop the audio and reset it
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0;
-
-    // Play it again
-    audioRef.current.play().catch((err) => console.log('Playback failed:', err));
+    if (audioCtx.current && bufferRef.current) {
+      const source = audioCtx.current.createBufferSource();
+      source.buffer = bufferRef.current;
+      source.connect(audioCtx.current.destination);
+      source.start(0);
+    }
   }, []);
   const checkForStreakAchievements = useCallback(
     (streak: number): BasicAPI.AchievementType[] => {
@@ -272,6 +280,28 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         setIsError(true);
         return;
       }
+      const images = [
+        '/badges/firestreak.png',
+        '/badges/firstquestion.png',
+        '/badges/hotstreak.png',
+        '/badges/justintime.png',
+        '/badges/lightingfast.png',
+        '/badges/numberone.png',
+        '/badges/ontheboard.png',
+        '/badges/perfectionist.png',
+        '/badges/topten.png',
+        '/cat/cat-empty-state.png',
+        '/cat/cat-in-circle.png',
+        '/cat/cat-sit-smiling-blink-one-eye.png',
+        '/cat/cat-sit-smiling-blink-two-eye.png',
+        '/cat/cat-sit-smiling.png',
+        '/cat/cat-snoo.png',
+      ];
+
+      images.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
       setPostTriviaAnswered(dailyChallengeStatus.answered || false);
       setDailyTrivia(context.postData!.dailyChallenge as unknown as DailyTrivia);
       setData({
@@ -387,9 +417,6 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Fetch on mount
   useEffect(() => {
     fetchInitialData();
-    if (!audioRef.current) {
-      audioRef.current = new Audio('/sounds/buttonclick.mp3');
-    }
   }, []);
 
   return (
