@@ -12,7 +12,7 @@ const HelpersButtons = () => {
         <Button
           title="R"
           className={clsx('w-12 h-12 rounded-xl border border-black/60')}
-          onClick={() => activateClue(coins)}
+          onClick={() => activateClue(clueCost)}
         />
       )}
     </div>
