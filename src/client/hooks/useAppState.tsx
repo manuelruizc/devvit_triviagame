@@ -293,7 +293,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         '/cat/cat-empty-state.png',
         '/cat/cat-in-circle.png',
         '/cat/cat-sit-smiling-blink-one-eye.png',
-        '/cat/cat-sit-smiling-blink-two-eye.png',
+        '/cat/cat-sit-smiling-blink-two-eyes.png',
         '/cat/cat-sit-smiling.png',
         '/cat/cat-snoo.png',
       ];
