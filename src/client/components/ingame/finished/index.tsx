@@ -3,11 +3,8 @@ import SuccessFinish from './SuccessFinish';
 import RunOutOfTime from './RunOutOfTime';
 
 const Finished = () => {
-  const { gameStatus } = useTrivia();
-  if (gameStatus === 'finished-main-guess-correct') {
-    return <SuccessFinish />;
-  }
-  return <RunOutOfTime />;
+  const { gameStatus, type } = useTrivia();
+  return <SuccessFinish finished={type === 'fp' || gameStatus === 'finished-main-guess-correct'} />;
 };
 
 export default Finished;

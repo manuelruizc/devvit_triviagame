@@ -10,12 +10,29 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const BUTTON_CLASS = clsx(
-  'w-[88%] mb-2 text-sm relative',
-  'sm:w-[70%]',
-  'md:w-[70%] md:mb-6',
-  'lg:w-[60%] lg:mb-8 lg:text-lg',
-  'xl:w-[50%]',
-  '2xl:w-[45%]'
+  'w-10/12 mb-2 text-sm relative',
+  'sm:w-10/12',
+  'md:w-10/12 md:mb-6',
+  'lg:w-7/12 lg:mb-8 lg:text-lg',
+  'xl:w-6/12',
+  '2xl:w-6/12'
+);
+
+export const BUTTON_CLASS_NO_TEXT = clsx(
+  'w-10/12 mb-2 relative',
+  'sm:w-10/12',
+  'md:w-10/12 md:mb-6',
+  'lg:w-7/12 lg:mb-8',
+  'xl:w-6/12',
+  '2xl:w-6/12'
+);
+export const BUTTON_CLASS_ONLY_WIDTH = clsx(
+  'w-10/12 relative',
+  'sm:w-10/12',
+  'md:w-10/12',
+  'lg:w-7/12',
+  'xl:w-6/12',
+  '2xl:w-6/12'
 );
 
 export const Button: React.FC<ButtonProps> = ({

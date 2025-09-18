@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Question, useTrivia } from '../../hooks/useTrivia';
 import MainGuess from './MainGuess';
 import clsx from 'clsx';
-import { Button, BUTTON_CLASS } from '../../ui/Button';
+import { Button, BUTTON_CLASS, BUTTON_CLASS_NO_TEXT } from '../../ui/Button';
 import { ERROR_COLOR, SECONDARY_COLOR, SUCCESS_COLOR } from '../../helpers/colors';
+import SpeechBubble from '../../ui/speechbubble';
 
 function shuffleArray(arr: any[]) {
   const array = [...arr]; // copy array to avoid mutating original
@@ -62,8 +63,10 @@ const Questions = () => {
   if (!question || !randomlySortedAnswers || gameStatus === 'main-guess') return <MainGuess />;
 
   return (
-    <div className="w-full flex flex-col justify-start items-center">
-      <span>{question.question}</span>
+    <div className="w-full flex flex-1 flex-col justify-start items-center">
+      <div className={clsx(BUTTON_CLASS_NO_TEXT, 'my-6')}>
+        <SpeechBubble noTail text={question.question} noAnimation />
+      </div>
       {randomlySortedAnswers.map((answer, index) => (
         <TriviaButton
           key={answer + index}

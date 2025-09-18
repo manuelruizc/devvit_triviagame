@@ -4,9 +4,10 @@ import SpeechBubble from '../../../ui/speechbubble';
 import clsx from 'clsx';
 import GoBackButton from '../../../ui/GoBackButton';
 
-const text1 = `"Uh… hey hooman 👋 it’s me, Forgotten Kitten. I swear I was about to remember something super important… was it my breakfast? Or the daily challenge? 😼💭\n\n
-  Anyway, I need your braincells more than my nine lives right now. Think of this like a post in r/AskReddit — I throw questions, you drop the answers, and maybe together we’ll figure out what I keep forgetting.\n\n
-  Don’t leave me hanging like a post with zero upvotes, okay? Let’s start before I forget again… "`;
+// const text1 = `"Uh… hey hooman 👋 it’s me, Forgotten Kitten. I swear I was about to remember something super important… was it my breakfast? Or the daily challenge? 😼💭\n\n
+//   Anyway, I need your braincells more than my nine lives right now. Think of this like a post in r/AskReddit — I throw questions, you drop the answers, and maybe together we’ll figure out what I keep forgetting.\n\n
+//   Don’t leave me hanging like a post with zero upvotes, okay? Let’s start before I forget again… "`;
+const text1 = `"aaaaaa`;
 const text2 = "Ok, it's time. Let's do this. Good Luck";
 
 const Idle = () => {

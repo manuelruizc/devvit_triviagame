@@ -10,6 +10,7 @@ import { useAppState } from '../../hooks/useAppState';
 import Finished from './finished';
 import Idle from './idle';
 import HelpersButtons from './helpersbuttons';
+import clsx from 'clsx';
 
 const TRIVIA: DailyTrivia = {
   mainQuestion: 'Based on these clues, what movie are we trying to remember?',
@@ -95,12 +96,18 @@ const IngameInner = () => {
   }
   if (gameStatus === 'idle') return <Idle />;
   return (
-    <>
-      <QuestionSelectorTopbar />
-      <Questions />
-      <HelpersButtons />
-      {/* <Curtain /> */}
-    </>
+    <div className={clsx('w-full h-full flex flex-1 justify-center items-center')}>
+      <div
+        className={clsx(
+          'w-full h-full flex flex-1 flex-col justify-start items-center max-w-[1250px]'
+        )}
+      >
+        <QuestionSelectorTopbar />
+        <Questions />
+        <HelpersButtons />
+      </div>
+      <Curtain />
+    </div>
   );
 };
 
