@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Button, BUTTON_CLASS, BUTTON_CLASS_NO_TEXT } from '../../ui/Button';
 import { ERROR_COLOR, SECONDARY_COLOR, SUCCESS_COLOR } from '../../helpers/colors';
 import SpeechBubble from '../../ui/speechbubble';
+import { hashAnswer } from '../../../shared/helpers';
 
 function shuffleArray(arr: any[]) {
   const array = [...arr]; // copy array to avoid mutating original
@@ -24,8 +25,9 @@ function getRandomExcluding(n: number, x: number) {
   return r;
 }
 
-const checkIfAnswerIsCorrect = (userAnswer: string, realAnswer: string) => {
-  return userAnswer === realAnswer;
+const checkIfAnswerIsCorrect = (userAnswer: string, realAnswer: string, type: 'dc' | 'fp') => {
+  if (type === 'dc') return userAnswer === realAnswer;
+  return hashAnswer(userAnswer) === realAnswer;
 };
 
 const Questions = () => {
@@ -35,6 +37,7 @@ const Questions = () => {
     handleQuestionAnswer,
     gameStatus,
     clueIsActive,
+    type,
   } = useTrivia();
   const question = questions[currentQuestionIndex];
   const [playerAnswerIndex, setPlayerAnswerIndex] = useState<number>(-1);
@@ -80,7 +83,11 @@ const Questions = () => {
             clueIsActive={clueIsActive}
             playerAnswerIndex={playerAnswerIndex}
             onClick={() => {
-              handleQuestionAnswer(question, answer, question.category);
+              handleQuestionAnswer(
+                question,
+                type === 'dc' ? answer : hashAnswer(answer),
+                question.category
+              );
               setPlayerAnswerIndex(index);
             }}
             randomIndexSet={randomIndexSet}
@@ -110,11 +117,11 @@ const TriviaButton = ({
   randomIndexSet: Set<number>;
   index: number;
 }) => {
-  const { gameStatus } = useTrivia();
+  const { gameStatus, type } = useTrivia();
   const ranOutOfTime = useMemo(() => gameStatus === 'between', [gameStatus]);
   const isCorrect = useMemo(
-    () => checkIfAnswerIsCorrect(answer, question?.correctAnswer || ''),
-    [answer, question]
+    () => checkIfAnswerIsCorrect(answer, question?.correctAnswer || '', type),
+    [answer, question, checkIfAnswerIsCorrect]
   );
   const backgroundColor = useMemo(() => {
     if (!question) return '';
@@ -154,6 +161,7 @@ const TriviaButton = ({
       }
       disabled={shouldHide}
       title={answer.toUpperCase()}
+      isTrivia
       className={clsx(
         BUTTON_CLASS,
         shouldHide &&

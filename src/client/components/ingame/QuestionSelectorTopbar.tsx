@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { DC_CLUE_COST, FP_CLUE_COST, useTrivia } from '../../hooks/useTrivia';
 import { useMemo } from 'react';
-import { ACCENT_COLOR6 } from '../../helpers/colors';
+import { ACCENT_COLOR3, ACCENT_COLOR6, SECONDARY_COLOR } from '../../helpers/colors';
 import BankStreakInformation from './bankstreak';
 
 export const TopLogo = ({
@@ -29,23 +29,40 @@ export const TopLogo = ({
   return (
     <div
       className={clsx(
-        `flex justify-start items-center px-1.5 rounded-lg h-8`,
-        isAtTopbar ? 'lg:h-12' : 'lg:h-32',
+        `flex px-1.5 rounded-lg h-8`,
+        isAtTopbar
+          ? 'lg:h-12 justify-start items-center'
+          : 'lg:h-20 lg:w-40 justify-center items-center border-2 lg:border-4',
         className,
-        useBadgeStyle && 'border-2 border-black/60'
+        useBadgeStyle && isAtTopbar && 'border-2 border-black/60'
       )}
-      style={{ backgroundColor: useBadgeStyle ? ACCENT_COLOR6 : undefined }}
+      style={{
+        backgroundColor: !isAtTopbar ? ACCENT_COLOR3 : useBadgeStyle ? ACCENT_COLOR6 : undefined,
+        borderColor: !isAtTopbar ? SECONDARY_COLOR : undefined,
+      }}
     >
       <img
         className={clsx(
-          type === 'coins'
+          type === 'coins' || !isAtTopbar
             ? 'w-6 h-6 object-contain object-center mr-1 lg:w-8 lg:h-8'
             : 'w-6 h-6 object-contain object-center mr-1',
-          isAtTopbar ? 'lg:w-10 lg:h-10' : type !== 'coins' ? 'lg:w-24 lg:h-24' : ''
+          isAtTopbar
+            ? 'lg:w-10 lg:h-10'
+            : type !== 'coins' && isAtTopbar
+              ? 'lg:w-9/12 lg:aspect-square'
+              : ''
         )}
         src={iconSrc}
       />
-      <span className={clsx(type === 'time' ? 'text-xl lg:text-3xl' : 'text-lg lg:text-xl')}>
+      <span
+        className={clsx(
+          type === 'time'
+            ? 'text-xl lg:text-3xl'
+            : !isAtTopbar
+              ? 'text-xl lg:text-2xl xl:text-3xl'
+              : 'text-lg lg:text-xl'
+        )}
+      >
         {text}
       </span>
     </div>

@@ -16,12 +16,14 @@
   "reddit": {
     "asUser": ["SUBMIT_POST", "SUBMIT_COMMENT", "SUBSCRIBE_TO_SUBREDDIT"]
   },
-  "media": {},
+  "media": {
+    "dir": "assets"
+  },
   "menu": {
     "items": [
       {
         "label": "Create a new post",
-        "description": "webdevmx-test",
+        "description": "Forgetful Kitty Trivia!",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"

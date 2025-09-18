@@ -2,6 +2,9 @@ import clsx from 'clsx';
 import { useTrivia } from '../../hooks/useTrivia';
 import GlissandoWord from '../../ui/glissandotext';
 import { ACCENT_COLOR, ACCENT_COLOR4, ERROR_COLOR, SUCCESS_COLOR } from '../../helpers/colors';
+import { useEffect, useRef } from 'react';
+import { SoundMapKey } from '../../hooks/helpers';
+import { useAppState } from '../../hooks/useAppState';
 
 const Curtain = () => {
   const {
@@ -27,30 +30,86 @@ const CurtainManager = () => {
   const { curtainState } = useTrivia();
   if (curtainState === 'hidden') return null;
   else if (curtainState === 'bank')
-    return <CurtainItem text="Banked!" brightColor="text-yellow-400" glowColor="251, 191, 36" />;
+    return (
+      <CurtainItem
+        text="Banked!"
+        brightColor="text-yellow-400"
+        glowColor="251, 191, 36"
+        soundKey="wii"
+      />
+    );
   else if (curtainState === 'error')
-    return <CurtainItem brightColor={ERROR_COLOR} glowColor="245, 106, 106" text="Close one!" />;
+    return (
+      <CurtainItem
+        brightColor={ERROR_COLOR}
+        glowColor="245, 106, 106"
+        text="Close one!"
+        soundKey="error"
+      />
+    );
   else if (curtainState === 'run_out_of_time')
-    return <CurtainItem brightColor={ERROR_COLOR} glowColor="245, 106, 106" text="Time’s up!" />;
+    return (
+      <CurtainItem
+        brightColor={ERROR_COLOR}
+        glowColor="245, 106, 106"
+        text="Time’s up!"
+        soundKey="error"
+      />
+    );
   else if (curtainState === 'good_answer')
-    return <CurtainItem text="Noice!" glowColor="60, 196, 144" brightColor={SUCCESS_COLOR} />;
+    return (
+      <CurtainItem
+        text="Noice!"
+        glowColor="60, 196, 144"
+        brightColor={SUCCESS_COLOR}
+        soundKey="correct"
+      />
+    );
   else if (curtainState === 'perfect_chain')
     return (
-      <CurtainItem brightColor={ACCENT_COLOR4} glowColor="243, 91, 170" text="Perfect Chain!" />
+      <CurtainItem
+        brightColor={ACCENT_COLOR4}
+        glowColor="243, 91, 170"
+        text="Perfect Chain!"
+        soundKey="perfectchain"
+      />
     );
-  return <CurtainItem text="I got you!" brightColor={ACCENT_COLOR} glowColor="194, 163, 245" />;
+  return (
+    <CurtainItem
+      text="I got you!"
+      brightColor={ACCENT_COLOR}
+      glowColor="194, 163, 245"
+      soundKey="clue"
+    />
+  );
 };
 
 const CurtainItem = ({
   text,
   glowColor = 'red',
   brightColor = 'red',
+  soundKey,
 }: {
   text: string;
   glowColor?: string;
   brightColor?: string;
+  soundKey: SoundMapKey;
 }) => {
   const { resetCurtainState } = useTrivia();
+  const { playSound, stopAllSounds } = useAppState();
+  const rendered = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (rendered.current) return;
+    rendered.current = true;
+    if (soundKey === 'perfectchain') {
+      playSound('wii');
+    }
+    playSound(soundKey);
+    return () => {
+      stopAllSounds();
+    };
+  }, []);
 
   return (
     <div className="flex-col top-0 left-0 w-full h-full flex justify-center items-center">

@@ -1,19 +1,34 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTrivia } from '../../../hooks/useTrivia';
 import SpeechBubble from '../../../ui/speechbubble';
 import clsx from 'clsx';
 import GoBackButton from '../../../ui/GoBackButton';
+import { useAppState } from '../../../hooks/useAppState';
 
-// const text1 = `"Uh… hey hooman 👋 it’s me, Forgotten Kitten. I swear I was about to remember something super important… was it my breakfast? Or the daily challenge? 😼💭\n\n
-//   Anyway, I need your braincells more than my nine lives right now. Think of this like a post in r/AskReddit — I throw questions, you drop the answers, and maybe together we’ll figure out what I keep forgetting.\n\n
-//   Don’t leave me hanging like a post with zero upvotes, okay? Let’s start before I forget again… "`;
-const text1 = `"aaaaaa`;
+const forgottenKittenTextDC =
+  'Hey hooman 👋 it’s me, Forgotten Kitten 😼💭\nI was about to remember something… breakfast? Daily challenge? Who knows!?\n\nI need your braincells—answer my questions like an r/AskReddit post, and maybe together we’ll figure out what I keep forgetting.\nDon’t leave me hanging… let’s go before I forget again!\n\nRemember, every answer counts! 🧠✨';
+const forgottenKittenTextFP =
+  'Hey hooman 👋 it’s me, Forgotten Kitten 😼💭\nWanna try Free Play? Here’s the deal:\n\n⏱️ 1 minute timer! Answer as many questions as you can.\n✅ Every correct answer builds a chain.\n⚠️ Mess up and your unsaved chain is gone!\n🌟 Hit a perfect chain and it’s yours automatically!\n\nThink fast, answer quick, and let’s see how long your chain can go!';
+
+// const text1 = `"aaaaaa`;
 const text2 = "Ok, it's time. Let's do this. Good Luck";
 
+const SPEED = 135;
+
 const Idle = () => {
-  const { startTimer } = useTrivia();
+  const { playSound, stopAllSounds } = useAppState();
+  const { startTimer, type } = useTrivia();
   const [catIsReady, setCatIsReady] = useState<boolean>(false);
-  const [speed, setSpeed] = useState<number>(96);
+  const [speed, setSpeed] = useState<number>(SPEED);
+
+  useEffect(() => {
+    setTimeout(() => {
+      playSound('meow');
+    }, 800);
+    return () => {
+      stopAllSounds();
+    };
+  }, []);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center box-border">
@@ -23,21 +38,23 @@ const Idle = () => {
         )}
         onMouseDown={() => {
           if (catIsReady) {
-            if (speed === 96) return;
-            setSpeed(96);
+            if (speed === SPEED) return;
+            setSpeed(SPEED);
             return;
           }
           setSpeed(34);
         }}
         onMouseUp={() => {
-          setSpeed(96);
+          setSpeed(SPEED);
         }}
       >
         <GoBackButton />
         <span>Daily Challenge!</span>
         <div className="w-full flex-1 flex items-end justify-center mb-4">
           <SpeechBubble
-            text={catIsReady ? text2 : text1}
+            text={
+              catIsReady ? text2 : type === 'dc' ? forgottenKittenTextDC : forgottenKittenTextFP
+            }
             className={clsx('w-11/12', 'sm:w-9/12', 'md:w-7/12', 'lg:w-6/12')}
             onFinish={() => {
               if (catIsReady) {
@@ -47,6 +64,9 @@ const Idle = () => {
                 return;
               }
               setTimeout(() => {
+                setTimeout(() => {
+                  playSound('meow');
+                }, 800);
                 setCatIsReady(true);
               }, 1500);
             }}

@@ -32,7 +32,12 @@ const BankStreakInformation = () => {
   }
 
   return (
-    <div className={clsx('w-11/12 h-10 flex justify-between items-center gap-1')}>
+    <div
+      className={clsx(
+        'w-11/12 h-10 flex justify-between items-center gap-1',
+        BUTTON_CLASS_ONLY_WIDTH
+      )}
+    >
       {STREAKVALUES.map((value, index) => (
         <span
           key={index}

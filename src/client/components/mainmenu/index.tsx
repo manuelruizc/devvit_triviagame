@@ -1,15 +1,12 @@
-import React, { useMemo } from 'react';
 import { GameScreens, useAppState } from '../../hooks/useAppState';
 import { useAPI } from '../../hooks/useAPI';
-import { LeaderboardAPI } from '../../../shared/types/leaderboard';
-import { context } from '@devvit/web/client';
 import { Button, BUTTON_CLASS } from '../../ui/Button';
 import clsx from 'clsx';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
 
 const MainMenu = () => {
   const { data, isReady, navigate, dailyTrivia, postTriviaAnswered } = useAppState();
-  // const { getUserData, postQuestions } = useAPI();
+  const { postQuestions } = useAPI();
   if (!isReady) return null;
   const { metrics, achievements } = data;
   const {
@@ -91,6 +88,20 @@ const MainMenu = () => {
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR6}
           />
+          <Button
+            onClick={() => navigate(GameScreens.CREATE_POST)}
+            title="LEADERBOARDS"
+            className={BUTTON_CLASS}
+            backgroundColor={ACCENT_COLOR6}
+          />
+          {data.member === 'webdevMX' ? (
+            <Button
+              onClick={postQuestions}
+              title="LEADERBOARDS"
+              className={BUTTON_CLASS}
+              backgroundColor={ACCENT_COLOR6}
+            />
+          ) : null}
         </div>
       </div>
       {/* <span className="">All time daily challenge ranking: {data.allTimeDCRank}</span>

@@ -13,13 +13,7 @@ const HelpersButtons = () => {
   }
 
   return (
-    <div
-      className={clsx(
-        'flex py-4 justify-center items-end pb-1',
-        type === 'dc' && 'justify-end',
-        BUTTON_CLASS_ONLY_WIDTH
-      )}
-    >
+    <div className={clsx('flex flex-1 justify-between items-end pb-1', BUTTON_CLASS_ONLY_WIDTH)}>
       <TriviaHelperButton
         disabled={clueIsActive || clueCost > coins}
         onClick={() => activateClue(clueCost)}
@@ -28,7 +22,7 @@ const HelpersButtons = () => {
       />
 
       {type === 'fp' ? (
-        <Button
+        <button
           disabled={toBankSeconds <= 0 || streak <= 0}
           title={
             streak > 0
@@ -38,11 +32,20 @@ const HelpersButtons = () => {
               : 'Start a chain!'
           }
           className={clsx(
-            'px-4 h-12 rounded-xl border border-black/60',
-            (toBankSeconds <= 0 || streak <= 0) && 'opacity-50'
+            'w-auto h-12 box-border rounded-xl border-4 border-black/60 active:scale-95 duration-200 ease-in-out transition-all relative px-6',
+            (toBankSeconds <= 0 || streak <= 0) && 'opacity-50 active:scale-100'
           )}
+          style={{ backgroundColor: ACCENT_COLOR3 }}
           onClick={() => saveToBank(false)}
-        />
+        >
+          <span className="text-base lg:text-lg ml-1 lg:ml-2">
+            {streak > 0
+              ? toBankSeconds === 0
+                ? 'Time limit to save over'
+                : `Save it on your bag ${toBankSeconds}s`
+              : 'Start a chain!'}
+          </span>
+        </button>
       ) : null}
     </div>
   );

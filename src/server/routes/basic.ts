@@ -9,7 +9,7 @@ const basicRoute = Router();
 
 const { BASIC_API_ENDPOINTS, USER_HASH_NAMES, QUESTION_HASHES } = BasicAPI;
 
-// GET FREE PLAY LEADERBOARD
+// GET USER DATA
 basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
   BASIC_API_ENDPOINTS.INIT,
   async (_req, res): Promise<void> => {
@@ -56,7 +56,6 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.GetUserBasicData>(
       }
       const hashKey = `${USER_HASH_NAMES.USER_INFO},${member}`;
       const achievementsHashKey = `${USER_HASH_NAMES.USER_ACHIEVEMENTS},${member}`;
-
       let hashLength = await redis.hLen(hashKey);
       let dcRank = -1;
       let fpRank = -1;
@@ -311,6 +310,7 @@ basicRoute.get<{ username: string; postId: string }, any>(
 
       const record = await redis.hGetAll(hashKey);
       const achiev = await redis.hGetAll(achievementsHashKey);
+
       res.json({
         userRedditData: user,
         gameData: {
@@ -464,9 +464,11 @@ basicRoute.post<{ questions: []; postId: string; dailyChallenge: any }, any>(
       const { dailyChallenge } = _req.body;
       const post = await reddit.submitCustomPost({
         subredditName: context.subredditName!,
-        title: 'Testing custom data',
+        title: 'The Daily Challenge Is Here!!!',
         splash: {
-          appDisplayName: 'Trivia testing',
+          appDisplayName: 'The Daily Challenge Is Here!',
+          backgroundUri: 'defaultsplashscren.png',
+          appIconUri: 'https://i.imgur.com/JLZOVR4.png',
         },
         postData: {
           dailyChallenge,

@@ -13,7 +13,6 @@ const StartupScreen = () => {
     if (isReady) {
       setTimeout(() => {
         setCatAnimation(true);
-        playSound('/sounds/blinksound.mp3');
         setTimeout(() => {
           setStopRender(true);
         }, 400);

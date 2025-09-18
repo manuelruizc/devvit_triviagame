@@ -314,7 +314,7 @@ export const TriviaProvider: React.FC<{
       setCurrentQuestionIndex(nextIndex);
       currentQuestionIndexRef.current = nextIndex;
       startTimer(nextGameStatus);
-    }, 400);
+    }, 1200);
   };
 
   const handleWrongAnswer = (
@@ -351,7 +351,7 @@ export const TriviaProvider: React.FC<{
     answer: string,
     category: BasicAPI.QuestionCategory
   ): boolean => {
-    const isCorrect = guess.toLowerCase() === answer.toLowerCase();
+    const isCorrect = guess === answer;
     addToCategoryCount(isCorrect, category);
     if (isCorrect) {
       addCoins(streak + 1);
@@ -399,21 +399,22 @@ export const TriviaProvider: React.FC<{
     const isCorrect = question.correctAnswer === answer;
     addToCategoryCount(isCorrect, category);
     if (isCorrect) {
-      setCurtainState('good_answer');
       setCluesObtained((prev) => [...prev, answer]);
       checkForFirstQuestionAnswered();
       if (type === 'fp') {
         const netxStreak = streak + 1;
         if (netxStreak < STREAK_LIMIT) {
+          setCurtainState('good_answer');
           checkForStreakAchievements(streak + 1);
           addCoins(streak + 1);
           setStreak((prev) => prev + 1);
         } else {
           setTimeout(() => {
             saveToBank(true);
-          }, 500);
+          }, 250);
         }
       } else {
+        setCurtainState('good_answer');
         checkForStreakAchievements(streak + 1);
         addCoins(streak + 1);
         setStreak((prev) => prev + 1);

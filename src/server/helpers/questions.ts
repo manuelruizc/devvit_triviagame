@@ -1,5 +1,6 @@
 import { redis } from '@devvit/web/server';
 import { BasicAPI } from '../../shared/types/basic';
+import { hashAnswer } from '../../shared/helpers';
 
 export async function saveQuestions(questions: any[]) {
   const hashKey = BasicAPI.QUESTION_HASHES.ALL_QUESTIONS;
@@ -24,7 +25,11 @@ export async function saveQuestions(questions: any[]) {
   await redis.hSet(hashKey, { questions: JSON.stringify(updatedQuestions) });
   const _questions = await redis.hGet(BasicAPI.QUESTION_HASHES.ALL_QUESTIONS, 'questions');
   console.log(`Saved ${questions.length} new questions. Total: ${updatedQuestions.length}`);
-  return _questions === undefined ? [] : JSON.parse(_questions);
+  let hashedQuestions = updatedQuestions.map((question) => ({
+    ...question,
+    correctAnswer: hashAnswer(question.correctAnswer),
+  }));
+  return _questions === undefined ? [] : hashedQuestions;
 }
 
 export function shuffleArray<T>(array: T[]): T[] {

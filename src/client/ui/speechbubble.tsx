@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 export default function SpeechBubble({
   text = '',
@@ -68,7 +68,12 @@ export default function SpeechBubble({
           '2xl:text-3xl'
         )}
       >
-        {displayedText}
+        {displayedText.split('\n').map((line, i) => (
+          <React.Fragment key={i}>
+            {line}
+            <br />
+          </React.Fragment>
+        ))}
       </span>
       {!noTail ? (
         <div

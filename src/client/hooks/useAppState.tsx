@@ -15,6 +15,7 @@ import { DailyTrivia, Question } from './useTrivia';
 import { context } from '@devvit/web/client';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../helpers/colors';
 import AchievementToast from '../ui/toast';
+import useSounds, { SOUNDFILES, SoundMapKey } from './helpers';
 
 export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -56,6 +57,8 @@ interface AchievementsFunctions {
   playButtonSound: () => void;
   questions: Question[];
   updateUserData: (newData: BasicAPI.GetUserBasicData) => void;
+  playSound: (key: SoundMapKey) => void;
+  stopAllSounds: () => void;
 }
 
 interface AppStateNotReady {
@@ -100,6 +103,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtx = useRef<AudioContext | null>(null);
   const bufferRef = useRef<AudioBuffer | null>(null);
+
+  const { playSound, stopAllSounds } = useSounds(SOUNDFILES);
 
   useEffect(() => {
     audioCtx.current = new AudioContext();
@@ -322,13 +327,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       const data = await getInitialData();
       const questionsResponse = await getQuestions();
       const dailyChallengeStatus = await getDailyChallengeStatus();
-      if (
-        data.error ||
-        dailyChallengeStatus.error ||
-        questionsResponse.error ||
-        !context ||
-        !context.postData?.dailyChallenge
-      ) {
+      if (data.error || dailyChallengeStatus.error || questionsResponse.error || !context) {
         setIsError(true);
         return;
       }
@@ -355,7 +354,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         img.src = src;
       });
       setPostTriviaAnswered(dailyChallengeStatus.answered || false);
-      setDailyTrivia(context.postData!.dailyChallenge as unknown as DailyTrivia);
+      setDailyTrivia(
+        context.postData ? (context.postData.dailyChallenge as unknown as DailyTrivia) : null
+      );
       setData({
         type: BasicAPI.BasicAPIResponseType.INIT,
         member: data.member || '',
@@ -430,6 +431,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         questions,
         updateUserData,
         checkForLeaderboardAchievements,
+        stopAllSounds,
+        playSound,
       } as const;
     } else {
       return {
@@ -452,6 +455,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         playButtonSound,
         updateUserData,
         checkForLeaderboardAchievements,
+        stopAllSounds,
+        playSound,
       } as const;
     }
   }, [
@@ -473,6 +478,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     checkForFirstQuestionAnswered,
     updateUserData,
     checkForLeaderboardAchievements,
+    stopAllSounds,
+    playSound,
   ]);
 
   // Fetch on mount

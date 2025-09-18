@@ -81,7 +81,7 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
           </div>
           <span
             className="md:text-lg lg:text-xl xl:text-2xl 2xl:text-4xl max-w-full text-center border-4 lg:p-6 rounded-2xl w-10/12 md:5/12 lg:8/12 xl:6/12 py-6 px-7"
-            style={{ backgroundColor: ACCENT_COLOR2, borderColor: SECONDARY_COLOR }}
+            style={{ backgroundColor: ACCENT_COLOR3, borderColor: SECONDARY_COLOR }}
           >
             {catPhrase}
           </span>
