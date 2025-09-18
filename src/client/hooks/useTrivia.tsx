@@ -539,7 +539,7 @@ export const TriviaProvider: React.FC<{
         for (const key of rankAchievements) {
           achievementsObj[key] = true;
         }
-        obj.achievements = { ...obj.achievements, ...rankAchievements };
+        obj.achievements = { ...obj.achievements, ...achievementsObj };
         res = await postScoreToLeaderboard(
           obj,
           type === 'fp' ? coinsBanked : points,
