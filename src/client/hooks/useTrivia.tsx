@@ -583,7 +583,6 @@ export const TriviaProvider: React.FC<{
 
   const saveToBank = useCallback(
     (isPerfectChain: boolean = false) => {
-      console.log('ius', isPerfectChain);
       setCurtainState(isPerfectChain ? 'perfect_chain' : 'bank');
       const multiplier = streak >= STREAKVALUES.length ? STREAKVALUES.length - 1 : streak;
       const value: number = STREAKVALUES[multiplier] || 0;
