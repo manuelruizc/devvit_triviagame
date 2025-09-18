@@ -64,7 +64,7 @@ const MobileKeyboard: React.FC<KeyboardProps> = ({
   };
 
   return (
-    <div className={`bg-white p-2 rounded-xl shadow-lg ${className} lg:hidden`}>
+    <div className={`bg-white w-full p-2 rounded-xl shadow-lg ${className} lg:hidden`}>
       <div className="space-y-[2px]">
         {keyboardLayout.map((row, rowIndex) => (
           <div

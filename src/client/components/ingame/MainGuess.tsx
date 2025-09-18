@@ -326,7 +326,9 @@ const MainGuess = () => {
             />
           )}
         </div>
-        <div className={clsx('flex flex-1 justify-between items-center', BUTTON_CLASS_ONLY_WIDTH)}>
+        <div
+          className={clsx('flex flex-1 justify-between items-end pb-1', BUTTON_CLASS_ONLY_WIDTH)}
+        >
           <TriviaHelperButton
             disabled={showLength || clueCost > coins}
             onClick={enableLengthClue}

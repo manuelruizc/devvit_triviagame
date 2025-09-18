@@ -2,11 +2,34 @@ import clsx from 'clsx';
 import { STREAKVALUES, useTrivia } from '../../hooks/useTrivia';
 import { ACCENT_COLOR2, ACCENT_COLOR6 } from '../../helpers/colors';
 import { useEffect, useRef, useState } from 'react';
+import { BUTTON_CLASS_ONLY_WIDTH } from '../../ui/Button';
 
 const BankStreakInformation = () => {
-  const { streak, type } = useTrivia();
+  const { streak, type, cluesObtained } = useTrivia();
 
-  if (type === 'dc') return null;
+  if (type === 'dc') {
+    return (
+      <div
+        className={clsx(
+          `flex flex-1 min-h-12 flex-wrap ${cluesObtained.length === 0 ? 'justify-start' : 'justify-between'} items-center box-border gap-0.5`,
+          BUTTON_CLASS_ONLY_WIDTH
+        )}
+      >
+        {cluesObtained.map((value, index) => (
+          <span
+            key={index}
+            className={clsx(
+              'w-auto border-2 box-border mb-1 px-[2px] border-black/60 opacity-55 duration-200 ease-in-out transition-all rounded-lg text-sm text-center flex justify-center items-center',
+              `opacity-100`
+            )}
+            style={{ backgroundColor: ACCENT_COLOR6 }}
+          >
+            <span className="truncate max-w-full sm:text-lg lg:text-xl">{value}</span>
+          </span>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className={clsx('w-11/12 h-10 flex justify-between items-center gap-1')}>

@@ -15,7 +15,7 @@ const HelpersButtons = () => {
   return (
     <div
       className={clsx(
-        'flex flex-1 justify-center items-center',
+        'flex flex-1 justify-center items-end pb-1',
         type === 'dc' && 'justify-end',
         BUTTON_CLASS_ONLY_WIDTH
       )}

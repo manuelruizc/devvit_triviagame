@@ -90,3 +90,5 @@ const ArchedText: React.FC<ArchedTextProps> = ({
     </div>
   );
 };
+
+export default ArchedText;

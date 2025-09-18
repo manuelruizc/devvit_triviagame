@@ -4,6 +4,7 @@ export const REDDIT_RED = '#FF4500';
 export const ACCENT_COLOR = '#C2A3F5';
 export const ACCENT_COLOR2 = '#F58E9C';
 export const ACCENT_COLOR3 = '#F9EEBD';
+export const ACCENT_COLOR4 = '#F35BAA';
 export const ACCENT_COLOR6 = '#F5A78E';
 export const SUCCESS_COLOR = '#3cc490';
 export const ERROR_COLOR = '#F56A6A';

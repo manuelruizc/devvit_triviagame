@@ -13,6 +13,14 @@ import { LeaderboardAPI } from '../../shared/types/leaderboard';
 import { BasicAPI } from '../../shared/types/basic';
 
 export type QuestionLevels = 'easy' | 'medium' | 'hard';
+export type CurtainStates =
+  | 'error'
+  | 'good_answer'
+  | 'perfect_chain'
+  | 'used_a_clue'
+  | 'bank'
+  | 'run_out_of_time'
+  | 'hidden';
 
 type TriviaHistory = {
   answer: string | null;
@@ -66,6 +74,7 @@ interface TriviaContextProps {
   ) => boolean;
   onHintUsed: () => void;
   saveToBank: () => void;
+  resetCurtainState: () => void;
   activateClue: (cost: number) => void;
   coins: number;
   coinsBanked: number;
@@ -73,7 +82,9 @@ interface TriviaContextProps {
   toBankSeconds: number;
   seconds: number;
   clueIsActive: boolean;
+  cluesObtained: string[];
   type: 'dc' | 'fp';
+  curtainState: CurtainStates;
 }
 
 const TIME_PER_QUESTION = 15;
@@ -146,6 +157,7 @@ export const TriviaProvider: React.FC<{
   const [, setPreviousQuestion] = useState<Question | null>(null);
   const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
   const [triviaHistory, setTriviaHistory] = useState<TriviaHistory[]>([]);
+  const [curtainState, setCurtainState] = useState<CurtainStates>('hidden');
   const [usingClue, setUsingClue] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<(string | null)[]>(
     new Array(_trivia.questions.length).fill(null)
@@ -159,6 +171,7 @@ export const TriviaProvider: React.FC<{
   const [secs, setSecs] = useState<number>(type === 'dc' ? TIME_PER_QUESTION : FP_TOTAL_TIME);
   const currentQuestionIndexRef = useRef<number>(0);
   const hintsUsed = useRef<number>(0);
+  const [cluesObtained, setCluesObtained] = useState<string[]>([]);
   const categoriesCount = useRef<BasicAPI.CategoryMetrics>({
     entertainmentCorrect: 0,
     entertainmentCount: 0,
@@ -173,7 +186,6 @@ export const TriviaProvider: React.FC<{
     geographyCount: 0,
     geographyCorrect: 0,
   });
-  const coinsForBank = useRef<number>(0);
 
   // fp state
   const [coins, setCoins] = useState<number>(data?.metrics.coins || 0);
@@ -197,12 +209,17 @@ export const TriviaProvider: React.FC<{
   const activateClue = useCallback(
     (clueCost: number) => {
       if (clueCost > coins) return;
+      setCurtainState('used_a_clue');
       setCoins(coins - clueCost);
       setUsingClue(true);
       initialCoins.current = coins - clueCost;
     },
     [coins]
   );
+
+  const resetCurtainState = useCallback(() => {
+    setCurtainState('hidden');
+  }, []);
 
   const onHintUsed = useCallback(() => {
     hintsUsed.current++;
@@ -219,6 +236,7 @@ export const TriviaProvider: React.FC<{
       if (timerRef.current) return;
       setGameStatus(status);
       setToBankSeconds(LIMIT_TO_BANK);
+      setCurtainState('hidden');
       timerRef.current = setInterval(() => {
         secondsRef.current -= 1;
         setToBankSeconds((prev) => (prev - 1 <= 0 ? 0 : prev - 1));
@@ -232,6 +250,7 @@ export const TriviaProvider: React.FC<{
           if (status === 'main-guess') {
             stopTimer('finished-run-out-of-time');
           } else {
+            setCurtainState('run_out_of_time');
             handleWrongAnswer('trivia', null);
           }
         }
@@ -320,9 +339,7 @@ export const TriviaProvider: React.FC<{
       });
       return [...prev];
     });
-    if (type === 'dc') {
-      stopTimer('between');
-    }
+    stopTimer('between');
     nextQuestion(currentStatus);
   };
 
@@ -379,6 +396,8 @@ export const TriviaProvider: React.FC<{
     const isCorrect = question.correctAnswer === answer;
     addToCategoryCount(isCorrect, category);
     if (isCorrect) {
+      setCurtainState('good_answer');
+      setCluesObtained((prev) => [...prev, answer]);
       checkForFirstQuestionAnswered();
       if (type === 'fp') {
         const netxStreak = streak + 1;
@@ -412,6 +431,7 @@ export const TriviaProvider: React.FC<{
       });
       nextQuestion(questionType);
     } else {
+      setCurtainState('error');
       handleWrongAnswer(questionType, answer, secondsRef.current);
     }
   };
@@ -526,6 +546,7 @@ export const TriviaProvider: React.FC<{
   }, []);
 
   const saveToBank = useCallback(() => {
+    setCurtainState('bank');
     const multiplier = streak >= STREAKVALUES.length ? STREAKVALUES.length - 1 : streak;
     const value: number = STREAKVALUES[multiplier] || 0;
     setCoinsBanked((prev) => prev + value);
@@ -563,6 +584,8 @@ export const TriviaProvider: React.FC<{
         type,
         seconds: secs,
         toBankSeconds,
+        cluesObtained,
+        curtainState,
         onHintUsed,
         startTimer,
         stopTimer,
@@ -573,6 +596,7 @@ export const TriviaProvider: React.FC<{
         handleMainGuessAnswer,
         saveToBank,
         activateClue,
+        resetCurtainState,
       }}
     >
       {children}
