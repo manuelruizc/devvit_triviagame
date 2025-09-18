@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ACCENT_COLOR } from '../../../helpers/colors';
+import { ACCENT_COLOR, ACCENT_COLOR4, PRIMARY_COLOR } from '../../../helpers/colors';
 
 const LetterBlock = ({
   letter,
@@ -20,9 +20,21 @@ const LetterBlock = ({
     return (
       <div
         className={clsx(
-          'w-2 h-6 flex justify-center items-center mb-2 bg-transparent',
+          'w-3 h-6 flex justify-center items-center mb-2 bg-transparent',
           isRevealed && ''
         )}
+      />
+    );
+  if (letter === '~' && !isRevealed)
+    return (
+      <div
+        className={clsx(
+          'w-4 h-6 flex justify-center items-center mb-2 bg-transparent mr-0.5 rounded-tr-sm rounded-tl-sm',
+          activeBorder && 'animate-pulse',
+          isRevealed && '',
+          showLength && 'border-b-2'
+        )}
+        style={{ backgroundColor: activeBorder ? PRIMARY_COLOR : undefined }}
       />
     );
   return (
@@ -56,28 +68,43 @@ const Letter = ({
   return (
     <div
       className={clsx(
-        'h-6 flex justify-center items-center mb-2 text-black',
-        showLength && 'border-b-2',
-        isRevealed && 'border-2'
+        'w-4 h-6 flex justify-center items-center mb-2 text-black mr-0.5',
+        showLength && 'border-2',
+        isRevealed && 'border-2',
+        activeBorder && 'animate-pulse'
       )}
-      style={{ borderBottomColor: activeBorder ? ACCENT_COLOR : undefined }}
+      style={{ background: activeBorder ? `${ACCENT_COLOR4} !important` : undefined }}
     >
       <div className="w-full h-full flex justify-center items-center">
         {letter === '~' ? null : (
-          <Char key={`${letter}-${index}`} letter={letter} wrongGuess={wrongGuess} />
+          <Char
+            key={`${letter}-${index}`}
+            letter={letter}
+            wrongGuess={wrongGuess}
+            isRevealed={isRevealed}
+          />
         )}
       </div>
     </div>
   );
 };
 
-const Char = ({ letter, wrongGuess }: { letter: string; wrongGuess: boolean }) => {
+const Char = ({
+  letter,
+  wrongGuess,
+  isRevealed,
+}: {
+  letter: string;
+  wrongGuess: boolean;
+  isRevealed: boolean;
+}) => {
   return (
     <span
       className={clsx(
         'transition-all duration-500 ease-in-out text-xl lg:text-2xl xl:text-4xl',
         wrongGuess && 'text-red-500'
       )}
+      style={{ color: isRevealed ? PRIMARY_COLOR : undefined }}
     >
       {letter.toUpperCase()}
     </span>

@@ -65,23 +65,30 @@ const Questions = () => {
   return (
     <div className="w-full flex flex-1 flex-col justify-start items-center">
       <div className={clsx(BUTTON_CLASS_NO_TEXT, 'my-6')}>
-        <SpeechBubble noTail text={question.question} noAnimation />
-      </div>
-      {randomlySortedAnswers.map((answer, index) => (
-        <TriviaButton
-          key={answer + index}
-          answer={answer}
-          clueIsActive={clueIsActive}
-          playerAnswerIndex={playerAnswerIndex}
-          onClick={() => {
-            handleQuestionAnswer(question, answer, question.category);
-            setPlayerAnswerIndex(index);
-          }}
-          randomIndexSet={randomIndexSet}
-          index={index}
-          question={question}
+        <SpeechBubble
+          noTail
+          text={question.question}
+          noAnimation
+          className="lg:text-lg xl:text-2xl 2xl:text-3xl"
         />
-      ))}
+      </div>
+      <div className={'w-full flex-1 flex flex-col justify-end items-center'}>
+        {randomlySortedAnswers.map((answer, index) => (
+          <TriviaButton
+            key={answer + index}
+            answer={answer}
+            clueIsActive={clueIsActive}
+            playerAnswerIndex={playerAnswerIndex}
+            onClick={() => {
+              handleQuestionAnswer(question, answer, question.category);
+              setPlayerAnswerIndex(index);
+            }}
+            randomIndexSet={randomIndexSet}
+            index={index}
+            question={question}
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -146,11 +153,11 @@ const TriviaButton = ({
             }
       }
       disabled={shouldHide}
-      title={answer}
+      title={answer.toUpperCase()}
       className={clsx(
         BUTTON_CLASS,
         shouldHide &&
-          'translate-x-[200%] opacity-0 transition-all duration-200 ease-linear pointer-events-none'
+          'translate-x-[1000%] opacity-0 transition-all duration-200 ease-linear pointer-events-none'
       )}
       backgroundColor={SECONDARY_COLOR}
     >

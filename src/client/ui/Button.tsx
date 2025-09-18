@@ -14,7 +14,7 @@ export const BUTTON_CLASS = clsx(
   'sm:w-10/12',
   'md:w-10/12 md:mb-6',
   'lg:w-7/12 lg:mb-8 lg:text-lg',
-  'xl:w-6/12',
+  'xl:w-6/12 xl:text-2xl',
   '2xl:w-6/12'
 );
 

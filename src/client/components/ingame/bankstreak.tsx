@@ -37,7 +37,7 @@ const BankStreakInformation = () => {
         <span
           key={index}
           className={clsx(
-            'flex-1 border-4 border-black/60 opacity-55 duration-200 ease-in-out transition-all rounded-xl text-center flex justify-center items-center lg:text-xl',
+            'flex-1 border-2 border-black/60 opacity-55 duration-200 ease-in-out transition-all rounded-lg text-center flex justify-center items-center lg:text-xl',
             streak >= index && index > 0 && `opacity-100`,
             index === 0 && 'opacity-100 flex-1'
           )}

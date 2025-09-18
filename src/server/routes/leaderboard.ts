@@ -124,10 +124,10 @@ leaderboardRoute.post<
 
     res.json({
       type: BasicAPI.BasicAPIResponseType.INIT,
-      member: String(_req.body.metrics.coins) + ' daddy',
+      member: member,
       allTimeDCRank: leaderboardsData.dcRank,
       allTimeFPRank: leaderboardsData.fpRank,
-      dCRank: -1111,
+      dCRank: leaderboardsData.postDCRank,
       metrics,
       leaderboard,
       achievements: { ...achievements },

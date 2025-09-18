@@ -34,7 +34,7 @@ export default function SpeechBubble({
   }, [currentWordIndex, words, speed, noAnimation]);
 
   useEffect(() => {
-    if (noAnimation && text.length !== displayedText.length) {
+    if (noAnimation && text !== displayedText) {
       setDisplayedText(text);
       return;
     }
@@ -63,7 +63,9 @@ export default function SpeechBubble({
           'text-sm text-center leading-snug',
           'sm:text-base',
           'md:text-lg',
-          'xl:text-lg'
+          'lg:text-lg',
+          'xl:text-2xl',
+          '2xl:text-3xl'
         )}
       >
         {displayedText}

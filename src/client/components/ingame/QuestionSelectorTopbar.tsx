@@ -91,8 +91,8 @@ const QuestionSelectorTopbar = ({}: {}) => {
           </div>
         ) : (
           <div className={clsx('flex justify-center items-center')}>
-            <TopLogo text={coinsBanked} type="bank" className={clsx('mr-3 ml-3')} />
-            <TopLogo text={coins} type="coins" />
+            <TopLogo text={coins} type="coins" className={clsx('mr-3 ml-3')} />
+            <TopLogo text={coinsBanked} type="bank" />
           </div>
         )}
         <TopLogo
@@ -106,38 +106,5 @@ const QuestionSelectorTopbar = ({}: {}) => {
     </div>
   );
 };
-
-{
-  /* <button className="cursor-pointer my-4" onClick={saveToBank}>
-        Bank it
-      </button> */
-}
-{
-  /* <div className="w-[60%] my-12">
-        {questions.map((item, index) => (
-          <span
-            className={clsx(
-              'text-xs',
-              'px-4 py-2 bg-purple-300 active:bg-purple-900 transition-all duration-300 ease-in-out',
-              currentQuestionIndex === index && 'bg-purple-500'
-            )}
-          >
-            {item.level}
-          </span>
-        ))}
-      </div> */
-}
-// <span>{time}</span>
-// <button
-//   disabled={!canBuyClue}
-//   className={clsx('cursor-pointer my-4', !canBuyClue && 'opacity-20')}
-//   onClick={() => activateClue(clueCost)}
-// >
-//   {canBuyClue ? 'Get Clue for ' + clueCost : "Can't get clue"}
-// </button>
-// <span>{clueIsActive ? 'Clue is active' : 'Clue not active'}</span>
-// <span>Streak: {streak}</span>
-// <span>Coins: {coins}</span>
-// <span>Saved: {coinsBanked}</span>
 
 export default QuestionSelectorTopbar;

@@ -13,9 +13,10 @@ import {
 } from '../../../helpers/colors';
 import clsx from 'clsx';
 import { TopLogo } from '../QuestionSelectorTopbar';
+import { Button, BUTTON_CLASS } from '../../../ui/Button';
 
 const SuccessFinish = ({ finished }: { finished: boolean }) => {
-  const { goBack } = useAppState();
+  const { goBack, data, isReady } = useAppState();
   const { coinsBanked, type, correctAnswersCount, trivia } = useTrivia();
   const [animate, setAnimate] = useState<boolean>(false);
   const rendered = useRef<boolean>(false);
@@ -50,6 +51,8 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
     setAnimate(true);
   }, []);
 
+  if (!isReady) return null;
+
   return (
     <div
       className={clsx(
@@ -77,12 +80,21 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
             />
           </div>
           <span
-            className="md:text-base lg:text-lg xl:text-2xl 2xl:text-4xl max-w-full text-center border-4 lg:p-6 rounded-2xl"
+            className="md:text-lg lg:text-xl xl:text-2xl 2xl:text-4xl max-w-full text-center border-4 lg:p-6 rounded-2xl w-10/12 md:5/12 lg:8/12 xl:6/12 py-6 px-7"
             style={{ backgroundColor: ACCENT_COLOR2, borderColor: SECONDARY_COLOR }}
           >
             {catPhrase}
           </span>
           <RoundStats finished={finished} />
+          <span>
+            {data.allTimeDCRank} | {data.allTimeFPRank} | {data.allTimeFPRank}
+          </span>
+          <Button
+            onClick={goBack}
+            title={'GO BACK'}
+            className={clsx(BUTTON_CLASS, 'mt-4')}
+            backgroundColor={ACCENT_COLOR}
+          />
         </div>
       </div>
     </div>
@@ -93,7 +105,7 @@ const RoundStats = ({ finished }: { finished: boolean }) => {
   const { type, coins, coinsBanked, points, correctAnswersCount } = useTrivia();
   if (type === 'dc') {
     return (
-      <div className="flex w-10/12 justify-between items-center mt-3">
+      <div className="flex w-10/12 md:5/12 lg:8/12 xl:6/12 justify-between items-center mt-3">
         <TopLogo isAtTopbar={false} type="points" text={points} />
         <TopLogo isAtTopbar={false} type="coins" text={coins} />
         <TopLogo isAtTopbar={false} type="correct" text={correctAnswersCount} />
@@ -101,7 +113,7 @@ const RoundStats = ({ finished }: { finished: boolean }) => {
     );
   }
   return (
-    <div className="flex w-full justify-between items-center mt-3">
+    <div className="flex w-10/12 md:5/12 lg:8/12 xl:6/12 justify-between items-center mt-3">
       <TopLogo isAtTopbar={false} type="coins" text={coinsBanked} />
       <TopLogo isAtTopbar={false} type="correct" text={correctAnswersCount} />
     </div>

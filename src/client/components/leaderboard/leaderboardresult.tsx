@@ -1,13 +1,6 @@
 import clsx from 'clsx';
-import React from 'react';
 import { GameScreens, useAppState } from '../../hooks/useAppState';
-import {
-  ACCENT_COLOR,
-  ACCENT_COLOR2,
-  ACCENT_COLOR6,
-  PRIMARY_COLOR,
-  SECONDARY_COLOR,
-} from '../../helpers/colors';
+import { ACCENT_COLOR, ACCENT_COLOR2, SECONDARY_COLOR } from '../../helpers/colors';
 import EmptyState from '../emptystate';
 
 const hardcodedrank = [
@@ -119,8 +112,8 @@ const LeaderboardResult = ({ data }: { data: any }) => {
   const { member } = data;
   const { navigate, data: userData } = useAppState();
 
-  // if (data.leaderboard.length === 0) return <EmptyState />
-  if (emptyState.length === 0) return <EmptyState />;
+  if (data.leaderboard.length === 0) return <EmptyState />;
+
   return (
     <div className="w-full flex-1 box-border overflow-x-hidden overflow-y-scroll">
       <div className={clsx('w-full flex justify-center items-center box-border px-5 mb-2')}>
@@ -132,18 +125,18 @@ const LeaderboardResult = ({ data }: { data: any }) => {
           <span>{userData?.member ? member.user : 'Points'}</span>
         </div>
       </div>
-      {hardcodedrank.map((item: any, idx: number) => (
+      {data.leaderboard.map((item: any, idx: number) => (
         <div
           className={clsx('w-full flex justify-center items-center box-border px-5 mb-2')}
           key={idx}
         >
           <button
-            onClick={() => navigate(GameScreens.USER_PROFILE, item.member)}
+            // onClick={() => navigate(GameScreens.USER_PROFILE, item.member)}
             className={clsx(
               'w-full rounded-lg flex justify-around items-center h-12 cursor-pointer',
-              item.member === member && 'border-black/60'
+              item.member === member && 'border-black/60 border-4'
             )}
-            style={{ backgroundColor: item.member === member ? ACCENT_COLOR : SECONDARY_COLOR }}
+            style={{ backgroundColor: SECONDARY_COLOR }}
           >
             <span className="text-center flex-1">{item.member}</span>
             <span className="text-center flex-1">{item.score} points</span>

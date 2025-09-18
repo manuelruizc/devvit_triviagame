@@ -1,8 +1,6 @@
 import { DailyTrivia, TriviaProvider, useTrivia } from '../../hooks/useTrivia';
 4;
-import { useAPI } from '../../hooks/useAPI';
 import useLeaderboard from '../../hooks/useLeaderboard';
-import { useState } from 'react';
 import Curtain from './Curtain';
 import QuestionSelectorTopbar from './QuestionSelectorTopbar';
 import Questions from './Questions';
@@ -67,13 +65,29 @@ const TRIVIA: DailyTrivia = {
 };
 const randomNumber = Math.floor(Math.random() * 11) + 1;
 const Ingame = () => {
-  const { isReady, navigationPayload, dailyTrivia } = useAppState();
+  const { isReady, questions, navigationPayload, dailyTrivia } = useAppState();
   const {
     // postScoreToFreePlay,
     // getAllTimeDailyChallengesLeaderboard,
     // getAllTimeFreePlayLeaderboard,
   } = useLeaderboard();
   if (!isReady || navigationPayload === null) return null;
+  if (navigationPayload === 'fp') {
+    return (
+      <TriviaProvider
+        trivia={{
+          mainQuestion: 'Based on these clues, what movie are we trying to remember?',
+          mainAnswer: 'Once Upon a Time in Hollywood',
+          answerLength: 'Once Upon a Time in Hollywood'.length, // optional: helps with underscores
+          category: 'entertainment',
+          questions,
+        }}
+        type={navigationPayload as 'fp' | 'dc'}
+      >
+        <IngameInner />
+      </TriviaProvider>
+    );
+  }
   if (!dailyTrivia) {
     return (
       <TriviaProvider trivia={TRIVIA} type={navigationPayload as 'fp' | 'dc'}>

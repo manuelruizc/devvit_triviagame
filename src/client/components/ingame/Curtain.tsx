@@ -1,13 +1,7 @@
 import clsx from 'clsx';
 import { useTrivia } from '../../hooks/useTrivia';
 import GlissandoWord from '../../ui/glissandotext';
-import {
-  ACCENT_COLOR,
-  ACCENT_COLOR3,
-  ACCENT_COLOR4,
-  ERROR_COLOR,
-  SUCCESS_COLOR,
-} from '../../helpers/colors';
+import { ACCENT_COLOR, ACCENT_COLOR4, ERROR_COLOR, SUCCESS_COLOR } from '../../helpers/colors';
 
 const Curtain = () => {
   const {
@@ -33,9 +27,7 @@ const CurtainManager = () => {
   const { curtainState } = useTrivia();
   if (curtainState === 'hidden') return null;
   else if (curtainState === 'bank')
-    return (
-      <CurtainItem text="Banked! 🤑💰😻" brightColor="text-yellow-400" glowColor="251, 191, 36" />
-    );
+    return <CurtainItem text="Banked!" brightColor="text-yellow-400" glowColor="251, 191, 36" />;
   else if (curtainState === 'error')
     return <CurtainItem brightColor={ERROR_COLOR} glowColor="245, 106, 106" text="Close one!" />;
   else if (curtainState === 'run_out_of_time')
@@ -65,7 +57,7 @@ const CurtainItem = ({
       <div className="w-full flex-1 pointer-events-none flex justify-center items-center">
         <GlissandoWord word={text} brightColor={'transparent'} onComplete={resetCurtainState} />
       </div>
-      <div className="w-full flex-2 pointer-events-none" />
+      <div className="w-full flex-2 pointer-events-none lg:flex-1" />
     </div>
   );
 };

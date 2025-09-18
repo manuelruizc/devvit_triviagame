@@ -73,7 +73,7 @@ interface TriviaContextProps {
     category: BasicAPI.QuestionCategory
   ) => boolean;
   onHintUsed: () => void;
-  saveToBank: () => void;
+  saveToBank: (isPerfectChain: boolean) => void;
   resetCurtainState: () => void;
   activateClue: (cost: number) => void;
   coins: number;
@@ -97,7 +97,7 @@ const FP_COINS_PER_QUESTION_FP = 2;
 const FP_COINS_PER_QUESTION_DC = 2;
 const FP_TOTAL_TIME = 60;
 
-export const LIMIT_TO_BANK = 2;
+export const LIMIT_TO_BANK = 4;
 export const STREAKVALUES: number[] = [0, 2, 4, 8, 16, 32, 64];
 export const STREAK_LIMIT = 6;
 export const FP_CLUE_COST = 25;
@@ -142,11 +142,14 @@ export const TriviaProvider: React.FC<{
     data,
     isReady,
     achievements,
+    questions,
     checkForFirstQuestionAnswered,
     checkForPerfectRound,
     checkForStreakAchievements,
     checkForTimeAchievements,
     dailyTriviaFinished,
+    updateUserData,
+    checkForLeaderboardAchievements,
   } = useAppState();
   const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
@@ -311,7 +314,7 @@ export const TriviaProvider: React.FC<{
       setCurrentQuestionIndex(nextIndex);
       currentQuestionIndexRef.current = nextIndex;
       startTimer(nextGameStatus);
-    }, 1300);
+    }, 400);
   };
 
   const handleWrongAnswer = (
@@ -401,10 +404,14 @@ export const TriviaProvider: React.FC<{
       checkForFirstQuestionAnswered();
       if (type === 'fp') {
         const netxStreak = streak + 1;
-        if (netxStreak <= STREAK_LIMIT) {
+        if (netxStreak < STREAK_LIMIT) {
           checkForStreakAchievements(streak + 1);
           addCoins(streak + 1);
           setStreak((prev) => prev + 1);
+        } else {
+          setTimeout(() => {
+            saveToBank(true);
+          }, 500);
         }
       } else {
         checkForStreakAchievements(streak + 1);
@@ -452,7 +459,8 @@ export const TriviaProvider: React.FC<{
       if (!isReady) return;
       if (!data || !data.metrics) return;
       checkForPerfectRound(correctAnswersCount, questionsAnswered.current);
-      const { metrics } = data;
+      const { metrics, allTimeDCRank: atDC, allTimeFPRank: atFP, dCRank: dc } = data;
+
       const {
         totalQuestionsAnswered,
         correctAnswers,
@@ -476,8 +484,11 @@ export const TriviaProvider: React.FC<{
         geographyCorrect,
       } = metrics;
       const obj = { ...data };
+      if (type === 'fp') {
+        obj.allTimeFPRank = Math.max(atFP, obj.allTimeFPRank);
+      }
       obj.metrics = {
-        coins,
+        coins: metrics.coins + coinsBanked,
         totalPoints: totalPoints + points,
         correctAnswers: correctAnswers + correctAnswersCount,
         longestStreak: Math.max(longestStreak.current, streak),
@@ -506,14 +517,37 @@ export const TriviaProvider: React.FC<{
         achievementsObj[key] = true;
       }
       obj.achievements = { ...achievementsObj };
-      const response = await postScoreToLeaderboard(
+      const leaderboardKey =
+        type === 'dc'
+          ? LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC
+          : LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP;
+      let res: any = await postScoreToLeaderboard(
         obj,
-        points,
-        LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC
+        type === 'fp' ? coinsBanked : points,
+        leaderboardKey
       );
-      console.log('##gameFinished!!', obj);
-      console.log(response);
-      dailyTriviaFinished();
+
+      const { allTimeDCRank, allTimeFPRank, dCRank } = res;
+      let rankAchievements: BasicAPI.AchievementType[] = [];
+      if (type === 'fp') {
+        rankAchievements = checkForLeaderboardAchievements(allTimeFPRank, 1000000000);
+      } else {
+        rankAchievements = checkForLeaderboardAchievements(dCRank, allTimeDCRank);
+      }
+      if (rankAchievements.length > 0) {
+        const achievementsObj: Partial<Record<BasicAPI.AchievementType, boolean>> = {};
+        for (const key of rankAchievements) {
+          achievementsObj[key] = true;
+        }
+        obj.achievements = { ...obj.achievements, ...rankAchievements };
+        res = await postScoreToLeaderboard(
+          obj,
+          type === 'fp' ? coinsBanked : points,
+          leaderboardKey
+        );
+      }
+      updateUserData(res);
+      if (type === 'dc') dailyTriviaFinished();
     } catch (e) {
       console.log('error');
     }
@@ -521,11 +555,13 @@ export const TriviaProvider: React.FC<{
     data,
     isReady,
     points,
+    type,
     correctAnswersCount,
     streak,
     points,
     questionsAnswered,
     achievements,
+    coinsBanked,
     coins,
   ]);
 
@@ -545,13 +581,19 @@ export const TriviaProvider: React.FC<{
     setCoins(initialCoins.current);
   }, []);
 
-  const saveToBank = useCallback(() => {
-    setCurtainState('bank');
-    const multiplier = streak >= STREAKVALUES.length ? STREAKVALUES.length - 1 : streak;
-    const value: number = STREAKVALUES[multiplier] || 0;
-    setCoinsBanked((prev) => prev + value);
-    setStreak(0);
-  }, [coins, streak]);
+  const saveToBank = useCallback(
+    (isPerfectChain: boolean = false) => {
+      console.log('ius', isPerfectChain);
+      setCurtainState(isPerfectChain ? 'perfect_chain' : 'bank');
+      const multiplier = streak >= STREAKVALUES.length ? STREAKVALUES.length - 1 : streak;
+      const value: number = STREAKVALUES[multiplier] || 0;
+      if (isPerfectChain)
+        setCoinsBanked((prev) => prev + (STREAKVALUES[STREAKVALUES.length - 1] || 64));
+      else setCoinsBanked((prev) => prev + value);
+      setStreak(0);
+    },
+    [coins, streak]
+  );
 
   useEffect(() => {
     if (gameStatus !== 'finished-main-guess-correct' && gameStatus !== 'finished-run-out-of-time')

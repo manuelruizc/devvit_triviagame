@@ -45,7 +45,11 @@ const _saveToLeaderboard = async (
         await redis.zAdd(leaderboardKey, { member, score: score * -1 });
       } else if (score && leaderboardKey) {
         // Increment existing score
-        await redis.zIncrBy(leaderboardKey, member, score * -1);
+        if (leaderboardKey === LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP) {
+          await redis.zAdd(leaderboardKey, { member, score: score * -1 });
+        } else {
+          await redis.zIncrBy(leaderboardKey, member, score * -1);
+        }
       }
       if (leaderboardKey.startsWith('post_dc_leaderboard')) {
         await redis.set(`${postId},${member}`, 'answered');

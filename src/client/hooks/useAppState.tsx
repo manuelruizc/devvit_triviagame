@@ -14,6 +14,7 @@ import clsx from 'clsx';
 import { DailyTrivia, Question } from './useTrivia';
 import { context } from '@devvit/web/client';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../helpers/colors';
+import AchievementToast from '../ui/toast';
 
 export const ACHIEVEMENTS: BasicAPI.AchievementType[] = [
   'firstquestion',
@@ -42,6 +43,7 @@ export enum GameScreens {
 interface AchievementsFunctions {
   checkForStreakAchievements: (streak: number) => BasicAPI.AchievementType[];
   checkForTimeAchievements: (timeLeft: number, timeToAnswer: number) => BasicAPI.AchievementType[];
+  checkForLeaderboardAchievements: (rank: number, secondRank: number) => BasicAPI.AchievementType[];
   checkForPerfectRound: (
     correctAnswers: number,
     totalQuestions: number
@@ -52,6 +54,8 @@ interface AchievementsFunctions {
   postTriviaAnswered: boolean;
   dailyTriviaFinished: () => void;
   playButtonSound: () => void;
+  questions: Question[];
+  updateUserData: (newData: BasicAPI.GetUserBasicData) => void;
 }
 
 interface AppStateNotReady {
@@ -245,6 +249,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     }, 1100);
   }, []);
 
+  const updateUserData = useCallback((newData: BasicAPI.GetUserBasicData) => {
+    setData({ ...newData });
+  }, []);
+
   const goBack = useCallback(() => {
     if (navigationStack.current.length === 0) return;
     const navigationHistory = [...navigationStack.current];
@@ -264,6 +272,50 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       navigate(screen);
     }
   }, []);
+
+  const checkForLeaderboardAchievements = useCallback(
+    (rank: number, secondRank: number = 100000): BasicAPI.AchievementType[] => {
+      if (!data) return [];
+      const { achievements: achi } = data;
+      const achievements = { ...achi };
+      const unlocked: BasicAPI.AchievementType[] = [];
+      if (!achievements.ontheboard) {
+        achievements.ontheboard = true;
+        unlocked.push('ontheboard');
+      }
+      if (rank < 1 && !achievements.numberone) {
+        achievements.numberone = true;
+        unlocked.push('numberone');
+      }
+      if (secondRank <= 1 && !achievements.numberone) {
+        achievements.numberone = true;
+        unlocked.push('numberone');
+      }
+      if (rank <= 10 && !achievements.topten) {
+        achievements.topten = true;
+        unlocked.push('topten');
+      }
+      if (secondRank <= 10 && !achievements.topten) {
+        achievements.topten = true;
+        unlocked.push('topten');
+      }
+      setData((prev) => {
+        if (prev === null) return null;
+        return {
+          ...prev,
+          achievements: {
+            ...achievements,
+          },
+        };
+      });
+      if (unlocked.length > 0) {
+        setUnlockedAchievements((prev) => [...prev, ...unlocked]);
+        setAchievements((prev) => [...prev, ...unlocked]);
+      }
+      return unlocked;
+    },
+    [data]
+  );
 
   const fetchInitialData = useCallback(async () => {
     try {
@@ -375,6 +427,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForFirstQuestionAnswered,
         goBack,
         playButtonSound,
+        questions,
+        updateUserData,
+        checkForLeaderboardAchievements,
       } as const;
     } else {
       return {
@@ -386,6 +441,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isError,
         dailyTrivia: null,
         postTriviaAnswered,
+        questions,
         navigate,
         checkForStreakAchievements,
         dailyTriviaFinished,
@@ -394,6 +450,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForFirstQuestionAnswered,
         goBack,
         playButtonSound,
+        updateUserData,
+        checkForLeaderboardAchievements,
       } as const;
     }
   }, [
@@ -407,11 +465,14 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     navigationPayload,
     dailyTrivia,
     postTriviaAnswered,
+    questions,
     checkForStreakAchievements,
     playButtonSound,
     checkForTimeAchievements,
     checkForPerfectRound,
     checkForFirstQuestionAnswered,
+    updateUserData,
+    checkForLeaderboardAchievements,
   ]);
 
   // Fetch on mount
@@ -501,35 +562,31 @@ const UnlockedAchievements = ({
 }) => {
   const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>(_ach);
   const achievementsRef = useRef<BasicAPI.AchievementType[]>(_ach);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (intervalRef.current !== null) return;
-    intervalRef.current = setInterval(() => {
-      const arr = [...achievementsRef.current];
-      arr.pop();
-      const isEmpty = arr.length === 0;
-      achievementsRef.current = [...arr];
-      setAchievements([...arr]);
-      if (isEmpty) {
-        if (intervalRef.current === null) return;
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-        reset();
-      }
-    }, 1100);
-  }, []);
 
   return (
     <div
       className={clsx(
-        'absolute top-0 left-0 w-full h-full transition-all duration-300 ease-in-out pointer-events-none flex flex-col justify-end items-center'
+        'absolute top-0 left-0 w-full h-full transition-all duration-300 ease-in-out pointer-events-none flex flex-col justify-end items-center pb-6'
       )}
     >
-      {achievements.length === 0 ? null : (
-        <div className="w-6/12 h-18 bg-green-400 flex justify-center items-center">
-          <span>{achievements[achievements.length - 1]}</span>
-        </div>
+      {achievements.map((achievement, index) =>
+        index === achievements.length - 1 ? (
+          <AchievementToast
+            key={index}
+            isVisible
+            achievement={{ title: achievement, description: '' }}
+            onClose={() => {
+              const arr = [...achievementsRef.current];
+              arr.pop();
+              const isEmpty = arr.length === 0;
+              achievementsRef.current = [...arr];
+              setAchievements([...arr]);
+              if (isEmpty) {
+                reset();
+              }
+            }}
+          />
+        ) : null
       )}
     </div>
   );

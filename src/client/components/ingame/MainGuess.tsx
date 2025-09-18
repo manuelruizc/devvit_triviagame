@@ -154,6 +154,7 @@ const MainGuess = () => {
             });
           }
         } else {
+          if (userGuess.length > 120) return;
           setUserGuess((prev) => [...prev, e.key]);
         }
         setLastKeyPressed(e.key);
@@ -250,7 +251,7 @@ const MainGuess = () => {
       );
       if (!isCorrect) handleWrongMainGuessAnswer();
     }
-    if (!showLength && userGuess.length === mainAnswer.length) {
+    if (!showLength && userGuess.join('').toLowerCase() === mainAnswer.toLowerCase()) {
       const isCorrect = handleMainGuessAnswer(
         userGuess.join(''),
         mainAnswer.toLocaleLowerCase(),

@@ -15,7 +15,7 @@ const HelpersButtons = () => {
   return (
     <div
       className={clsx(
-        'flex flex-1 justify-center items-end pb-1',
+        'flex py-4 justify-center items-end pb-1',
         type === 'dc' && 'justify-end',
         BUTTON_CLASS_ONLY_WIDTH
       )}
@@ -26,6 +26,7 @@ const HelpersButtons = () => {
         cost={clueCost}
         icon="/icons/remove.png"
       />
+
       {type === 'fp' ? (
         <Button
           disabled={toBankSeconds <= 0 || streak <= 0}
@@ -40,7 +41,7 @@ const HelpersButtons = () => {
             'px-4 h-12 rounded-xl border border-black/60',
             (toBankSeconds <= 0 || streak <= 0) && 'opacity-50'
           )}
-          onClick={saveToBank}
+          onClick={() => saveToBank(false)}
         />
       ) : null}
     </div>
