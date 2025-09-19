@@ -78,3 +78,22 @@ export namespace BasicAPI {
     status: 'ok' | 'error';
   }
 }
+
+export type QuestionLevels = 'easy' | 'medium' | 'hard';
+export interface Question {
+  level: QuestionLevels;
+  question: string;
+  unlockedClue: string;
+  answers: string[];
+  correctAnswer: string;
+  category: BasicAPI.QuestionCategory;
+  type: 'guess' | 'trivia';
+}
+
+export interface DailyTrivia {
+  questions: Question[];
+  mainQuestion: string;
+  mainAnswer: string;
+  answerLength: number;
+  category: BasicAPI.QuestionCategory;
+}

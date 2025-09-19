@@ -13,8 +13,10 @@
     "dir": "dist/server",
     "entry": "index.cjs"
   },
-  "reddit": {
-    "asUser": ["SUBMIT_POST", "SUBMIT_COMMENT", "SUBSCRIBE_TO_SUBREDDIT"]
+  "permissions": {
+    "reddit": {
+      "asUser": ["SUBMIT_COMMENT", "SUBMIT_POST", "SUBSCRIBE_TO_SUBREDDIT"]
+    }
   },
   "media": {
     "dir": "assets"

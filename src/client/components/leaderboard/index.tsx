@@ -40,7 +40,7 @@ const Leaderboard = () => {
             />
           ))}
         </div>
-        <ScreenTitle title={TITLES[index] || 'LEADERBOARD'} />
+        <ScreenTitle title={TITLES[index] || 'LEADERBOARD'} className="mt-2" />
         <span className="mt-1">{BUTTONS[index]}</span>
         {index === 0 ? (
           <LeaderboardSelected

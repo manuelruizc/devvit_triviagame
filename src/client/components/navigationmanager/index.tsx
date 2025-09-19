@@ -1,12 +1,11 @@
-import React from 'react';
 import { GameScreens, useAppState } from '../../hooks/useAppState';
 import Ingame from '../ingame';
 import MainMenu from '../mainmenu';
 import Leaderboard from '../leaderboard';
-import { LeaderboardAPI } from '../../../shared/types/leaderboard';
 import Achievements from '../achievements';
 import UserProfile from '../userprofile';
 import CreatePost from '../createpost';
+import UCG from '../ugc';
 
 const NavigationManager = () => {
   const { isReady, screen } = useAppState();
@@ -17,6 +16,7 @@ const NavigationManager = () => {
   else if (screen === GameScreens.ACHIEVEMENTS) return <Achievements />;
   else if (screen === GameScreens.USER_PROFILE) return <UserProfile />;
   else if (screen === GameScreens.CREATE_POST) return <CreatePost />;
+  else if (screen === GameScreens.UCG) return <UCG />;
   return <MainMenu />;
 };
 

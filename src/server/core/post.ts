@@ -1,4 +1,5 @@
 import { context, reddit } from '@devvit/web/server';
+import { DailyTrivia } from '../../shared/types/basic';
 
 export const createPost = async () => {
   const { subredditName } = context;
@@ -80,4 +81,38 @@ export const createPost = async () => {
       },
     },
   });
+};
+
+export const createUGCPost = async (postData: {
+  dailyTrivia: DailyTrivia;
+  title: string;
+  member: string;
+}) => {
+  try {
+    const { subredditName } = context;
+    if (!subredditName) {
+      throw new Error('subredditName is required');
+    }
+
+    return await reddit.submitCustomPost({
+      runAs: 'USER',
+      userGeneratedContent: {
+        text: postData?.title || 'User Generated Content',
+      },
+      splash: {
+        appDisplayName: 'Forgetful Kitty Trivia!',
+        appIconUri: 'icon.png',
+        backgroundUri: 'defaultsplashscren.png',
+        buttonLabel: 'Start Quiz',
+      },
+      subredditName: subredditName,
+      title: postData.title
+        ? `${postData.title} by [${postData.member}]`
+        : '[UGC] - User Challenge',
+      postData: { ...(postData as any) },
+    });
+  } catch (e) {
+    console.log('error ', e);
+    throw new Error('Error on CreateUGCPOST');
+  }
 };

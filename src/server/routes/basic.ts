@@ -4,6 +4,7 @@ import { BasicAPI } from '../../shared/types/basic';
 import { LeaderboardAPI } from '../../shared/types/leaderboard';
 import { getLeaderboadRanks, saveToLeaderBoard } from '../helpers/leaderboard';
 import { saveQuestions, shuffleArray } from '../helpers/questions';
+import { createUGCPost } from '../core/post';
 
 const basicRoute = Router();
 
@@ -470,36 +471,24 @@ basicRoute.post<{ questions: []; postId: string; dailyChallenge: any }, any>(
     const { postId } = context;
     const member = await reddit.getCurrentUsername();
     try {
-      if (!postId || !member || member === undefined || member !== 'webdevMX') {
+      if (!postId || !member || member === undefined) {
         res.status(400).json({
           status: 'error',
+          member,
         });
         return;
       }
-      const { dailyChallenge } = _req.body;
-      const post = await reddit.submitCustomPost({
-        subredditName: context.subredditName!,
-        title: 'The Daily Challenge Is Here!!!',
-        splash: {
-          appDisplayName: 'The Daily Challenge Is Here!',
-          backgroundUri: 'defaultsplashscren.png',
-          appIconUri: 'icon.png',
-        },
-        postData: {
-          dailyChallenge,
-          testing: 'helloo',
-        },
-      });
+      const post = await createUGCPost(_req.body);
       res.json({
         status: 'ok',
-        dailyChallenge: 'savado',
-        punk: { ..._req.body },
         post,
       });
     } catch (error) {
+      console.log(error);
       res.status(400).json({
         status: 'error',
         post: null,
+        error,
       });
     }
   }

@@ -645,7 +645,7 @@ const NavigationTransitionLayer = ({ transitionActive }: { transitionActive: boo
         <div className="w-full h-full max-w-[1250px] flex justify-center items-center">
           <div
             className={clsx(
-              'w-7/12 aspect-square transition-all duration-500 ease-in-out lg:w-5/12',
+              'w-4/12 aspect-square transition-all duration-500 ease-in-out xl:w-5/12',
               transitionActive
                 ? 'scale-100 rotate-[0deg] opacity-100'
                 : 'scale-50 opacity-0 rotate-[720deg]'

@@ -53,7 +53,7 @@ const MainMenu = () => {
       >
         <div className={clsx('w-full flex flex-col justify-center items-center flex-1')}>
           <div
-            className="w-3/5 aspect-square"
+            className="w-3/5 aspect-square sm:w-3/12"
             style={{
               backgroundImage: 'url(/cat/logo.png',
               backgroundRepeat: 'no-repeat',
@@ -81,8 +81,9 @@ const MainMenu = () => {
             backgroundColor={ACCENT_COLOR2}
           />
           <Button
-            onClick={() => navigate(GameScreens.ACHIEVEMENTS)}
-            title="ACHIEVEMENTS"
+            onClick={() => navigate(GameScreens.UCG)}
+            // title="ACHIEVEMENTS"
+            title="Create Quiz"
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR3}
           />
@@ -92,68 +93,17 @@ const MainMenu = () => {
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR6}
           />
-          {/* {data.member === 'webdevMX' ? (
-            <Button
-              onClick={() => navigate(GameScreens.CREATE_POST)}
-              title="LEADERBOARDS"
-              className={BUTTON_CLASS}
-              backgroundColor={ACCENT_COLOR6}
-            />
-          ) : null} */}
+          <Button
+            onClick={() => navigate(GameScreens.ACHIEVEMENTS)}
+            title="ACHIEVEMTENS"
+            className={BUTTON_CLASS}
+            backgroundColor={ACCENT_COLOR6}
+          />
           {data.member === 'webdevMX' ? (
-            <button
-              // onClick={() => resetDataCustom('all_lb')}
-              onClick={postQuestions}
-            >
-              PostQuestions
-            </button>
+            <button onClick={postQuestions}>PostQuestions</button>
           ) : null}
         </div>
       </div>
-      {/* <span className="">All time daily challenge ranking: {data.allTimeDCRank}</span>
-      <span>All time free play ranking: {data.allTimeFPRank}</span>
-      {data.dCRank < 0 ? null : <span>Today's challenge rank: {data.dCRank}</span>}
-      <br />
-      <text className="mt-1 font-bold">Post Data:</text>
-      <text>Daily Trivia: {JSON.stringify(dailyTrivia, null, 2) ?? 'undefined'}</text>
-      <span>
-        <b>Metrics</b>
-      </span>
-      <span>{JSON.stringify(metrics.coins)}</span>
-      <span>{JSON.stringify(achievements)}</span>
-      <button onClick={postQuestions}>Post Questions</button>
-      {!postTriviaAnswered ? (
-        <button onClick={() => navigate(GameScreens.INGAME, 'dc')}>Play Daily Challenge</button>
-      ) : null}
-      <button onClick={() => navigate(GameScreens.INGAME, 'fp')}>Free Play</button>
-      <button
-        onClick={() =>
-          navigate(
-            GameScreens.LEADERBOARDS,
-            LeaderboardAPI.LEADERBOARD_NAMES.POST_DC + ',' + context.postId
-          )
-        }
-      >
-        Daily Challenge Leaderboard
-      </button>
-      <button
-        onClick={() =>
-          navigate(GameScreens.LEADERBOARDS, LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC)
-        }
-      >
-        All time DC leaderboard
-      </button>
-      <button
-        onClick={() =>
-          navigate(GameScreens.LEADERBOARDS, LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP)
-        }
-      >
-        All time FP leaderboard
-      </button>
-      <button onClick={() => navigate(GameScreens.ACHIEVEMENTS)}>Achievements</button>
-      <button onClick={getUserData}>GetUserData</button>
-      <button onClick={() => navigate(GameScreens.CREATE_POST)}>Create Post</button>
-      <button>ResetData</button> */}
     </div>
   );
 };
