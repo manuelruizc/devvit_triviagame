@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ACHIEVEMENTS, useAppState } from '../../hooks/useAppState';
+import { ACHIEVEMENTS, AchievementsMetadata, useAppState } from '../../hooks/useAppState';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
 import GoBackButton from '../../ui/GoBackButton';
 import { useMemo } from 'react';
@@ -69,10 +69,10 @@ const Achievements = () => {
                     : 'rgba(200, 200, 200, 1)',
                 }}
               >
-                <span className="font-semibold">{achievement.toUpperCase()}</span>
-                <span className="text-sm">
-                  This is the description omg this is so bad omg is a description super force
+                <span className="font-semibold">
+                  {AchievementsMetadata[achievement].title.toUpperCase()}
                 </span>
+                <span className="text-sm">{AchievementsMetadata[achievement].description}</span>
               </div>
             </div>
           ))}
