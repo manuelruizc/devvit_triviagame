@@ -135,8 +135,8 @@ const TriviaButton = ({
 
   const renderButtonInnerLayer = useMemo(() => {
     if (playerAnswerIndex < 0 && !ranOutOfTime) return false;
-    if (isCorrect) return true;
-    if (type === 'dc') return false;
+    if (isCorrect && type === 'fp') return true;
+    if (type === 'dc' && isCorrect && playerAnswerIndex !== index) return false;
     return playerAnswerIndex === index;
   }, [isCorrect, playerAnswerIndex, index, ranOutOfTime, type]);
 
