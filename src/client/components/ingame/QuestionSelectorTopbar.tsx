@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import { DC_CLUE_COST, FP_CLUE_COST, useTrivia } from '../../hooks/useTrivia';
-import { useMemo } from 'react';
+import { use, useEffect, useMemo, useRef } from 'react';
 import { ACCENT_COLOR3, ACCENT_COLOR6, SECONDARY_COLOR } from '../../helpers/colors';
 import BankStreakInformation from './bankstreak';
+import { useAppState } from '../../hooks/useAppState';
 
 export const TopLogo = ({
   type,
@@ -86,11 +87,31 @@ const QuestionSelectorTopbar = ({}: {}) => {
     startTimer,
     activateClue,
   } = useTrivia();
+  const { playSound, stopAllSounds } = useAppState();
   const clueCost = useMemo(() => (type === 'dc' ? DC_CLUE_COST : FP_CLUE_COST), [type]);
   const canBuyClue = useMemo(() => {
     return coins >= clueCost;
   }, [type, coins]);
   const TIME_THRESHOLD = useMemo(() => (type === 'dc' ? 5 : 10), [type]);
+  const soundPlayed = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (seconds > TIME_THRESHOLD) {
+      soundPlayed.current = false;
+      return;
+    }
+    if (soundPlayed.current) return;
+    if (seconds <= TIME_THRESHOLD) {
+      soundPlayed.current = true;
+      playSound('timeticking');
+    }
+  }, [TIME_THRESHOLD, seconds]);
+
+  useEffect(() => {
+    return () => {
+      stopAllSounds();
+    };
+  }, []);
 
   return (
     <div className={clsx('w-full flex flex-col justify-start items-center')}>

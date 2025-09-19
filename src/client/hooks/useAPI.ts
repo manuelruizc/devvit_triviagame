@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { BasicAPI } from '../../shared/types/basic';
 import { APIResponse, GET_REQUEST, POST_REQUEST } from '../helpers/https';
+import { QUESTIONS } from '../helpers/qs_fp';
 
 interface ApiHookInterface {
   getInitialData: () => Promise<APIResponse<BasicAPI.GetUserBasicData>>;
@@ -8,6 +9,7 @@ interface ApiHookInterface {
   // getUserData: () => Promise<APIResponse<void>>;
   resetData: () => void;
   postQuestions: () => void;
+  resetDataCustom: (data: 'fp_lb' | 'questions' | 'all_lb') => void;
   getQuestions: () => Promise<APIResponse<any>>;
   getDailyChallengeStatus: () => Promise<APIResponse<any>>;
   // resetData: () => Promise<APIResponse<void>>;
@@ -80,6 +82,18 @@ export const useAPI = (): ApiHookInterface => {
   const postQuestions = useCallback(async () => {
     try {
       const data = await POST_REQUEST<any>(BasicAPI.BASIC_API_ENDPOINTS.SAVE_QUESTIONS, {
+        questions: QUESTIONS,
+      });
+      return data; // already includes `error`
+    } catch (e) {
+      return {
+        error: true,
+      } as APIResponse<BasicAPI.GetUserBasicData>;
+    }
+  }, []);
+  const resetDataCustom = useCallback(async (d: 'fp_lb' | 'questions' | 'all_lb') => {
+    try {
+      const data = await POST_REQUEST<any>(`/api/dev_env/reset/${d}`, {
         questions,
       });
       return data; // already includes `error`
@@ -106,7 +120,6 @@ export const useAPI = (): ApiHookInterface => {
       const data = await GET_REQUEST<BasicAPI.GetUserBasicData>(
         BasicAPI.BASIC_API_ENDPOINTS.USERS_DATA + '/Stackunderflow22'
       );
-      console.log(data);
       // return data; // already includes `error`
     } catch (e) {
       // return {
@@ -119,7 +132,6 @@ export const useAPI = (): ApiHookInterface => {
       const data = await GET_REQUEST<BasicAPI.GetUserBasicData>(
         BasicAPI.BASIC_API_ENDPOINTS.GET_DAILY_CHALLENGE
       );
-      console.log(data);
       return data;
     } catch (e) {
       // return {
@@ -147,5 +159,6 @@ export const useAPI = (): ApiHookInterface => {
     postQuestions,
     getQuestions,
     getDailyChallengeStatus,
+    resetDataCustom,
   };
 };

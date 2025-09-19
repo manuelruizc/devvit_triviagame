@@ -194,10 +194,25 @@ basicRoute.get<{ member: string; postId: string }, BasicAPI.ResetData>(
         return;
       }
       const hashKey = `${BasicAPI.USER_HASH_NAMES.USER_INFO},${member}`;
+      const achievementsHashKey = `${USER_HASH_NAMES.USER_ACHIEVEMENTS},${member}`;
       await redis.del(member);
       await redis.del(hashKey);
       await redis.del(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC);
       await redis.del(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP);
+      await redis.hDel(achievementsHashKey, [
+        'firstquestion',
+        'hotstreak',
+        'firestreak',
+        'bigbrains',
+        'lightingfast',
+        'justintime',
+        'perfectionist',
+        'ontheboard',
+        'climber',
+        'topten',
+        'numberone',
+        'none',
+      ]);
       res.json({
         status: 'ok',
       });
@@ -468,7 +483,7 @@ basicRoute.post<{ questions: []; postId: string; dailyChallenge: any }, any>(
         splash: {
           appDisplayName: 'The Daily Challenge Is Here!',
           backgroundUri: 'defaultsplashscren.png',
-          appIconUri: 'https://i.imgur.com/JLZOVR4.png',
+          appIconUri: 'icon.png',
         },
         postData: {
           dailyChallenge,
@@ -519,5 +534,39 @@ basicRoute.get<{ postId: string }, any>(
     }
   }
 );
+
+basicRoute.post('/api/dev_env/reset/:toreset', async (req, res) => {
+  const { toreset } = req.params;
+  const { postId } = context;
+  if (toreset === 'questions') {
+    const hashKey = BasicAPI.QUESTION_HASHES.ALL_QUESTIONS;
+    await redis.hDel(hashKey, ['questions']);
+    res.json({ status: 'ok' });
+    return;
+  }
+  if (toreset === 'all_lb') {
+    await redis.zRemRangeByRank(`${LeaderboardAPI.LEADERBOARD_NAMES.POST_DC},${postId}`, 0, -1);
+    await redis.zRemRangeByRank(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP, 0, -1);
+    await redis.zRemRangeByRank(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC, 0, -1);
+    res.json({ toreset: 'tomorrow' });
+    return;
+  }
+  if (toreset === 'fp_lb' || toreset === 'all_lb') {
+    await redis.zRemRangeByRank(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_FP, 0, -1);
+    res.json({ status: 'ok' });
+    return;
+  }
+  if (toreset === 'post_lb' || toreset === 'all_lb') {
+    await redis.zRemRangeByRank(`${LeaderboardAPI.LEADERBOARD_NAMES.POST_DC},${postId}`, 0, -1);
+    res.json({ status: 'ok' });
+    return;
+  }
+  if (toreset === 'dc_lb' || toreset === 'all_lb') {
+    await redis.zRemRangeByRank(LeaderboardAPI.LEADERBOARD_NAMES.ALL_TIME_DC, 0, -1);
+    res.json({ status: 'ok' });
+    return;
+  }
+  res.json({ toreset });
+});
 
 export default basicRoute;

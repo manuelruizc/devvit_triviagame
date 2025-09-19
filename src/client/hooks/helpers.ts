@@ -40,10 +40,14 @@ export default function useSounds(soundFiles: Record<SoundMapKey, string>) {
   }, [soundFiles]);
 
   const playSound = useCallback((name: SoundMapKey) => {
+    if (name !== 'perfectchain') {
+      stopAllSounds();
+    }
     const buffer = buffersRef.current[name];
     if (audioCtx.current && buffer) {
       const source = audioCtx.current.createBufferSource();
       source.buffer = buffer;
+      source.loop = name === 'timeticking';
       const gainNode = audioCtx.current.createGain();
       gainNode.gain.value = name === 'meow' ? 0.05 : 0.15; // volume between 0 and 1
 

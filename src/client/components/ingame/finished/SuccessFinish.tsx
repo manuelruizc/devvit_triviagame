@@ -18,6 +18,7 @@ import { Button, BUTTON_CLASS } from '../../../ui/Button';
 const SuccessFinish = ({ finished }: { finished: boolean }) => {
   const { goBack, data, isReady } = useAppState();
   const { coinsBanked, type, correctAnswersCount, trivia } = useTrivia();
+  const { mainAnswer } = trivia;
   const [animate, setAnimate] = useState<boolean>(false);
   const rendered = useRef<boolean>(false);
 
@@ -32,8 +33,7 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
       if (correctAnswersCount === trivia.questions.length + 1)
         return 'Purr-fect score! You didn’t forget a single thing — I’m so proud of you!';
       if (finished) return 'Purr-fect! My whiskers tingled and somehow we guessed it!';
-      if (!finished)
-        return 'Oops… that didn’t go as smoothly as I hoped. I’ll just curl up for a nap and try again later';
+      if (!finished) return `Oops... I just remembered... The answer was ${mainAnswer}...`;
     }
     if (coinsBanked > 64 * 2.5) {
       return 'Me-WOW! You’ve got skills sharper than my claws';

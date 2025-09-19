@@ -35,10 +35,10 @@ const LeaderboardSelected = ({ leaderboardKey }: { leaderboardKey: string }) => 
   }, [leaderboardKey]);
 
   if (isLoading) {
-    return <div className="w-full h-full bg-sky-800"></div>;
+    return <div className="w-full h-full"></div>;
   }
   if (isError) {
-    return <div className="w-full h-full bg-red-300"></div>;
+    return <div className="w-full h-full"></div>;
   }
   return <LeaderboardResult data={data} />;
 };

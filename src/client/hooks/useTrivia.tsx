@@ -351,7 +351,7 @@ export const TriviaProvider: React.FC<{
     answer: string,
     category: BasicAPI.QuestionCategory
   ): boolean => {
-    const isCorrect = guess === answer;
+    const isCorrect = guess.toLowerCase() === answer.toLowerCase();
     addToCategoryCount(isCorrect, category);
     if (isCorrect) {
       addCoins(streak + 1);

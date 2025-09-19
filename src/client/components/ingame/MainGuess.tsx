@@ -7,6 +7,7 @@ import { ACCENT_COLOR3 } from '../../helpers/colors';
 import SpeechBubble from '../../ui/speechbubble';
 import { TriviaHelperButton } from './helpersbuttons';
 import MobileKeyboard from '../../ui/keyboard';
+import { useAppState } from '../../hooks/useAppState';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -32,6 +33,7 @@ const MainGuess = () => {
     activateClue,
     coins,
   } = useTrivia();
+  const { playSound } = useAppState();
   const clueCost = DC_CLUE_COST;
   const [showLength, setShowLength] = useState<boolean>(false);
   const [userGuess, setUserGuess] = useState<string[]>([]);
@@ -46,6 +48,7 @@ const MainGuess = () => {
   const revealedLetterIndexes = useRef<Set<number>>(new Set());
 
   const handleWrongMainGuessAnswer = useCallback(() => {
+    playSound('error');
     setWrongGuess(true);
     setTimeout(() => {
       setWrongGuess(false);
@@ -167,14 +170,6 @@ const MainGuess = () => {
 
             // no space behind
             let temp = [...prev.slice(0, -1)];
-            console.log({
-              len,
-              arr: userGuess[temp.length],
-              ss: userGuess,
-              mainAnswer,
-              second: true,
-              set: revealedLetterIndexes.current,
-            });
             while (
               temp.length > 0 &&
               (revealedLetterIndexes.current.has(temp.length) || userGuess[temp.length] === ' ')
@@ -193,7 +188,11 @@ const MainGuess = () => {
           setLastKeyPressed(e.key);
           return;
         } else {
-          const isCorrect = handleMainGuessAnswer(userGuess.join(''), mainAnswer, category);
+          const isCorrect = handleMainGuessAnswer(
+            userGuess.join('').toLowerCase(),
+            mainAnswer.toLowerCase(),
+            category
+          );
           if (!isCorrect) handleWrongMainGuessAnswer();
         }
         setLastKeyPressed(e.key);
@@ -243,6 +242,9 @@ const MainGuess = () => {
   }, [userGuess, showLength, userGuessWhenClueIsEnabled]);
 
   useEffect(() => {
+    console.log(showLength);
+    console.log(mainAnswer);
+    console.log(userGuess.join('').toLocaleLowerCase());
     if (userGuessWhenClueIsEnabled.length === mainAnswer.length && showLength) {
       const isCorrect = handleMainGuessAnswer(
         userGuessWhenClueIsEnabled.join(''),
@@ -251,6 +253,7 @@ const MainGuess = () => {
       );
       if (!isCorrect) handleWrongMainGuessAnswer();
     }
+
     if (!showLength && userGuess.join('').toLowerCase() === mainAnswer.toLowerCase()) {
       const isCorrect = handleMainGuessAnswer(
         userGuess.join(''),

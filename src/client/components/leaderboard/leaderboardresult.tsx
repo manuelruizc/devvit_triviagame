@@ -138,7 +138,9 @@ const LeaderboardResult = ({ data }: { data: any }) => {
             )}
             style={{ backgroundColor: SECONDARY_COLOR }}
           >
-            <span className="text-center flex-1">{item.member}</span>
+            <span className="text-center flex-1">
+              {item.rank}. {item.member}
+            </span>
             <span className="text-center flex-1">{item.score} points</span>
           </button>
         </div>

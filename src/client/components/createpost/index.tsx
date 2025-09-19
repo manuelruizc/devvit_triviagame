@@ -8,35 +8,44 @@ const CreatePost = () => {
   const [dailyQuestions, setDailyQuestions] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>('');
 
-  const createPost = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setDailyQuestions('');
-      const data = await POST_REQUEST(BasicAPI.BASIC_API_ENDPOINTS.CREATE_POST, {
-        dailyChallenge: JSON.parse(dailyQuestions),
-      });
-      console.log(data);
-      setIsLoading(false);
-      setDailyQuestions('');
-    } catch (e) {
-      console.log('error', e);
-      setIsLoading(false);
-      setIsError(true);
-    }
-  }, [dailyQuestions]);
+  const createPost = useCallback(
+    async (title: string) => {
+      try {
+        setIsLoading(true);
+        setDailyQuestions('');
+        const data = await POST_REQUEST(BasicAPI.BASIC_API_ENDPOINTS.CREATE_POST, {
+          dailyChallenge: JSON.parse(dailyQuestions),
+          title,
+        });
+        setIsLoading(false);
+        setDailyQuestions('');
+      } catch (e) {
+        console.log('error', e);
+        setIsLoading(false);
+        setIsError(true);
+      }
+    },
+    [dailyQuestions]
+  );
 
   if (!isReady) return null;
   if (data.member !== 'webdevMX') return null;
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
+      <input
+        onChange={(e) => setTitle(e.target.value)}
+        type="text"
+        className="w-40 h-12 bg-white"
+      />
       <textarea
         value={dailyQuestions}
         onChange={(e) => setDailyQuestions(e.target.value)}
         className="bg-white"
       />
-      <button onClick={createPost} disabled={dailyQuestions.length === 0}>
+      <button onClick={() => createPost(title)} disabled={dailyQuestions.length === 0}>
         Create Post
       </button>
     </div>

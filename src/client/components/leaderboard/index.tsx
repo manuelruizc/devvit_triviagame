@@ -6,9 +6,11 @@ import clsx from 'clsx';
 import { Button } from '../../ui/Button';
 import { ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
 import GoBackButton from '../../ui/GoBackButton';
+import ScreenTitle from '../../ui/screentitle';
 
 const BUTTONS = ['Daily Challenge', 'All-Time DC', 'All-Time FP'];
 const COLORS: string[] = [ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6];
+const TITLES = ['DAILY CHALLENGE LEADERBOARD', 'ALL-TIME DC LEADERBOARD', 'FREE PLAY LEADERBOARD'];
 
 const Leaderboard = () => {
   const [index, setIndex] = useState<number>(0);
@@ -19,7 +21,6 @@ const Leaderboard = () => {
         className={clsx('w-full h-full flex flex-col justify-start items-center max-w-[1250px]')}
       >
         <GoBackButton />
-        <span>LEADERBOARDS</span>
         <div className={clsx('w-full flex justify-around items-center')}>
           {BUTTONS.map((title, i) => (
             <Button
@@ -30,7 +31,8 @@ const Leaderboard = () => {
                 'md:w-[30%] md:text-sm',
                 'lg:w-[30%] md:text-base',
                 'xl:w-[30%]',
-                '2xl:w-[30%]'
+                '2xl:w-[30%]',
+                i === index && 'border-2 border-black'
               )}
               backgroundColor={COLORS[i] as string}
               onClick={() => setIndex(i)}
@@ -38,7 +40,8 @@ const Leaderboard = () => {
             />
           ))}
         </div>
-        <span>{BUTTONS[index]}</span>
+        <ScreenTitle title={TITLES[index] || 'LEADERBOARD'} />
+        <span className="mt-1">{BUTTONS[index]}</span>
         {index === 0 ? (
           <LeaderboardSelected
             leaderboardKey={`${LeaderboardAPI.LEADERBOARD_NAMES.POST_DC},${context.postId}`}

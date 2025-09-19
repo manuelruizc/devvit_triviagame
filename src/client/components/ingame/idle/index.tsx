@@ -4,6 +4,7 @@ import SpeechBubble from '../../../ui/speechbubble';
 import clsx from 'clsx';
 import GoBackButton from '../../../ui/GoBackButton';
 import { useAppState } from '../../../hooks/useAppState';
+import ScreenTitle from '../../../ui/screentitle';
 
 const forgottenKittenTextDC =
   'Hey hooman 👋 it’s me, Forgotten Kitten 😼💭\nI was about to remember something… breakfast? Daily challenge? Who knows!?\n\nI need your braincells—answer my questions like an r/AskReddit post, and maybe together we’ll figure out what I keep forgetting.\nDon’t leave me hanging… let’s go before I forget again!\n\nRemember, every answer counts! 🧠✨';
@@ -49,7 +50,7 @@ const Idle = () => {
         }}
       >
         <GoBackButton />
-        <span>Daily Challenge!</span>
+        <ScreenTitle title={type === 'dc' ? 'DAILY CHALLENGE!' : 'FREE PLAY!'} />
         <div className="w-full flex-1 flex items-end justify-center mb-4">
           <SpeechBubble
             text={

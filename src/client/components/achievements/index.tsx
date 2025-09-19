@@ -4,6 +4,7 @@ import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../..
 import GoBackButton from '../../ui/GoBackButton';
 import { useMemo } from 'react';
 import { BasicAPI } from '../../../shared/types/basic';
+import ScreenTitle from '../../ui/screentitle';
 
 const Achievements = () => {
   const { data, isReady } = useAppState();
@@ -32,7 +33,7 @@ const Achievements = () => {
           <GoBackButton />
         </div>
         <div className="w-full flex justify-center items-center mb-4">
-          <span className="text-lg font-bold">ACHIEVEMENTS</span>
+          <ScreenTitle title="ACHIEVEMENTS" />
         </div>
         <div className="w-full flex flex-wrap justify-center items-center max-w-[1250px]">
           {orderedAchievements.map((achievement) => (

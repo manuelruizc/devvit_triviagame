@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ACCENT_COLOR, ACCENT_COLOR4, PRIMARY_COLOR } from '../../../helpers/colors';
+import { ACCENT_COLOR4, PRIMARY_COLOR } from '../../../helpers/colors';
 
 const LetterBlock = ({
   letter,
@@ -69,8 +69,8 @@ const Letter = ({
     <div
       className={clsx(
         'w-4 h-6 flex justify-center items-center mb-2 text-black mr-0.5',
-        showLength && 'border-2',
-        isRevealed && 'border-2',
+        showLength && 'border-b-2',
+        isRevealed && 'border-0',
         activeBorder && 'animate-pulse'
       )}
       style={{ background: activeBorder ? `${ACCENT_COLOR4} !important` : undefined }}

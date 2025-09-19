@@ -40,6 +40,71 @@ export enum GameScreens {
   USER_PROFILE = 'userprofile',
   CREATE_POST = 'createpost',
 }
+export const AchievementsMetadata: Record<
+  BasicAPI.AchievementType,
+  { title: string; description: string; iconPath: string }
+> = {
+  firstquestion: {
+    title: 'Curious Kitten',
+    description: 'Answered your very first trivia question. 🐾',
+    iconPath: '/badges/firstquestion.png',
+  },
+  hotstreak: {
+    title: 'Hot Streak',
+    description: 'Stacked up 5 correct answers in a row. 🔥',
+    iconPath: '/badges/hotstreak.png',
+  },
+  firestreak: {
+    title: 'On Fire!',
+    description: 'Blazed through with 10 correct answers in a row. 🚀',
+    iconPath: '/badges/firestreak.png',
+  },
+  lightingfast: {
+    title: 'Lightning Fast',
+    description: 'Answered a question in under 2 seconds. ⚡',
+    iconPath: '/badges/lightingfast.png',
+  },
+  justintime: {
+    title: 'Just in Time',
+    description: 'Answered with less than a second left on the clock. ⏳',
+    iconPath: '/badges/justintime.png',
+  },
+  perfectionist: {
+    title: 'Purr-fectionist',
+    description: 'Completed a round with zero mistakes. 🐱✨',
+    iconPath: '/badges/perfectionist.png',
+  },
+  ontheboard: {
+    title: 'On the Board',
+    description: 'Made it onto the leaderboard for the first time. 🏆',
+    iconPath: '/badges/ontheboard.png',
+  },
+  topten: {
+    title: 'Top Ten Tail',
+    description: 'Secured a spot in the top 10 players. 🎖️',
+    iconPath: '/badges/topten.png',
+  },
+  numberone: {
+    title: 'You da real MVP!',
+    description: 'Claimed the #1 leaderboard position. 👑🐈',
+    iconPath: '/badges/numberone.png',
+  },
+  none: {
+    title: 'No Achievement',
+    description: 'Keep playing to unlock your first badge! 😺',
+    iconPath: '/badges/none.png',
+  },
+  climber: {
+    title: 'On the Board',
+    description: 'Made it onto the leaderboard for the first time. 🏆',
+    iconPath: '/badges/ontheboard.png',
+  },
+  bigbrains: {
+    title: 'On the Board',
+    description: 'Made it onto the leaderboard for the first time. 🏆',
+    iconPath: '/badges/ontheboard.png',
+  },
+};
 
 interface AchievementsFunctions {
   checkForStreakAchievements: (streak: number) => BasicAPI.AchievementType[];
@@ -58,7 +123,7 @@ interface AchievementsFunctions {
   questions: Question[];
   updateUserData: (newData: BasicAPI.GetUserBasicData) => void;
   playSound: (key: SoundMapKey) => void;
-  stopAllSounds: () => void;
+  stopAllSounds: (key?: SoundMapKey) => void;
 }
 
 interface AppStateNotReady {
@@ -95,7 +160,29 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [screen, setScreen] = useState<GameScreens>(GameScreens.MAIN);
   const [navigatingActive, setNavigatingActive] = useState<boolean>(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState<BasicAPI.AchievementType[]>([]);
+  // const [unlockedAchievements, setUnlockedAchievements] = useState<BasicAPI.AchievementType[]>([
+  //   'firstquestion',
+  //   'hotstreak',
+  //   'firestreak',
+  //   'lightingfast',
+  //   'justintime',
+  //   'perfectionist',
+  //   'ontheboard',
+  //   'topten',
+  //   'numberone',
+  // ]);
   const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>([]);
+  // const [achievements, setAchievements] = useState<BasicAPI.AchievementType[]>([
+  //   'firstquestion',
+  //   'hotstreak',
+  //   'firestreak',
+  //   'lightingfast',
+  //   'justintime',
+  //   'perfectionist',
+  //   'ontheboard',
+  //   'topten',
+  //   'numberone',
+  // ]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [postTriviaAnswered, setPostTriviaAnswered] = useState<boolean>(false);
   const navigationStack = useRef<GameScreens[]>([]);
@@ -126,7 +213,6 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     (streak: number): BasicAPI.AchievementType[] => {
       if (!data) return [];
       const { achievements } = data;
-      console.log('streak', streak);
       const unlocked: BasicAPI.AchievementType[] = [];
       if (!achievements.firestreak && streak >= 15) {
         achievements.firestreak = true;
@@ -581,7 +667,11 @@ const UnlockedAchievements = ({
           <AchievementToast
             key={index}
             isVisible
-            achievement={{ title: achievement, description: '' }}
+            achievement={{
+              title: AchievementsMetadata[achievement].title,
+              description: '',
+              src: AchievementsMetadata[achievement].iconPath,
+            }}
             onClose={() => {
               const arr = [...achievementsRef.current];
               arr.pop();
@@ -599,7 +689,6 @@ const UnlockedAchievements = ({
   );
 };
 
-// ---- Hook ----
 export const useAppState = () => {
   const context = useContext(AppStateContext);
   if (!context) {

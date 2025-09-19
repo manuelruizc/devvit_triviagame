@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ACCENT_COLOR4 } from '../helpers/colors';
+import { useAppState } from '../hooks/useAppState';
 
 interface Achievement {
   title: string;
@@ -20,11 +21,13 @@ const AchievementToast: React.FC<AchievementToastProps> = ({
   onClose,
   duration = 2800,
 }) => {
+  const { playSound, stopAllSounds } = useAppState();
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
     if (isVisible) {
+      playSound('achievement');
       // Reset animation state when achievement changes
       setIsExpanded(false);
       setShouldShow(true);
@@ -42,6 +45,7 @@ const AchievementToast: React.FC<AchievementToastProps> = ({
       return () => {
         clearTimeout(expandTimer);
         clearTimeout(closeTimer);
+        stopAllSounds();
       };
     }
   }, [isVisible]);
@@ -83,17 +87,19 @@ const AchievementToast: React.FC<AchievementToastProps> = ({
       {/* Icon container - circle that stays on the left */}
       <div
         className={`
-          absolute left-0 sm:left-1.5 md:left-2 top-1/12
-          h-10/12
-          w-10 sm:w-11 md:w-12 sm:h-11 md:h-12
+          absolute left-0 top-0
+          h-12/12 aspect-square
           rounded-full
           flex items-center justify-center
-          transition-all duration-500 ease-out translate-x-1/3
+          transition-all duration-500 ease-out translate-x-0.5 overflow-hidden
           ${isExpanded ? 'scale-100' : 'scale-110'}
         `}
       >
         {/* Placeholder for icon - currently a bordered div */}
-        <div className="h-full aspect-square sm:w-7 md:w-8  md:h-8 border-2 border-white/60 rounded-full" />
+        <img
+          src={achievement.src}
+          className="h-full w-full aspect-square  rounded-full object-contain object-center"
+        />
       </div>
 
       {/* Content container */}

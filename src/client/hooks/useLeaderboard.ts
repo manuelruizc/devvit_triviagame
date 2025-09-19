@@ -72,7 +72,6 @@ function useLeaderboard(): LeaderboardHook {
         LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_ALL_TIME_DC_LEADERBOARD,
         member
       );
-      console.log(data);
       return data;
     } catch (e) {
       return {
@@ -86,7 +85,6 @@ function useLeaderboard(): LeaderboardHook {
         LeaderboardAPI.LEADERBOARD_API_ENDPOINTS.GET_ALL_TIME_FP_LEADERBOARD,
         member
       );
-      console.log(data);
       return data;
     } catch (e) {
       return {

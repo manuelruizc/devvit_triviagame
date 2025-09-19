@@ -3,10 +3,11 @@ import { useAPI } from '../../hooks/useAPI';
 import { Button, BUTTON_CLASS } from '../../ui/Button';
 import clsx from 'clsx';
 import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
+import ScreenTitle from '../../ui/screentitle';
 
 const MainMenu = () => {
   const { data, isReady, navigate, dailyTrivia, postTriviaAnswered } = useAppState();
-  const { postQuestions } = useAPI();
+  const { postQuestions, resetData, resetDataCustom } = useAPI();
   if (!isReady) return null;
   const { metrics, achievements } = data;
   const {
@@ -52,7 +53,7 @@ const MainMenu = () => {
       >
         <div className={clsx('w-full flex flex-col justify-center items-center flex-1')}>
           <div
-            className="w-[95%] h-[95%]"
+            className="w-3/5 aspect-square"
             style={{
               backgroundImage: 'url(/cat/logo.png',
               backgroundRepeat: 'no-repeat',
@@ -60,7 +61,10 @@ const MainMenu = () => {
               backgroundSize: 'contain',
             }}
           ></div>
-          {<span style={{ color: ACCENT_COLOR3 }}>Welcome {data.member}!</span>}
+          <ScreenTitle
+            title={`Welcome${data.member ? ` u/${data.member}` : ''}!`}
+            className="mb-2"
+          />
         </div>
         <div className={clsx('w-full flex flex-1 flex-col justify-end items-center')}>
           <Button
@@ -68,7 +72,7 @@ const MainMenu = () => {
             title={postTriviaAnswered ? 'DAILY CHALLENGE COMPLETED' : 'COMPLETE DAILY CHALLENGE'}
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR}
-            // disabled={postTriviaAnswered}
+            disabled={postTriviaAnswered}
           />
           <Button
             onClick={() => navigate(GameScreens.INGAME, 'fp')}
@@ -88,19 +92,21 @@ const MainMenu = () => {
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR6}
           />
-          <Button
-            onClick={() => navigate(GameScreens.CREATE_POST)}
-            title="LEADERBOARDS"
-            className={BUTTON_CLASS}
-            backgroundColor={ACCENT_COLOR6}
-          />
-          {data.member === 'webdevMX' ? (
+          {/* {data.member === 'webdevMX' ? (
             <Button
-              onClick={postQuestions}
+              onClick={() => navigate(GameScreens.CREATE_POST)}
               title="LEADERBOARDS"
               className={BUTTON_CLASS}
               backgroundColor={ACCENT_COLOR6}
             />
+          ) : null} */}
+          {data.member === 'webdevMX' ? (
+            <button
+              // onClick={() => resetDataCustom('all_lb')}
+              onClick={postQuestions}
+            >
+              PostQuestions
+            </button>
           ) : null}
         </div>
       </div>
