@@ -490,7 +490,7 @@ export const TriviaProvider: React.FC<{
         obj.allTimeFPRank = Math.max(atFP, obj.allTimeFPRank);
       }
       obj.metrics = {
-        coins: metrics.coins + coinsBanked,
+        coins: metrics.coins + (type === 'dc' ? coins : coinsBanked),
         totalPoints: totalPoints + points,
         correctAnswers: correctAnswers + correctAnswersCount,
         longestStreak: Math.max(longestStreak.current, streak),

@@ -32,28 +32,28 @@ const StartupScreen = () => {
     >
       <div className={'w-full h-full flex justify-center items-center'}>
         <div
-          className={'w-full h-full'}
+          className={'w-5/12 aspect-square'}
           style={{
             backgroundImage: 'url(/cat/cat-sit-smiling-blink-two-eyes.png)',
             backgroundSize: 'contain',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            width: '80%',
-            height: '80%',
+            width: '100%',
+            height: '100%',
           }}
         />
       </div>
       <div className={'absolute z-10 top-0 left-0 w-full h-full flex justify-center items-center'}>
         {!isReady ? (
           <div
-            className={'w-full h-full'}
+            className={'w-5/12 aspect-square'}
             style={{
               backgroundImage: 'url(/cat/cat-sit-smiling.png)',
               backgroundSize: 'contain',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
-              width: '80%',
-              height: '80%',
+              width: '100%',
+              height: '100%',
             }}
           />
         ) : null}

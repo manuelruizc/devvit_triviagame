@@ -297,7 +297,7 @@ const QuizBuilder: React.FC = () => {
       }
       setTimeout(() => {
         navigateTo(res.post.url as string);
-      }, 4000);
+      }, 5000);
     } catch (e) {
       setIsLoading(false);
     }

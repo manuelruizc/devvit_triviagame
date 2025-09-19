@@ -1,31 +1,12 @@
 import { useEffect, useState } from 'react';
 import { PRIMARY_COLOR } from '../../helpers/colors';
 
-const RenderText = ({ text }: { text: string }) => {
-  const [displayedText, setDisplayedText] = useState<string>('');
-
-  useEffect(() => {
-    let index = 0;
-    const intervalTime = 1000 / text.length; // total 1 second divided by number of letters
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + text[index]);
-      index++;
-      if (index >= text.length) clearInterval(interval);
-    }, intervalTime);
-
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return <span className="text-center text-lg max-w-8/12">{displayedText}</span>;
-};
-
 const CreatingPost = () => {
   const [sleeping, setSleeping] = useState<boolean>(false);
-  const [renderText, setRenderText] = useState<boolean>(false);
   useEffect(() => {
     setTimeout(() => {
       setSleeping(true);
-    }, 2400);
+    }, 2000);
   }, []);
   return (
     <div
@@ -33,20 +14,13 @@ const CreatingPost = () => {
       style={{ backgroundColor: PRIMARY_COLOR }}
     >
       <img
-        src={sleeping ? '/cat/catsleepinghard.png' : '/cat/catwriting.png'}
+        src={'/cat/catsleepinghard.png'}
         className="w-5/12 aspect-square object-contain object-center"
       />
-      <span className="text-center text-lg max-w-8/12 mb-3">
-        I'll remember that for sure... Let me take some notes
+      <span className="text-center text-lg max-w-6/12 mb-3">
+        It's easy, but I'm tie-uhd... Well, you better ask to the people of the sub and see if they
+        can solve it. Maybe see you there. {sleeping ? 'ZzzZZzZzZzZzZZz' : ''}
       </span>
-      <span className="text-center text-lg max-w-8/12 mb-3">
-        I swear I won't forget this time I will be 100% foc...
-      </span>
-      {sleeping ? (
-        <RenderText
-          text={`Let’s give a quick shoutout to Christina Applegate… brain’s done, I’m napping, asks to the guys in the sub... later.`}
-        />
-      ) : null}
     </div>
   );
 };

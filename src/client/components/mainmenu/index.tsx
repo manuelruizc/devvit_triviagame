@@ -2,7 +2,13 @@ import { GameScreens, useAppState } from '../../hooks/useAppState';
 import { useAPI } from '../../hooks/useAPI';
 import { Button, BUTTON_CLASS } from '../../ui/Button';
 import clsx from 'clsx';
-import { ACCENT_COLOR, ACCENT_COLOR2, ACCENT_COLOR3, ACCENT_COLOR6 } from '../../helpers/colors';
+import {
+  ACCENT_COLOR,
+  ACCENT_COLOR2,
+  ACCENT_COLOR3,
+  ACCENT_COLOR4,
+  ACCENT_COLOR6,
+} from '../../helpers/colors';
 import ScreenTitle from '../../ui/screentitle';
 
 const MainMenu = () => {
@@ -69,7 +75,7 @@ const MainMenu = () => {
         <div className={clsx('w-full flex flex-1 flex-col justify-end items-center')}>
           <Button
             onClick={() => navigate(GameScreens.INGAME, 'dc')}
-            title={postTriviaAnswered ? 'DAILY CHALLENGE COMPLETED' : 'COMPLETE DAILY CHALLENGE'}
+            title={postTriviaAnswered ? 'CHALLENGE COMPLETED' : 'COMPLETE DAILY CHALLENGE'}
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR}
             disabled={postTriviaAnswered}
@@ -82,8 +88,7 @@ const MainMenu = () => {
           />
           <Button
             onClick={() => navigate(GameScreens.UCG)}
-            // title="ACHIEVEMENTS"
-            title="Create Quiz"
+            title="CREATE QUIZ"
             className={BUTTON_CLASS}
             backgroundColor={ACCENT_COLOR3}
           />
@@ -95,13 +100,13 @@ const MainMenu = () => {
           />
           <Button
             onClick={() => navigate(GameScreens.ACHIEVEMENTS)}
-            title="ACHIEVEMTENS"
+            title="ACHIEVEMENTS"
             className={BUTTON_CLASS}
-            backgroundColor={ACCENT_COLOR6}
+            backgroundColor={ACCENT_COLOR4}
           />
-          {data.member === 'webdevMX' ? (
+          {/* {data.member === 'webdevMX' ? (
             <button onClick={postQuestions}>PostQuestions</button>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
     </div>
