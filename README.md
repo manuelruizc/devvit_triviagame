@@ -1,31 +1,78 @@
-## Devvit React Starter
+# Forgetful Kitty Trivia
 
-A starter to build web applications on Reddit's developer platform
+Forgetful Kitty Trivia is a **fast-paced, fun, and cozy trivia game** built for Reddit and trivia lovers. Solve Daily Challenges, play Free Play rounds, unlock achievements, create your own challenges, and compete with the community—all with the adorable Forgetful Kitty as your mascot!
 
-- [Devvit](https://developers.reddit.com/): A way to build and deploy immersive games on Reddit
-- [Vite](https://vite.dev/): For compiling the webView
-- [React](https://react.dev/): For UI
-- [Express](https://expressjs.com/): For backend logic
-- [Tailwind](https://tailwindcss.com/): For styles
-- [Typescript](https://www.typescriptlang.org/): For type safety
+---
 
-## Getting Started
+## Table of Contents
 
-> Make sure you have Node 22 downloaded on your machine before running!
+- [Overview](#overview)
+- [Features](#features)
+- [How to Play](#how-to-play)
+- [Achievements](#achievements)
+- [Daily Challenge](#daily-challenge)
+- [Free Play](#free-play)
+- [User-Generated Challenges](#user-generated-challenges)
+- [Leaderboards](#leaderboards)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Contributing](#contributing)
+- [License](#license)
 
-1. Run `npm create devvit@latest --template=react`
-2. Go through the installation wizard. You will need to create a Reddit account and connect it to Reddit developers
-3. Copy the command on the success page into your terminal
+---
 
-## Commands
+## Overview
 
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run build`: Builds your client and server projects
-- `npm run deploy`: Uploads a new version of your app
-- `npm run launch`: Publishes your app for review
-- `npm run login`: Logs your CLI into Reddit
-- `npm run check`: Type checks, lints, and prettifies your app
+Forgetful Kitty Trivia combines **trivia knowledge, strategy, and clue solving** into one fun experience. Players can compete daily or casually, and the game keeps things fresh with **user-generated content**. The cute and cozy UI/UX, complete with **visual and audio feedback**, makes each round satisfying and memorable.
 
-## Cursor Integration
+---
 
-This template comes with a pre-configured cursor environment. To get started, [download cursor](https://www.cursor.com/downloads) and enable the `devvit-mcp` when prompted.
+## Features
+
+- **Daily Challenges**: Solve 1–5 trivia questions and figure out the final mystery using clues.
+- **Free Play**: Quick 1-minute rounds where speed, strategy, and knowledge earn the most coins.
+- **Achievements**: Collect badges for completing milestones and challenges.
+- **User-Generated Challenges**: Players can create and share their own trivia challenges.
+- **Leaderboards**: Track top players across Free Play, Daily Challenge, and All-Time Daily Challenge modes.
+- **Responsive UI**: Works seamlessly on desktop, tablet, and mobile.
+- **Cute mascot**: Forgetful Kitty adds charm and personality to the game.
+
+---
+
+## How to Play
+
+1. **Daily Challenge**:
+
+   - Answer 1–5 trivia questions correctly.
+   - Use the answers as **clues** to solve a final mystery.
+   - Each question and clue gives **visual and sound feedback** for correct or incorrect answers.
+
+2. **Free Play Mode**:
+
+   - Quick 1-minute rounds where players answer as many trivia questions as possible.
+   - Build a **perfect chain** of correct answers to earn more coins—but if you don’t **bank your coins**, you’ll lose the ones in your current chain.
+   - Every action gives **visual and sound feedback** to make gameplay satisfying and engaging.
+   - Race the clock and test both your **speed and strategy**!
+
+3. **Achievements**:
+
+   - Earn collectible badges by completing challenges, streaks, or special milestones.
+
+4. **User-Generated Content (UGC)**:
+
+   - Create your own trivia questions and share them with the community.
+   - Play challenges made by other users for fresh content every day.
+
+5. **Leaderboards**:
+   - See how you stack up in Free Play, Daily Challenge, and All-Time Daily Challenge.
+   - Compete and engage with the community.
+
+---
+
+## Tech Stack
+
+- **Frontend**: React
+- **Backend**: Node.js, Express
+- **Database / Cache**: Redis
+- **UI Styling**: Tailwind v4
+- **Platform**: Devvit (Reddit integration)
