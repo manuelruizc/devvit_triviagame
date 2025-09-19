@@ -16,11 +16,12 @@ import { TopLogo } from '../QuestionSelectorTopbar';
 import { Button, BUTTON_CLASS } from '../../../ui/Button';
 
 const SuccessFinish = ({ finished }: { finished: boolean }) => {
-  const { goBack, data, isReady } = useAppState();
+  const { goBack, data, isReady, dataHasUpdatedAfterTrivia } = useAppState();
   const { coinsBanked, type, correctAnswersCount, trivia } = useTrivia();
   const { mainAnswer } = trivia;
   const [animate, setAnimate] = useState<boolean>(false);
   const rendered = useRef<boolean>(false);
+  const [showRank, setShowRank] = useState<boolean>(false);
 
   const title = useMemo(() => {
     if (type === 'fp') return 'Whiskers Down!';
@@ -50,6 +51,12 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
     rendered.current = true;
     setAnimate(true);
   }, []);
+
+  useEffect(() => {
+    if (dataHasUpdatedAfterTrivia) {
+      setShowRank(true);
+    }
+  }, [dataHasUpdatedAfterTrivia]);
 
   if (!isReady) return null;
 
@@ -86,9 +93,13 @@ const SuccessFinish = ({ finished }: { finished: boolean }) => {
             {catPhrase}
           </span>
           <RoundStats finished={finished} />
-          <span>
-            {data.allTimeDCRank} | {data.allTimeFPRank} | {data.allTimeFPRank}
-          </span>
+          {type === 'dc' ? (
+            <span className="text-center mt-1">{`You are the #${data.dCRank} in today's DC leaderboard and #${data.allTimeDCRank} all time`}</span>
+          ) : (
+            <span className="text-center mt-1">
+              You are #{data.allTimeFPRank} in the leaderboard
+            </span>
+          )}
           <Button
             onClick={goBack}
             title={'GO BACK'}

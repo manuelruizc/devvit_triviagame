@@ -39,6 +39,7 @@ export enum GameScreens {
   ACHIEVEMENTS = 'achievements',
   USER_PROFILE = 'userprofile',
   CREATE_POST = 'createpost',
+  UCG = 'ucg',
 }
 export const AchievementsMetadata: Record<
   BasicAPI.AchievementType,
@@ -106,7 +107,7 @@ export const AchievementsMetadata: Record<
   },
 };
 
-interface AchievementsFunctions {
+interface AppStateGeneral {
   checkForStreakAchievements: (streak: number) => BasicAPI.AchievementType[];
   checkForTimeAchievements: (timeLeft: number, timeToAnswer: number) => BasicAPI.AchievementType[];
   checkForLeaderboardAchievements: (rank: number, secondRank: number) => BasicAPI.AchievementType[];
@@ -115,6 +116,8 @@ interface AchievementsFunctions {
     totalQuestions: number
   ) => BasicAPI.AchievementType[];
   checkForFirstQuestionAnswered: () => BasicAPI.AchievementType[];
+  dataHasUpdatedAfterTrivia: boolean;
+  onDataUpdatedAfterTrivia: () => void;
   achievements: BasicAPI.AchievementType[];
   dailyTrivia: DailyTrivia | null;
   postTriviaAnswered: boolean;
@@ -146,7 +149,7 @@ interface AppStateReady {
   goBack: () => void;
 }
 
-type AppState = (AppStateNotReady | AppStateReady) & AchievementsFunctions;
+type AppState = (AppStateNotReady | AppStateReady) & AppStateGeneral;
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
 
@@ -155,6 +158,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const [dailyTrivia, setDailyTrivia] = useState<DailyTrivia | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
+  const [dataHasUpdatedAfterTrivia, setDataHasUpdatedAfterTrivia] = useState<boolean>(false);
   const [navigationPayload, setNavigationPayload] = useState<string | null>(null);
   const [data, setData] = useState<BasicAPI.GetUserBasicData | null>(null);
   const [screen, setScreen] = useState<GameScreens>(GameScreens.MAIN);
@@ -192,6 +196,13 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const bufferRef = useRef<AudioBuffer | null>(null);
 
   const { playSound, stopAllSounds } = useSounds(SOUNDFILES);
+
+  const onDataUpdatedAfterTrivia = useCallback(() => {
+    setDataHasUpdatedAfterTrivia(true);
+    setTimeout(() => {
+      setDataHasUpdatedAfterTrivia(false);
+    }, 4000);
+  }, []);
 
   useEffect(() => {
     audioCtx.current = new AudioContext();
@@ -506,6 +517,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         navigationPayload,
         dailyTrivia,
         postTriviaAnswered,
+        dataHasUpdatedAfterTrivia,
         navigate,
         dailyTriviaFinished,
         checkForStreakAchievements,
@@ -519,6 +531,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForLeaderboardAchievements,
         stopAllSounds,
         playSound,
+        onDataUpdatedAfterTrivia,
       } as const;
     } else {
       return {
@@ -530,6 +543,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         isError,
         dailyTrivia: null,
         postTriviaAnswered,
+        dataHasUpdatedAfterTrivia,
         questions,
         navigate,
         checkForStreakAchievements,
@@ -543,6 +557,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
         checkForLeaderboardAchievements,
         stopAllSounds,
         playSound,
+        onDataUpdatedAfterTrivia,
       } as const;
     }
   }, [
@@ -551,6 +566,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     screen,
     data,
     screen,
+    dataHasUpdatedAfterTrivia,
     achievements,
     isError,
     navigationPayload,
@@ -566,6 +582,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     checkForLeaderboardAchievements,
     stopAllSounds,
     playSound,
+    onDataUpdatedAfterTrivia,
   ]);
 
   // Fetch on mount

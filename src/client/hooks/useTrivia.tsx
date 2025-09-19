@@ -150,6 +150,7 @@ export const TriviaProvider: React.FC<{
     dailyTriviaFinished,
     updateUserData,
     checkForLeaderboardAchievements,
+    onDataUpdatedAfterTrivia,
   } = useAppState();
   const { postScoreToLeaderboard } = useLeaderboard();
   const [trivia] = useState<DailyTrivia>(_trivia);
@@ -548,6 +549,7 @@ export const TriviaProvider: React.FC<{
         );
       }
       updateUserData(res);
+      onDataUpdatedAfterTrivia();
       if (type === 'dc') dailyTriviaFinished();
     } catch (e) {
       console.log('error');
